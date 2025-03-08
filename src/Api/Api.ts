@@ -2,7 +2,7 @@ import axios from 'axios';
 import Equipo  from '../Interfaces/interfaces'; // Importa la interfaz Equipo, que representa la estructura completa
 
 // URL base de la API
-const API_BASE_URL = "http://localhost:3002"; // Reemplaza con tu URL
+const API_BASE_URL = "https://laligaback-deploy.vercel.app"; // Reemplaza con tu URL
   
 // Instancia de axios con configuración base
 const api = axios.create({

@@ -1,0 +1,239 @@
+:root {
+  --position-item:0;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+  overflow: hidden;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.nav{
+  height:82.5px;
+}
+
+.section{
+  display: flex;
+  height: calc(100vh);
+  width: 100%;
+}
+.container-plantilla{
+  flex-grow: 1;
+}
+.list{
+  width:250px;
+  list-style-type: none;
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.list a:first-child {
+  border-top-right-radius: 40px;
+}
+
+.item{
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: white;
+  background-color: #FF4A42;
+  transition: border-top-right-radius 0.2s ease, border-bottom-right-radius 0.2s ease, background-color 0.2s ease,  font-size 0.2s ease;
+  border-bottom-color:#000000;
+
+  &:not(.active):hover{
+    color:#FF4A42;
+    background-color: rgb(255, 180, 180);
+    font-size: 20px;
+  }
+
+}
+
+.escudo{
+  width:100px;
+}
+.miEquipo{
+  width:50px;
+  padding:25px;
+}
+
+.logo{
+  width: 250px;
+  background-color: white;
+}
+
+.nav{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+  width: 100%;
+}
+
+.f-campo{
+  height: calc(100% - 82.5px);
+}
+
+.jugadores{
+  padding-left: 50px;
+  padding-right: 50px;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr); /* 3 columnas de igual tamaño */
+  grid-template-rows: repeat(4, 220px); /* 2 filas de 100px de altura */
+  gap: 10px; /* Espacio entre filas y columnas */
+}
+
+.scroll-equipos, .scroll-equipo{
+  height: calc(100% - 75px);
+}
+
+.scroll-equipo{
+  flex-grow: 1;
+  display: flex;
+}
+.container-plantilla{
+  overflow: hidden;
+}
+
+.container-equipo{
+  display: flex;
+}
+.simplebar-scrollbar:before{
+  background: rgb(0, 0, 0) !important;
+  width:4px !important;
+}
+.simplebar-track.simplebar-vertical {
+  width: 4px !important;
+}
+.card{
+  width: 100px;
+  cursor:pointer;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+}
+.card:hover{
+  transform: scale(0.9);
+}
+
+.card img{
+  width:100px;
+  mask-image: linear-gradient(
+    black 80%,
+    transparent 
+  )
+}
+.card span{
+  text-align: center;
+}
+
+a{
+  text-decoration: none;
+}
+
+.filtros{
+  padding-left: 50px;
+  display: flex;
+  gap:20px;
+  align-items: center;
+}
+
+.active{
+  color:#FF4A42;
+  background-color: white;
+  font-size: 20px;
+
+  & + .item {
+    border-top-right-radius: 40px;
+  }
+
+}
+
+.click-item-previo{
+  border-bottom-right-radius:40px;
+}
+
+.filtro-i{
+  font-size: 40px;
+  color: #FF4A42;
+}
+
+.filtro-s{
+  font-size: 20px;
+  color: #FF4A42;
+}
+
+.search-circle{
+  width: 40px;
+  height: 40px;
+  border: 3px solid #FF4A42;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s, transform 0.3s;
+
+  &:hover{
+    background-color: #eed6d4;
+    cursor: pointer;
+    transform: scale(1.1);
+  }
+}
+
+.formulario{
+  width:216px;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  margin: 8px;
+  border: 1px solid rgb(194, 194, 194);
+  padding:15px;
+  border-radius: 8px;
+}
+
+.submit{
+  width: 100px;
+}
+
+.container-submit{
+  margin: 8px;
+  width: 200px;
+  display: flex;
+  justify-content: end;
+}
+
+.miInfo{
+  display: flex;
+  align-items: flex-start;
+  justify-content: start;
+  margin-left: 20px;
+}
+
+.reg{
+  width:150px;
+}
+
+.log{
+  width:200px;
+}
+
+.clo{
+  height: 50px;
+  width: 20px;
+}
+
+.css-1gulhci-MuiButton-endIcon {
+  margin-right: 0px !important;
+  margin-left: 0px !important;
+}

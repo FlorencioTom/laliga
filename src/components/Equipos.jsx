@@ -38,6 +38,7 @@ export const Equipos = ({passId}) => {
   
   return (
         <ul className='list'>
+          <li className='fade'></li>
           <MiEquipo></MiEquipo>
           {equipos && equipos.map((equipo, equipoIndex) => (
             <Item

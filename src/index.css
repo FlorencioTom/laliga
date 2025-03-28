@@ -18,10 +18,6 @@ code {
     monospace;
 }
 
-.nav{
-  height:82.5px;
-}
-
 .section{
   display: flex;
   height: calc(100vh);
@@ -30,16 +26,17 @@ code {
 .container-plantilla{
   flex-grow: 1;
 }
+.container{
+  display: flex;
+  flex-direction: column;
+}
 .list{
   width:250px;
   list-style-type: none;
   padding: 0;
   margin-top: 0;
   margin-bottom: 0;
-}
-
-.list a:first-child {
-  border-top-right-radius: 40px;
+  position: relative;
 }
 
 .item{
@@ -48,7 +45,7 @@ code {
   cursor: pointer;
   color: white;
   background-color: #FF4A42;
-  transition: border-top-right-radius 0.2s ease, border-bottom-right-radius 0.2s ease, background-color 0.2s ease,  font-size 0.2s ease;
+  transition: background-color 0.2s ease,  font-size 0.2s ease;
   border-bottom-color:#000000;
 
   &:not(.active):hover{
@@ -73,6 +70,7 @@ code {
 }
 
 .nav{
+  height:82.5px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -155,13 +153,9 @@ a{
   font-size: 20px;
 
   & + .item {
-    border-top-right-radius: 40px;
+
   }
 
-}
-
-.click-item-previo{
-  border-bottom-right-radius:40px;
 }
 
 .filtro-i{
@@ -237,3 +231,52 @@ a{
   margin-right: 0px !important;
   margin-left: 0px !important;
 }
+
+.centro{
+  display: flex;
+  justify-content: center;
+}
+
+.container-campo{
+  height: auto;
+  width:fit-content;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 1000px;
+  position:relative;
+
+  img{
+    cursor: pointer;
+    filter: drop-shadow(0px 0px 3px black);
+    transition: all .3s ease; /* Animación suave */
+  }
+
+  img:not(.jugador-poscion){
+    transform: rotateX(30deg); /* Inclina la imagen hacia atrás */
+  }
+
+  .jugador-poscion{
+    width: 60px;
+    position:absolute;
+    z-index: 999;
+  }
+
+  .jugador-poscion{
+    width: 60px;
+    position:absolute;
+    z-index: 999;
+  }
+
+  .jugador-poscion:focus{
+    filter: drop-shadow(0px 0px 3px rgb(255, 230, 0));
+    outline: none;
+    transform: scale(1.5);
+  }
+
+  .centrado{
+    transform: translate(-50%, -50%) !important;
+  }
+
+}
+

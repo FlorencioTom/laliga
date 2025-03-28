@@ -11,7 +11,8 @@ import Fade from '@mui/material/Fade';
 import Button from '@mui/material/Button';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
+import Campo from './Campo';
 
 const style = {
   position: 'absolute',
@@ -168,6 +169,7 @@ export const Jugadores = () => {
 
   return (
     <>
+    <div className='container'>
       <div className='jugadores'>
         {loading ? (
           // Loader mientras se cargan los datos
@@ -192,6 +194,8 @@ export const Jugadores = () => {
           </>
         )}
       </div>
+      <Campo equipo={ids}></Campo>
+    </div>
       <Modal
       aria-labelledby="transition-modal-title"
       aria-describedby="transition-modal-description"

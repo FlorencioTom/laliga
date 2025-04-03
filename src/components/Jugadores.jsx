@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { getAllPlayersByTeam, addPlayer, addCoach } from '../Api/Api';
 import Loader from 'rsuite/Loader';
+import SimpleBar from 'simplebar-react';
+import 'simplebar-react/dist/simplebar.min.css';
 import 'rsuite/Loader/styles/index.css';
 import 'animate.css';
 import { useParams} from 'react-router-dom';
@@ -171,6 +173,7 @@ export const Jugadores = () => {
     <>
     <div className='container'>
       <div className='jugadores'>
+       <SimpleBar className='scroll-suplentes'>
         {loading ? (
           // Loader mientras se cargan los datos
           <div className='loader'>
@@ -184,8 +187,8 @@ export const Jugadores = () => {
                 <span key={entrenador.nombre}>{entrenador.nombre}</span>
               </div>
             )}
-            {jugadores &&
-              jugadores.map((x, index) => (
+            {jugadores && 
+              jugadores.filter((x) => !x.titular).map((x, index) => (
                 <div className={`card`} key={index}>
                   <img src={x.foto} alt={x.nombre} onClick={() => handleOpen(x)}/>
                   <span>{x.nombre}</span>
@@ -193,6 +196,7 @@ export const Jugadores = () => {
               ))}
           </>
         )}
+         </SimpleBar>
       </div>
       <Campo equipo={ids}></Campo>
     </div>

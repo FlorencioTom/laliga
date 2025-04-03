@@ -57,14 +57,14 @@ export const App = () => {
             <Equipos passId={IdEquipo}/>
           </SimpleBar>
           <div className='container-plantilla'>
-              <SimpleBar className='scroll-equipos'>
+              {/* <SimpleBar className='scroll-equipos'> */}
                   <Routes>
                     <Route path="*" element={<NotFound />} />
                     <Route path="/" element={<Filtros/>} />
                     <Route path="/equipo/:ids" element={<Jugadores  />} />
                     <Route path="/miequipo" element={<MiInfo/>} />
                   </Routes>
-              </SimpleBar>
+              {/* </SimpleBar> */}
           </div>
         </section>  
       </div>

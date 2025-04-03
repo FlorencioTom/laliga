@@ -252,6 +252,13 @@ a{
   justify-content: center;
 }
 
+.loader-campo{
+  position: absolute;
+  top:45%;
+  left:50%;
+  transform: translate(-50%, -50%); /* Centra completamente */
+}
+
 .container-campo{
   height: auto;
   width:fit-content;
@@ -268,13 +275,7 @@ a{
   }
 
   img:not(.jugador-poscion){
-    transform: rotateX(30deg); /* Inclina la imagen hacia atrás */
-  }
-
-  .jugador-poscion{
-    width: 60px;
-    position:absolute;
-    z-index: 999;
+    transform: rotateX(30deg) translateY(-49px); 
   }
 
   .jugador-poscion{

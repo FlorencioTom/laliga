@@ -38,19 +38,32 @@ export const Jugadores = () => {
   const [loading, setLoading] = useState(true);
   const [jugadorSeleccionado, setJugadorSeleccionado] = useState(null);
   const [bandera, setBandera] = useState('');
-
+  const [cambioJugador, setCambioJugador] = useState(null);
   const [open, setOpen] = useState(false);
   const [openCoach, setOpenCoach] = useState(false);
 
   const handleOpen = async (jugador) => {
-    console.log(jugador);
-    setJugadorSeleccionado(jugador); // Almacenar el jugador seleccionado
-    setOpen(true);
-    await obtenerBandera(jugador.nacionalidad.toLowerCase()); // Obtener la bandera al abrir el modal
+    console.log(cambioJugador);
+    if(cambioJugador === null){
+      setJugadorSeleccionado(jugador); // Almacenar el jugador seleccionado
+      setOpen(true);
+      await obtenerBandera(jugador.nacionalidad.toLowerCase()); // Obtener la bandera al abrir el modal
+    }else{
+      //Tengo que camviar la titularidad y la posicion
+      jugadores.forEach((x) => {
+        if(x.nombre === jugador.nombre){
+          x.posicion = cambioJugador.posicion;
+          x.titular = true;
+        }
+        if(x.nombre === cambioJugador.nombre){
+          x.titular = false;
+        }
+      });
+      setCambioJugador(null);
+    }
   };
 
   const handleOpenCoach = async (coach) => {
-    console.log(coach);
     setJugadorSeleccionado(coach); // Almacenar el jugador seleccionado
     setOpenCoach(true);
     await obtenerBandera(coach.nacionalidad.toLowerCase()); // Obtener la bandera al abrir el modal
@@ -71,9 +84,8 @@ export const Jugadores = () => {
   const {ids} = useParams();
 
   useEffect(() => {
-    console.log('ID del equipo en Jugadores:', ids);
+    setCambioJugador(null);
     if (ids) {
-      //getJugadores(idEquipo);
       getJugadores(ids);
     }
   }, [ids]);
@@ -169,6 +181,29 @@ export const Jugadores = () => {
     }
   }
 
+  const recibirJugador = (jugador) => {
+    console.log("Jugador recibido:", jugador);
+    setCambioJugador(jugador);
+  };
+
+  const vaciarJugador = () => {
+    setCambioJugador(null);
+  };
+
+  const cambioPosicionTitulares = (jugador1, jugador2) => {
+    console.log('Se pretende camiar de posicion a', jugador1, jugador2);
+      var nuevosJugadores = jugadores.map(x => {
+        if (x.nombre === jugador1.nombre) {
+          return { ...x, posicion: jugador2.posicion };
+        }
+        if (x.nombre === jugador2.nombre) {
+          return { ...x, posicion: jugador1.posicion };
+        }
+        return x; 
+      });
+      setJugadores(nuevosJugadores);
+  }
+
   return (
     <>
     <div className='container'>
@@ -198,7 +233,7 @@ export const Jugadores = () => {
         )}
          </SimpleBar>
       </div>
-      <Campo equipo={ids}></Campo>
+      <Campo jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador}></Campo>
     </div>
       <Modal
       aria-labelledby="transition-modal-title"
@@ -206,7 +241,6 @@ export const Jugadores = () => {
       open={open}
       onClose={handleClose}
       closeAfterTransition
-
     >
       <Fade in={open}>
         <Box sx={style}>
@@ -275,7 +309,7 @@ export const Jugadores = () => {
                 
               </>
             ) : (
-              <p>Cargando información del jugador...</p>
+              <p>Cargando información del Entrenador...</p>
             )}
         </Box>
       </Fade>

@@ -4,6 +4,10 @@ import FocusLock from "react-focus-lock";
 import { posiciones } from './posiciones';
 import campo from '../images/campo.jpg';
 import Loader from 'rsuite/Loader';
+import Button from '@mui/material/Button';
+import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 import "animate.css";
 
 
@@ -18,62 +22,86 @@ const api = axios.create({
 });
 
 
-export default function Campo({equipo}) {
-  const [data, setData] = useState(null);
+export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugador}) {
+  const [data, setData] = useState(jugadores);
   const [loading, setLoading] = useState(true);
+  const [cambioJugador, setCambioJugador] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      try {
-        const response = await api.get(`/equipos/${equipo}`);
-        console.log(response.data.data.plantilla['jugadores']);
-        setData(response.data.data.plantilla['jugadores']);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
+      setLoading(false);
     };
-
     fetchData();
-  }, [equipo]);
+  }, [data, cambioJugador, jugadores]);
 
   const posicionaCampo = (jugador) => {
     let posicion = posiciones.find(x => jugador.posicion.toLowerCase() === x.posicion.toLowerCase() );
-    console.log(posicion ? posicion.ubicacion : {});
     return posicion ? posicion.ubicacion : {};
   }
 
   const posicionaHTML = (jugador) => {
     let posicion = posiciones.find(x => jugador.posicion.toLowerCase() === x.posicion.toLowerCase() );
-    console.log(posicion ? posicion.tabIndex : {});
     return posicion ? posicion.tabIndex : {};
   }
+
+  const cambio = (jugador) => {
+    if (cambioJugador === jugador) {
+      // Si haces clic en el mismo jugador, lo deseleccionas
+      setCambioJugador(null);
+      enviarJugador(null);
+    } else {
+      // Si ambos jugadores son titulares
+      if (cambioJugador && cambioJugador.titular && jugador.titular) {
+        cambioPosicionTitulares(jugador, cambioJugador)
+        // console.log('Ambos jugadores seleccionados son titulares');
+        // var nuevosJugadores = jugadores.map(x => {
+        //   if (x.nombre === cambioJugador.nombre) {
+        //     return { ...x, posicion: jugador.posicion };
+        //   }
+        //   if (x.nombre === jugador.nombre) {
+        //     return { ...x, posicion: cambioJugador.posicion };
+        //   }
+        //   return x; 
+        // });
+        // setData(nuevosJugadores);
+        setCambioJugador(null);
+        enviarJugador(null);
+      } else {
+        // Si no son ambos titulares, puedes seleccionar al nuevo jugador
+        setCambioJugador(jugador);
+        enviarJugador(jugador);
+      }
+    }
+  };
 
   return (
     <div className="centro">
       <div className="container-campo">
         <img src={campo}></img>  
-        <FocusLock>
-        {loading ? (
-          // Loader mientras se cargan los datos
-          <div className='loader-campo'>
-            <Loader size="lg" speed="fast" />
-          </div>
-        ) : (
-          data && data.map((jugador, index) => 
-            jugador.titular && (
-              <img 
-                key={index} 
-                tabIndex={posicionaHTML(jugador)} 
-                className="jugador-poscion" 
-                src={jugador.foto} 
-                style={posicionaCampo(jugador)} 
-              />
+        <FocusLock autoFocus={false} disabled={true}>
+          {loading ? (
+            <div className='loader-campo'>
+              <Loader size="lg" speed="fast" />
+            </div>
+          ) : (
+            jugadores && jugadores.map((jugador, index) => 
+              jugador.titular && (
+                <img 
+                  key={index} 
+                  tabIndex={posicionaHTML(jugador)} 
+                  className={`jugador-poscion ${cambioJugador === jugador ? "jugador-seleccionado" : ""}`}
+                  src={jugador.foto} 
+                  style={posicionaCampo(jugador)} 
+                  onClick={() => {
+                    cambio(jugador);
+                  }}
+                  alt={jugador.nombre}
+                />
+                // <i class="fa-solid fa-arrow-rotate-right"></i>
+              )
             )
-          )
-        )}
+          )}
         </FocusLock>
       </div>
     </div>

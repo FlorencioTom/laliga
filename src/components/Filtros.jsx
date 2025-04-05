@@ -15,6 +15,7 @@ import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Button from '@mui/material/Button';
 import axios from 'axios';
+import SimpleBar from 'simplebar-react';
 
 const style = {
   position: 'absolute',
@@ -76,47 +77,89 @@ export const Filtros = () => {
     }
   }
 
-  const filtrar = () => {
-    setLoading(true); // Activa el loader al iniciar el filtrado
-  
+  const filtrar = (nombre, posicion, dorsal, nacionalidad) => {
+    setLoading(true);
+
     const resultado = [];
     const paises = [];
   
     equipos.forEach((equipo) => {
       const nombreEquipo = equipo.nombre;
+
       equipo.plantilla.jugadores.forEach((jugador) => {
-        
-        const nombreCoincide = !nombre || jugador.nombre.toLowerCase().includes(nombre.toLowerCase());
-        const dorsalCoincide = !dorsal || jugador.dorsal.toString() === dorsal.toString();
-        const nacionalidadCoincide = !nacionalidad || jugador.nacionalidad.toLowerCase() === nacionalidad.toLowerCase();
-        const posicionCoincide = !posicion || jugador.posicion.toLowerCase() === posicion.toLowerCase();
+        if(nombre != ''){
+          if(jugador.nombre && jugador.nombre.toLowerCase().includes(nombre)){
+            resultado.push(jugador);
+          }
+        }
+
+        if(dorsal != ''){
+          if(jugador.dorsal && jugador.dorsal == dorsal){
+            resultado.push(jugador);
+          }
+        }
+
+        if(nacionalidad != ''){
+          if(jugador.nacionalidad && jugador.nacionalidad.toLowerCase() === nacionalidad.toLowerCase()){
+            resultado.push(jugador);
+          }
+        }
+
+        if(posicion != ''){
+          if (posicion === 'delanteros') {
+            let palabrasClave = ['extremo izquierda', 'extremo derecha', 'delantero'];
+            let pos = jugador.posicion.toLowerCase();
+          
+            if (palabrasClave.some(p => pos.includes(p))) {
+              resultado.push(jugador);
+            }
+          }
   
-        if (nombreCoincide && dorsalCoincide && nacionalidadCoincide && posicionCoincide) {
-          jugador.ne = nombreEquipo;
-          resultado.push(jugador);
+          if(posicion === 'centrocampistas') {
+            let palabrasClave = ['centrocampista izquierda', 'centrocampista derecha', 'centrocampista centro'];
+            let pos = jugador.posicion.toLowerCase();
+          
+            if (palabrasClave.some(p => pos.includes(p))) {
+              resultado.push(jugador);
+            }
+          }
+  
+          if (posicion === 'defensas') {
+            let palabrasClave = ['lateral izquierda', 'lateral derecha', 'central derecha', 'central izquierda'];
+            let pos = jugador.posicion.toLowerCase();
+          
+            if (palabrasClave.some(p => pos.includes(p))) {
+              resultado.push(jugador);
+            }
+          }
+
+          if(jugador.posicion.toLowerCase() === posicion.toLowerCase()){
+            resultado.push(jugador);
+          }
         }
       });
     });
+
     setFiltro(resultado);
-    setLoading(false); // Desactiva el loader al finalizar el filtrado
+    setLoading(false);
   };
 
-  const handleChangePosicion = (event: SelectChangeEvent) => {
+  const handleChangePosicion = (event) => {
     setPosicion(event.target.value);
     console.log(event.target.value);
   };
 
-  const handleChangeDorsal = (event: SelectChangeEvent) => {
+  const handleChangeDorsal = (event) => {
     setDorsal(event.target.value);
     console.log(event.target.value);
   };
 
-  const handleChangeNombre = (event: SelectChangeEvent) => {
+  const handleChangeNombre = (event) => {
     setNombre(event.target.value);
     console.log(event.target.value);
   };
 
-  const handleChangeNacionalidad = (event: SelectChangeEvent) => {
+  const handleChangeNacionalidad = (event) => {
     setNacionalidad(event.target.value);
     console.log(event.target.value);
   };
@@ -162,22 +205,20 @@ export const Filtros = () => {
 
   const obtenerBandera = async (nacionalidad) => {
     try {
-      // Convertir la nacionalidad a minúsculas
       const nacionalidadMin = nacionalidad.toLowerCase();
-  
-      // Hacer la solicitud a la API para obtener todos los países
+
       const response = await axios.get(`https://restcountries.com/v3.1/all`);
-  
-      // Buscar la bandera del país cuya traducción coincida con la nacionalidad
+ 
       const paisEncontrado = response.data.find(pais => {
         return pais.translations.spa && pais.translations.spa.common.toLowerCase() === nacionalidadMin;
       });
-  
-      if (paisEncontrado) {
-        setBandera(paisEncontrado.flags.png); // Establecer la URL de la bandera
+
+      if(paisEncontrado){
+        setBandera(paisEncontrado.flags.png);
       } else {
         console.error('No se encontró el país para la nacionalidad:', nacionalidadMin);
       }
+      
     } catch (error) {
       console.error('Error al obtener la bandera:', error);
     }
@@ -253,42 +294,54 @@ export const Filtros = () => {
               }
           }}
           >
-            <MenuItem value="">
+            <MenuItem value={''}>
               <em>None</em>
             </MenuItem>
             <MenuItem value={'portero'}>Portero</MenuItem>
-            <MenuItem value={'defensa'}>Defensa</MenuItem>
-            <MenuItem value={'centrocampista'}>Centrocampista</MenuItem>
-            <MenuItem value={'delantero'}>Delantero</MenuItem>
+            <MenuItem value={'lateral derecha'}>lateral derecha</MenuItem>
+            <MenuItem value={'lateral izquierda'}>lateral izquierda</MenuItem>
+            <MenuItem value={'central izquierda'}>central izquierda</MenuItem>
+            <MenuItem value={'central derecha'}>central derecha</MenuItem>
+            <MenuItem value={'defensas'}>Defensas</MenuItem>
+            <MenuItem value={'centrocampista derecha'}>Centrocampista derecha</MenuItem>
+            <MenuItem value={'centrocampista izquierda'}>Centrocampista izquierda</MenuItem>
+            <MenuItem value={'centrocampista centro'}>Centrocampista centro</MenuItem>
+            <MenuItem value={'centrocampistas'}>Centrocampistas</MenuItem>
+            <MenuItem value={'delantero'}>Delantero centro</MenuItem>
+            <MenuItem value={'extremo izquierda'}>extremo izquierda</MenuItem>
+            <MenuItem value={'extremo derecha'}>extremo derecha</MenuItem>
+            <MenuItem value={'delanteros'}>Delanteros</MenuItem>
           </Select>
           </FormControl>
 
           <TextField id="outlined-basic" label="Dorsal" type="number" variant="filled" sx={textFieldStyles} onChange={handleChangeDorsal} />
 
           
-          <div className="search-circle" onClick={() => filtrar()}>
+          <div className="search-circle" onClick={() => filtrar(nombre, posicion, dorsal, nacionalidad)}>
             <FontAwesomeIcon icon={faMagnifyingGlass} className="filtro-s"/>
           </div>
         
     </section>
     <br />
-    <section className='jugadores'>
-    {loading ? (
-        // Loader mientras se cargan los datos
-        <div className='loader'>
-          <Loader size="lg" speed="fast" />
-        </div>
-      ) : (
-        <>
-          {filtro &&
-            filtro.map((x, index) => (
-              <div className={`card`} key={index}>
-                <img src={x.foto} alt={x.nombre} onClick={() => handleOpen(x)}/>
-                <span>{x.nombre}</span>
-              </div>
-            ))}
-        </>
-      )}
+    <section className='container-filtro'>
+      <SimpleBar className='scroll-filtro'>
+        {loading ? (
+          // Loader mientras se cargan los datos
+          <div className='loader'>
+              <Loader size="lg" speed="fast" />
+            </div>
+          ) : (
+            <>
+              {filtro &&
+                filtro.map((x, index) => (
+                  <div className={`card`} key={index}>
+                    <img src={x.foto} alt={x.nombre} onClick={() => handleOpen(x)}/>
+                    <span>{x.nombre}</span>
+                  </div>
+                ))}
+            </>
+        )}
+      </SimpleBar>
     </section>
     <Modal
       aria-labelledby="transition-modal-title"
@@ -308,6 +361,7 @@ export const Filtros = () => {
                 <p>Edad: {jugadorSeleccionado.nacimiento}</p>
                 <p>Dorsal: {jugadorSeleccionado.dorsal}</p>
                 <p>Altura: {jugadorSeleccionado.altura}</p>
+                <p>Posicion: {jugadorSeleccionado.posicion}</p>
                 <div style={{display:'flex', gap:'10px', alignItems: 'center' }}>
                   País: {jugadorSeleccionado.nacionalidad}
                   <img src={bandera} style={{ width: '20px' }} />

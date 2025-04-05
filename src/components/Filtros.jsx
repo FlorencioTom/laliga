@@ -16,6 +16,8 @@ import Fade from '@mui/material/Fade';
 import Button from '@mui/material/Button';
 import axios from 'axios';
 import SimpleBar from 'simplebar-react';
+import Snackbar, { SnackbarOrigin } from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 const style = {
   position: 'absolute',
@@ -23,14 +25,16 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 200,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
+  bgcolor: '#FF4A42',
+  border: '2px solidrgb(192, 56, 49)',
   boxShadow: 24,
   p: 4,
   display: 'flex',           
   flexDirection: 'column',   
   alignItems: 'center',      
-  textAlign: 'center',      
+  textAlign: 'center', 
+  borderRadius: 10,
+  color:'white'   
 };
 
 export const Filtros = () => {
@@ -46,6 +50,7 @@ export const Filtros = () => {
   const [jugadorSeleccionado, setJugadorSeleccionado] = useState(null);
   const [bandera, setBandera] = useState('');
   const [open, setOpen] = useState(false);
+  const [toggleSnack, setToggleSnack] = useState(false);
 
   useEffect(() => {
     getEquipos();
@@ -87,59 +92,61 @@ export const Filtros = () => {
       const nombreEquipo = equipo.nombre;
 
       equipo.plantilla.jugadores.forEach((jugador) => {
+
+        if(nombre === '' && posicion === '' && dorsal === '' && nacionalidad === ''){
+          setToggleSnack(true);
+          return;
+        }
+
         if(nombre != ''){
-          if(jugador.nombre && jugador.nombre.toLowerCase().includes(nombre)){
-            resultado.push(jugador);
+          if(!(jugador.nombre && jugador.nombre.toLowerCase().includes(nombre))){
+            return;
           }
         }
 
         if(dorsal != ''){
-          if(jugador.dorsal && jugador.dorsal == dorsal){
-            resultado.push(jugador);
+          if(!(jugador.dorsal && jugador.dorsal == dorsal)){
+            return;
           }
         }
 
         if(nacionalidad != ''){
-          if(jugador.nacionalidad && jugador.nacionalidad.toLowerCase() === nacionalidad.toLowerCase()){
-            resultado.push(jugador);
+          if(!(jugador.nacionalidad && jugador.nacionalidad.toLowerCase() === nacionalidad.toLowerCase())){
+            return;
           }
         }
 
-        if(posicion != ''){
-          if (posicion === 'delanteros') {
-            let palabrasClave = ['extremo izquierda', 'extremo derecha', 'delantero'];
-            let pos = jugador.posicion.toLowerCase();
-          
-            if (palabrasClave.some(p => pos.includes(p))) {
-              resultado.push(jugador);
+        if(posicion !== ''){
+          const palabrasClavePorPosicion = {
+            delanteros: ['extremo izquierda', 'extremo derecha', 'delantero '],
+            centrocampistas: ['centrocampista izquierda', 'centrocampista derecha', 'centrocampista centro'],
+            defensas: ['lateral izquierda', 'lateral derecha', 'central derecha', 'central izquierda']
+          };
+    
+          let posJugador = jugador.posicion?.toLowerCase() || '';
+    
+          if (palabrasClavePorPosicion[posicion]) {
+            let palabrasClave = palabrasClavePorPosicion[posicion];
+            if (!palabrasClave.some(p => posJugador.includes(p))) {
+              return;
+            }
+          } else {
+            if (posJugador !== posicion.toLowerCase()) {
+              return;
             }
           }
-  
-          if(posicion === 'centrocampistas') {
-            let palabrasClave = ['centrocampista izquierda', 'centrocampista derecha', 'centrocampista centro'];
-            let pos = jugador.posicion.toLowerCase();
-          
-            if (palabrasClave.some(p => pos.includes(p))) {
-              resultado.push(jugador);
-            }
-          }
-  
-          if (posicion === 'defensas') {
-            let palabrasClave = ['lateral izquierda', 'lateral derecha', 'central derecha', 'central izquierda'];
-            let pos = jugador.posicion.toLowerCase();
-          
-            if (palabrasClave.some(p => pos.includes(p))) {
-              resultado.push(jugador);
-            }
-          }
-
-          if(jugador.posicion.toLowerCase() === posicion.toLowerCase()){
-            resultado.push(jugador);
-          }
+        }
+        if(nombre === '' && posicion === '' && dorsal === '' && nacionalidad === ''){
+          setToggleSnack(true);
+          return;
+        }else{
+          resultado.push(jugador);
         }
       });
     });
-
+    if(resultado.length === 0){
+      setToggleSnack(true);
+    }
     setFiltro(resultado);
     setLoading(false);
   };
@@ -224,8 +231,61 @@ export const Filtros = () => {
     }
   };
 
+  const closeSnack = () => {
+    setToggleSnack(false);
+  }
+
+  const calculaEdad = (nacimiento) => {
+    const [dia, mes, anio] = nacimiento.split('/').map(Number);
+    const fechaNacimiento = new Date(anio, mes - 1, dia);
+    const hoy = new Date();
+  
+    let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
+  
+    if (hoy.getMonth() < fechaNacimiento.getMonth() ||
+     (hoy.getMonth() === fechaNacimiento.getMonth() 
+     && hoy.getDate() < fechaNacimiento.getDate())) {
+      edad--;
+    }
+  
+    return edad;
+  };
+
+  const nickNamePosition = (posicion) => {
+    const posiciones = [
+      { fullName: 'extremo izquierda', shortName: 'EI' },
+      { fullName: 'extremo derecha', shortName: 'ED' },
+      { fullName: 'delantero', shortName: 'DC' },
+      { fullName: 'centrocampista izquierda', shortName: 'CI' },
+      { fullName: 'centrocampista derecha', shortName: 'CD' },
+      { fullName: 'centrocampista centro', shortName: 'CC' },
+      { fullName: 'lateral izquierda', shortName: 'LI' },
+      { fullName: 'lateral derecha', shortName: 'LD' },
+      { fullName: 'central derecha', shortName: 'CD' },
+      { fullName: 'central izquierda', shortName: 'CI' }
+    ];
+
+    const posicionEncontrada = posiciones.find(x => x.fullName.toLocaleLowerCase() === posicion.toLocaleLowerCase());
+    return posicionEncontrada ? posicionEncontrada.shortName : posicion;
+  }
+
   return (
     <>
+    <Snackbar open={toggleSnack} autoHideDuration={3000} onClose={closeSnack} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+      <Alert
+        onClose={closeSnack}
+        severity="info"
+        variant="filled"
+        sx={{
+          width: '100%',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)', 
+          borderRadius: 2,
+          backgroundColor: '#FF4A42'
+        }}
+      >
+        El filtro no dió resultados
+      </Alert>
+    </Snackbar>
     <section className='filtros'>
           <FontAwesomeIcon className="filtro-i" icon={faSliders} />
 
@@ -349,34 +409,48 @@ export const Filtros = () => {
       open={open}
       onClose={handleClose}
       closeAfterTransition
-
     >
       <Fade in={open}>
         <Box sx={style}>
             {jugadorSeleccionado ? (
               <>
                 <h2 id="transition-modal-title" style={{ marginTop: '0px' }}>{jugadorSeleccionado.nombre}</h2>
-                <img src={jugadorSeleccionado.foto} alt={jugadorSeleccionado.nombre} style={{ width: '60px' }} />
-                <p>Equipo: {jugadorSeleccionado.ne}</p>
-                <p>Edad: {jugadorSeleccionado.nacimiento}</p>
-                <p>Dorsal: {jugadorSeleccionado.dorsal}</p>
-                <p>Altura: {jugadorSeleccionado.altura}</p>
-                <p>Posicion: {jugadorSeleccionado.posicion}</p>
-                <div style={{display:'flex', gap:'10px', alignItems: 'center' }}>
-                  País: {jugadorSeleccionado.nacionalidad}
-                  <img src={bandera} style={{ width: '20px' }} />
+                <img src={jugadorSeleccionado.foto} alt={jugadorSeleccionado.nombre} style={{ width: '100px' }} />
+                <img src={bandera} style={{ width: '60px', margin:'20px' }} />
+                <div style={{display:'flex', gap:'10px', alignItems: 'center'}}>
+                  <div>
+                    <p>Edad:</p>
+                    <p>Dorsal:</p>
+                    <p>Altura:</p>
+                    <p>Posicion:</p>
+                    <p>País:</p>
+                  </div>
+                  <div>
+                    <p>{calculaEdad(jugadorSeleccionado.nacimiento)} años</p>
+                    <p>{jugadorSeleccionado.dorsal}</p>
+                    <p>{jugadorSeleccionado.altura}</p>
+                    <p>{nickNamePosition(jugadorSeleccionado.posicion)}</p>
+                    <p>{jugadorSeleccionado.nacionalidad}</p>                   
+                  </div>
                 </div>
+
                 {/* Aquí puedes añadir más información del jugador */}
                 <div style={{display:'flex', gap:'10px', marginTop:'30px'}}>
-
-
-                  <Button  variant="contained" onClick={handleClose}>Cerrar</Button>
-                  <Button variant="contained" sx={{ 
-                    backgroundColor: '#FF4A42',  // Color de fondo del botón
+                  <Button  variant="contained" onClick={handleClose} sx={{ 
+                    backgroundColor: 'white', 
                     '&:hover': {
-                      backgroundColor: '#FF4A42',  // Color de fondo al pasar el mouse (hover)
+                      backgroundColor: 'white',
                     },
-                    color: 'white',  // Color del texto
+                    color: 'black',
+                    borderRadius: 10
+                  }}>Cerrar</Button>
+                  <Button variant="contained" sx={{ 
+                    backgroundColor: 'white', 
+                    '&:hover': {
+                      backgroundColor: 'white',
+                    },
+                    color: 'black',
+                    borderRadius: 10
                   }}>Fichar</Button>
                 </div>
                 

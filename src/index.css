@@ -169,7 +169,9 @@ a{
 
 .filtros{
   padding-left: 50px;
+  padding-right: 50px;
   display: flex;
+  justify-content: center;
   gap:20px;
   align-items: center;
 }

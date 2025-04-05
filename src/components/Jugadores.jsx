@@ -22,14 +22,16 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 200,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
+  bgcolor: '#FF4A42',
+  border: '2px solidrgb(192, 56, 49)',
   boxShadow: 24,
   p: 4,
   display: 'flex',           
   flexDirection: 'column',   
   alignItems: 'center',      
-  textAlign: 'center',      
+  textAlign: 'center', 
+  borderRadius: 10,
+  color:'white'   
 };
 
 export const Jugadores = () => {
@@ -204,6 +206,40 @@ export const Jugadores = () => {
       setJugadores(nuevosJugadores);
   }
 
+  const calculaEdad = (nacimiento) => {
+    const [dia, mes, anio] = nacimiento.split('/').map(Number);
+    const fechaNacimiento = new Date(anio, mes - 1, dia);
+    const hoy = new Date();
+  
+    let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
+  
+    if (hoy.getMonth() < fechaNacimiento.getMonth() ||
+     (hoy.getMonth() === fechaNacimiento.getMonth() 
+     && hoy.getDate() < fechaNacimiento.getDate())) {
+      edad--;
+    }
+  
+    return edad;
+  };
+
+  const nickNamePosition = (posicion) => {
+    const posiciones = [
+      { fullName: 'extremo izquierda', shortName: 'EI' },
+      { fullName: 'extremo derecha', shortName: 'ED' },
+      { fullName: 'delantero', shortName: 'DC' },
+      { fullName: 'centrocampista izquierda', shortName: 'CI' },
+      { fullName: 'centrocampista derecha', shortName: 'CD' },
+      { fullName: 'centrocampista centro', shortName: 'CC' },
+      { fullName: 'lateral izquierda', shortName: 'LI' },
+      { fullName: 'lateral derecha', shortName: 'LD' },
+      { fullName: 'central derecha', shortName: 'CD' },
+      { fullName: 'central izquierda', shortName: 'CI' }
+    ];
+
+    const posicionEncontrada = posiciones.find(x => x.fullName.toLocaleLowerCase() === posicion.toLocaleLowerCase());
+    return posicionEncontrada ? posicionEncontrada.shortName : posicion;
+  }
+
   return (
     <>
     <div className='container'>
@@ -247,27 +283,42 @@ export const Jugadores = () => {
             {jugadorSeleccionado ? (
               <>
                 <h2 id="transition-modal-title" style={{ marginTop: '0px' }}>{jugadorSeleccionado.nombre}</h2>
-                <img src={jugadorSeleccionado.foto} alt={jugadorSeleccionado.nombre} style={{ width: '60px' }} />
-                <p>Posición: {jugadorSeleccionado.posicion}</p>
-                <p>Edad: {jugadorSeleccionado.nacimiento}</p>
-                <p>Dorsal: {jugadorSeleccionado.dorsal}</p>
-                <p>Altura: {jugadorSeleccionado.altura}</p>
-                <div style={{display:'flex', gap:'10px', alignItems: 'center' }}>
-                  País: {jugadorSeleccionado.nacionalidad}
-                  <img src={bandera} style={{ width: '20px' }} />
+                <img src={jugadorSeleccionado.foto} alt={jugadorSeleccionado.nombre} style={{ width: '100px' }} />
+                <img src={bandera} style={{ width: '60px', margin:'20px' }} />
+                <div style={{display:'flex', gap:'10px', alignItems: 'center'}}>
+                  <div>
+                    <p>Edad:</p>
+                    <p>Dorsal:</p>
+                    <p>Altura:</p>
+                    <p>Posicion:</p>
+                    <p>País:</p>
+                  </div>
+                  <div>
+                    <p>{calculaEdad(jugadorSeleccionado.nacimiento)} años</p>
+                    <p>{jugadorSeleccionado.dorsal}</p>
+                    <p>{jugadorSeleccionado.altura}</p>
+                    <p>{nickNamePosition(jugadorSeleccionado.posicion)}</p>
+                    <p>{jugadorSeleccionado.nacionalidad}</p>                   
+                  </div>
                 </div>
-                {/* Aquí puedes añadir más información del jugador */}
                 <div style={{display:'flex', gap:'10px', marginTop:'30px'}}>
-                  <Button  variant="contained" onClick={handleClose}>Cerrar</Button>
-                  <Button variant="contained" sx={{ 
-                    backgroundColor: '#FF4A42',  // Color de fondo del botón
+                  <Button  variant="contained" onClick={handleClose} sx={{ 
+                    backgroundColor: 'white', 
                     '&:hover': {
-                      backgroundColor: '#FF4A42',  // Color de fondo al pasar el mouse (hover)
+                      backgroundColor: 'white',
                     },
-                    color: 'white',  // Color del texto
-                  }} onClick={() => fichar(jugadorSeleccionado)}>Fichar</Button>
+                    color: 'black',
+                    borderRadius: 10
+                  }}>Cerrar</Button>
+                  <Button variant="contained" sx={{ 
+                    backgroundColor: 'white', 
+                    '&:hover': {
+                      backgroundColor: 'white',
+                    },
+                    color: 'black',
+                    borderRadius: 10
+                  }}>Fichar</Button>
                 </div>
-                
               </>
             ) : (
               <p>Cargando información del jugador...</p>

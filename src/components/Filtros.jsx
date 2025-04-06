@@ -1,4 +1,5 @@
 import {useState, useEffect} from 'react';
+import Backdrop from '@mui/material/Backdrop';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {faSliders, faMagnifyingGlass} from '@fortawesome/free-solid-svg-icons';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -51,6 +52,7 @@ export const Filtros = () => {
   const [bandera, setBandera] = useState('');
   const [open, setOpen] = useState(false);
   const [toggleSnack, setToggleSnack] = useState(false);
+  const [fadeIn, setFadeIn] = useState(false);
 
   useEffect(() => {
     getEquipos();
@@ -199,15 +201,15 @@ export const Filtros = () => {
 
   const handleOpen = async (jugador) => {
     console.log(jugador);
-    setJugadorSeleccionado(jugador); // Almacenar el jugador seleccionado
+    setJugadorSeleccionado(jugador);
     setOpen(true);
-    await obtenerBandera(jugador.nacionalidad.toLowerCase()); // Obtener la bandera al abrir el modal
+    await obtenerBandera(jugador.nacionalidad.toLowerCase());
   };
 
   const handleClose = () => {
     setOpen(false);
-    setJugadorSeleccionado(null); // Reiniciar el jugador seleccionado
-    setBandera('');
+    //setBandera('');
+    //setJugadorSeleccionado(null);
   };
 
   const obtenerBandera = async (nacionalidad) => {
@@ -409,6 +411,8 @@ export const Filtros = () => {
       open={open}
       onClose={handleClose}
       closeAfterTransition
+      slots={{ backdrop: Backdrop }}
+      slotProps={{ backdrop: { timeout: 500 } }}
     >
       <Fade in={open}>
         <Box sx={style}>
@@ -453,7 +457,6 @@ export const Filtros = () => {
                     borderRadius: 10
                   }}>Fichar</Button>
                 </div>
-                
               </>
             ) : (
               <p>Cargando información del jugador...</p>

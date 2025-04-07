@@ -316,5 +316,21 @@ a{
   }
 
 }
+.nextPlayer {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  background-color:rgba(0, 0, 0, 0.259);
+  border-radius:50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:hover {
+    transform: scale(1.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+}
+
 
 

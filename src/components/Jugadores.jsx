@@ -45,11 +45,10 @@ export const Jugadores = () => {
   const [openCoach, setOpenCoach] = useState(false);
 
   const handleOpen = async (jugador) => {
-    console.log(cambioJugador);
+    await obtenerBandera(jugador.nacionalidad.toLowerCase()); 
     if(cambioJugador === null){
       setJugadorSeleccionado(jugador); // Almacenar el jugador seleccionado
       setOpen(true);
-      await obtenerBandera(jugador.nacionalidad.toLowerCase()); // Obtener la bandera al abrir el modal
     }else{
       //Tengo que camviar la titularidad y la posicion
       jugadores.forEach((x) => {
@@ -66,22 +65,42 @@ export const Jugadores = () => {
   };
 
   const handleOpenCoach = async (coach) => {
+    await obtenerBandera(coach.nacionalidad.toLowerCase()); 
     setJugadorSeleccionado(coach); // Almacenar el jugador seleccionado
     setOpenCoach(true);
-    await obtenerBandera(coach.nacionalidad.toLowerCase()); // Obtener la bandera al abrir el modal
   };
 
   const handleClose = () => {
     setOpen(false);
-    setJugadorSeleccionado(null); // Reiniciar el jugador seleccionado
-    setBandera('');
   };
 
   const handleCloseCoach = () => {
     setOpenCoach(false);
-    setJugadorSeleccionado(null); // Reiniciar el jugador seleccionado
+    setJugadorSeleccionado(null);
     setBandera('');
   };
+
+  const handleExited = () => {
+    setJugadorSeleccionado(null);
+    setBandera('');
+  };
+
+  const siguienteJugador = async (num) => {
+    for (const [index, x] of jugadores.entries()) {
+      if(jugadorSeleccionado === x){
+        const nextIndex = index + num;
+        if (nextIndex <= 0) {
+          setJugadorSeleccionado(jugadores[0]);
+        } else if (nextIndex >= jugadores.length) {
+          setJugadorSeleccionado(jugadores[jugadores.length - 1]);
+        } else {
+          setJugadorSeleccionado(jugadores[nextIndex]);
+        }
+        await obtenerBandera(jugadorSeleccionado.nacionalidad);
+        break;
+      }
+    }
+  }
 
   const {ids} = useParams();
 
@@ -110,6 +129,7 @@ export const Jugadores = () => {
   const obtenerBandera = async (nacionalidad) => {
     try {
       // Convertir la nacionalidad a minúsculas
+      console.log(nacionalidad, '<---');
       const nacionalidadMin = nacionalidad.toLowerCase();
   
       // Hacer la solicitud a la API para obtener todos los países
@@ -277,20 +297,26 @@ export const Jugadores = () => {
       open={open}
       onClose={handleClose}
       closeAfterTransition
+      slots={{ backdrop: Backdrop }}
+      slotProps={{ backdrop: { timeout: 500 } }}
     >
-      <Fade in={open}>
+      <Fade in={open} onExited={handleExited}>
         <Box sx={style}>
             {jugadorSeleccionado ? (
               <>
                 <h2 id="transition-modal-title" style={{ marginTop: '0px' }}>{jugadorSeleccionado.nombre}</h2>
-                <img src={jugadorSeleccionado.foto} alt={jugadorSeleccionado.nombre} style={{ width: '100px' }} />
+                <div style={{display:'flex', gap:'20px', alignItems: 'center'}}>
+                  <div className='nextPlayer' onClick={() => {siguienteJugador(-1)}}><i className="fa-solid fa-arrow-left"></i></div>
+                  <img src={jugadorSeleccionado.foto} alt={jugadorSeleccionado.nombre} style={{ width: '100px' }} />
+                  <div className='nextPlayer' onClick={() => {siguienteJugador(1)}}><i className="fa-solid fa-arrow-right"></i></div>
+                </div>
                 <img src={bandera} style={{ width: '60px', margin:'20px' }} />
                 <div style={{display:'flex', gap:'10px', alignItems: 'center'}}>
                   <div>
                     <p>Edad:</p>
                     <p>Dorsal:</p>
                     <p>Altura:</p>
-                    <p>Posicion:</p>
+                    <p>Posicion:</p> 
                     <p>País:</p>
                   </div>
                   <div>
@@ -332,7 +358,8 @@ export const Jugadores = () => {
       open={openCoach}
       onClose={handleCloseCoach}
       closeAfterTransition
-
+      slots={{ backdrop: Backdrop }}
+      slotProps={{ backdrop: { timeout: 500 } }}
     >
       <Fade in={openCoach}>
         <Box sx={style}>
@@ -340,20 +367,19 @@ export const Jugadores = () => {
               <>
                 <h2 id="transition-modal-title" style={{ marginTop: '0px' }}>{jugadorSeleccionado.nombre}</h2>
                 <img src={jugadorSeleccionado.foto} alt={jugadorSeleccionado.nombre} style={{ width: '60px' }} />
-                <p>Edad: {jugadorSeleccionado.nacimiento}</p>
+                <p>Edad: {calculaEdad(jugadorSeleccionado.nacimiento)}</p>
                 <div style={{display:'flex', gap:'10px', alignItems: 'center' }}>
                   País: {jugadorSeleccionado.nacionalidad}
                   <img src={bandera} style={{ width: '20px' }} />
                 </div>
-                {/* Aquí puedes añadir más información del jugador */}
                 <div style={{display:'flex', gap:'10px', marginTop:'30px'}}>
                   <Button  variant="contained" onClick={handleCloseCoach}>Cerrar</Button>
                   <Button variant="contained" onClick={() => ficharCoach(jugadorSeleccionado)} sx={{ 
-                    backgroundColor: '#FF4A42',  // Color de fondo del botón
+                    backgroundColor: '#FF4A42',
                     '&:hover': {
-                      backgroundColor: '#FF4A42',  // Color de fondo al pasar el mouse (hover)
+                      backgroundColor: '#FF4A42',
                     },
-                    color: 'white',  // Color del texto
+                    color: 'white',
                   }}>Fichar</Button>
                   
                 </div>

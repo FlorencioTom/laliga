@@ -35,7 +35,7 @@ const style = {
   alignItems: 'center',      
   textAlign: 'center', 
   borderRadius: 10,
-  color:'white'   
+  color:'white' 
 };
 
 export const Filtros = () => {
@@ -56,7 +56,11 @@ export const Filtros = () => {
 
   useEffect(() => {
     getEquipos();
-  }, []);
+    if (jugadorSeleccionado) {
+      // Llamar a obtenerBandera solo cuando se seleccione un nuevo jugador
+      obtenerBandera(jugadorSeleccionado.nacionalidad);
+    }
+  }, [jugadorSeleccionado]);
 
   const getEquipos = async() => {
     try {
@@ -200,7 +204,6 @@ export const Filtros = () => {
   }
 
   const handleOpen = async (jugador) => {
-    console.log(jugador);
     setJugadorSeleccionado(jugador);
     setOpen(true);
     await obtenerBandera(jugador.nacionalidad.toLowerCase());
@@ -208,8 +211,11 @@ export const Filtros = () => {
 
   const handleClose = () => {
     setOpen(false);
-    //setBandera('');
-    //setJugadorSeleccionado(null);
+  };
+
+  const handleExited = () => {
+    setJugadorSeleccionado(null);
+    setBandera('');
   };
 
   const obtenerBandera = async (nacionalidad) => {
@@ -269,6 +275,23 @@ export const Filtros = () => {
 
     const posicionEncontrada = posiciones.find(x => x.fullName.toLocaleLowerCase() === posicion.toLocaleLowerCase());
     return posicionEncontrada ? posicionEncontrada.shortName : posicion;
+  }
+
+  const siguienteJugador = async (num) => {
+    await obtenerBandera(jugadorSeleccionado.nacionalidad);
+    for (const [index, x] of filtro.entries()) {
+      if(jugadorSeleccionado === x){
+        const nextIndex = index + num;
+        if (nextIndex <= 0) {
+          setJugadorSeleccionado(filtro[0]);
+        } else if (nextIndex >= filtro.length) {
+          setJugadorSeleccionado(filtro[filtro.length - 1]);
+        } else {
+          setJugadorSeleccionado(filtro[nextIndex]);
+        }
+        break;
+      }
+    }
   }
 
   return (
@@ -414,13 +437,17 @@ export const Filtros = () => {
       slots={{ backdrop: Backdrop }}
       slotProps={{ backdrop: { timeout: 500 } }}
     >
-      <Fade in={open}>
+      <Fade in={open} onExited={handleExited}>
         <Box sx={style}>
             {jugadorSeleccionado ? (
               <>
                 <h2 id="transition-modal-title" style={{ marginTop: '0px' }}>{jugadorSeleccionado.nombre}</h2>
-                <img src={jugadorSeleccionado.foto} alt={jugadorSeleccionado.nombre} style={{ width: '100px' }} />
-                <img src={bandera} style={{ width: '60px', margin:'20px' }} />
+                <div style={{display:'flex', gap:'20px', alignItems: 'center'}}>
+                  <div className='nextPlayer' onClick={() => siguienteJugador(-1)}><i className="fa-solid fa-arrow-left"></i></div>
+                  <img src={jugadorSeleccionado.foto} alt={jugadorSeleccionado.nombre} style={{ width: '100px' }} />
+                  <div className='nextPlayer' onClick={() => siguienteJugador(1)}><i className="fa-solid fa-arrow-right"></i></div>
+                </div>
+                <img src={bandera} style={{ width: '60px', margin:'20px' }}/>
                 <div style={{display:'flex', gap:'10px', alignItems: 'center'}}>
                   <div>
                     <p>Edad:</p>

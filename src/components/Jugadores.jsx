@@ -66,7 +66,6 @@ export const Jugadores = () => {
 
   const handleOpenCoach = async (coach) => {
     await obtenerBandera(coach.nacionalidad.toLowerCase()); 
-    setJugadorSeleccionado(coach); // Almacenar el jugador seleccionado
     setOpenCoach(true);
   };
 
@@ -76,8 +75,6 @@ export const Jugadores = () => {
 
   const handleCloseCoach = () => {
     setOpenCoach(false);
-    setJugadorSeleccionado(null);
-    setBandera('');
   };
 
   const handleExited = () => {
@@ -136,10 +133,8 @@ export const Jugadores = () => {
     try {
       // Convertir la nacionalidad a minúsculas
       const nacionalidadMin = nacionalidad.toLowerCase();
-  
       // Hacer la solicitud a la API para obtener todos los países
       const response = await axios.get(`https://restcountries.com/v3.1/all`);
-  
       // Buscar la bandera del país cuya traducción coincida con la nacionalidad
       const paisEncontrado = response.data.find(pais => {
         return pais.translations.spa && pais.translations.spa.common.toLowerCase() === nacionalidadMin;
@@ -152,6 +147,7 @@ export const Jugadores = () => {
       }
     } catch (error) {
       console.error('Error al obtener la bandera:', error);
+      setBandera('');
     }
   };
 
@@ -364,25 +360,39 @@ export const Jugadores = () => {
       slots={{ backdrop: Backdrop }}
       slotProps={{ backdrop: { timeout: 500 } }}
     >
-      <Fade in={openCoach}>
+      <Fade in={openCoach} onExited={handleExited}>
         <Box sx={style}>
-            {jugadorSeleccionado ? (
+            {entrenador ? (
               <>
-                <h2 id="transition-modal-title" style={{ marginTop: '0px' }}>{jugadorSeleccionado.nombre}</h2>
-                <img src={jugadorSeleccionado.foto} alt={jugadorSeleccionado.nombre} style={{ width: '60px' }} />
-                <p>Edad: {calculaEdad(jugadorSeleccionado.nacimiento)}</p>
-                <div style={{display:'flex', gap:'10px', alignItems: 'center' }}>
-                  País: {jugadorSeleccionado.nacionalidad}
-                  <img src={bandera} style={{ width: '20px' }} />
+                <h2 id="transition-modal-title" style={{ marginTop: '0px' }}>{entrenador.nombre}</h2>
+                <img src={entrenador.foto} alt={entrenador.nombre} style={{ width: '60px' }} />
+                <img src={bandera} style={{ width: '60px', margin:'20px' }} />
+                <div style={{display:'flex', gap:'10px', alignItems: 'center'}}>
+                  <div>
+                    <p>Edad:</p>
+                    <p>País:</p>
+                  </div>
+                  <div className='miembro-info'>
+                    <p>{calculaEdad(entrenador.nacimiento)} años</p>
+                    <p>{entrenador.nacionalidad}</p>                   
+                  </div>
                 </div>
                 <div style={{display:'flex', gap:'10px', marginTop:'30px'}}>
-                  <Button  variant="contained" onClick={handleCloseCoach}>Cerrar</Button>
-                  <Button variant="contained" onClick={() => ficharCoach(jugadorSeleccionado)} sx={{ 
-                    backgroundColor: '#FF4A42',
+                  <Button  variant="contained" onClick={handleCloseCoach} sx={{ 
+                    backgroundColor: 'white', 
                     '&:hover': {
-                      backgroundColor: '#FF4A42',
+                      backgroundColor: 'white',
                     },
-                    color: 'white',
+                    color: 'black',
+                    borderRadius: 10
+                  }}>Cerrar</Button>
+                  <Button variant="contained" sx={{ 
+                    backgroundColor: 'white', 
+                    '&:hover': {
+                      backgroundColor: 'white',
+                    },
+                    color: 'black',
+                    borderRadius: 10
                   }}>Fichar</Button>
                   
                 </div>

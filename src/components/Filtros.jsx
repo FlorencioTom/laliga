@@ -78,7 +78,7 @@ export const Filtros = () => {
         });
       });
 
-      console.log(paises);
+      //console.log(paises);
 
       setNacionalidades(paises);
     } catch (error) {
@@ -98,6 +98,8 @@ export const Filtros = () => {
       const nombreEquipo = equipo.nombre;
 
       equipo.plantilla.jugadores.forEach((jugador) => {
+
+        jugador.equipo = nombreEquipo;
 
         if(nombre === '' && posicion === '' && dorsal === '' && nacionalidad === ''){
           setToggleSnack(true);
@@ -159,22 +161,22 @@ export const Filtros = () => {
 
   const handleChangePosicion = (event) => {
     setPosicion(event.target.value);
-    console.log(event.target.value);
+    //console.log(event.target.value);
   };
 
   const handleChangeDorsal = (event) => {
     setDorsal(event.target.value);
-    console.log(event.target.value);
+    //console.log(event.target.value);
   };
 
   const handleChangeNombre = (event) => {
     setNombre(event.target.value);
-    console.log(event.target.value);
+    //console.log(event.target.value);
   };
 
   const handleChangeNacionalidad = (event) => {
     setNacionalidad(event.target.value);
-    console.log(event.target.value);
+    //console.log(event.target.value);
   };
 
   const textFieldStyles = {
@@ -236,6 +238,7 @@ export const Filtros = () => {
       
     } catch (error) {
       console.error('Error al obtener la bandera:', error);
+      setBandera('');
     }
   };
 
@@ -450,18 +453,20 @@ export const Filtros = () => {
                 <img src={bandera} style={{ width: '60px', margin:'20px' }}/>
                 <div style={{display:'flex', gap:'10px', alignItems: 'center'}}>
                   <div>
+                    <p>Equipo:</p>
                     <p>Edad:</p>
                     <p>Dorsal:</p>
                     <p>Altura:</p>
                     <p>Posicion:</p>
                     <p>País:</p>
                   </div>
-                  <div>
+                  <div className='miembro-info'>
+                    <p>{jugadorSeleccionado.equipo}</p>                   
                     <p>{calculaEdad(jugadorSeleccionado.nacimiento)} años</p>
                     <p>{jugadorSeleccionado.dorsal}</p>
                     <p>{jugadorSeleccionado.altura}</p>
                     <p>{nickNamePosition(jugadorSeleccionado.posicion)}</p>
-                    <p>{jugadorSeleccionado.nacionalidad}</p>                   
+                    <p>{jugadorSeleccionado.nacionalidad}</p> 
                   </div>
                 </div>
 

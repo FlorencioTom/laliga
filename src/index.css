@@ -297,13 +297,11 @@ a{
     width: 60px;
     position:absolute;
     z-index: 999;
-  }
 
-  /* .jugador-poscion:focus{
-    filter: drop-shadow(0px 0px 3px rgb(255, 230, 0));
-    outline: none;
-    transform: scale(1.5);
-  } */
+    &:hover{
+      transform: scale(1.4);
+    }
+  }
 
   .jugador-seleccionado{
     filter: drop-shadow(0px 0px 3px rgb(255, 230, 0));
@@ -316,6 +314,7 @@ a{
   }
 
 }
+
 .nextPlayer {
   cursor: pointer;
   transition: all 0.3s ease;

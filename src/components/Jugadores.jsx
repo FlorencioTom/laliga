@@ -87,20 +87,26 @@ export const Jugadores = () => {
 
   const siguienteJugador = async (num) => {
     for (const [index, x] of jugadores.entries()) {
-      if(jugadorSeleccionado === x){
+      if (jugadorSeleccionado === x) {
         const nextIndex = index + num;
+  
+        let siguiente = null;
+  
         if (nextIndex <= 0) {
-          setJugadorSeleccionado(jugadores[0]);
+          siguiente = jugadores[0];
         } else if (nextIndex >= jugadores.length) {
-          setJugadorSeleccionado(jugadores[jugadores.length - 1]);
+          siguiente = jugadores[jugadores.length - 1];
         } else {
-          setJugadorSeleccionado(jugadores[nextIndex]);
+          siguiente = jugadores[nextIndex];
         }
-        await obtenerBandera(jugadorSeleccionado.nacionalidad);
+  
+        setJugadorSeleccionado(siguiente);
+        await obtenerBandera(siguiente.nacionalidad?.toLowerCase());
+  
         break;
       }
     }
-  }
+  };
 
   const {ids} = useParams();
 
@@ -129,7 +135,6 @@ export const Jugadores = () => {
   const obtenerBandera = async (nacionalidad) => {
     try {
       // Convertir la nacionalidad a minúsculas
-      console.log(nacionalidad, '<---');
       const nacionalidadMin = nacionalidad.toLowerCase();
   
       // Hacer la solicitud a la API para obtener todos los países
@@ -204,7 +209,6 @@ export const Jugadores = () => {
   }
 
   const recibirJugador = (jugador) => {
-    console.log("Jugador recibido:", jugador);
     setCambioJugador(jugador);
   };
 
@@ -213,7 +217,6 @@ export const Jugadores = () => {
   };
 
   const cambioPosicionTitulares = (jugador1, jugador2) => {
-    console.log('Se pretende camiar de posicion a', jugador1, jugador2);
       var nuevosJugadores = jugadores.map(x => {
         if (x.nombre === jugador1.nombre) {
           return { ...x, posicion: jugador2.posicion };

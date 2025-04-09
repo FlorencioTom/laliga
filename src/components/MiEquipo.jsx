@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, NavLink } from 'react-router-dom';
 
 const MiEquipo = () => {
   return (
-    <NavLink to={`/miequipo`} className={`item `}>
+    <NavLink to={`/miequipo`} className={`item first-team`}>
         <img className='escudo miEquipo' src={balon} alt={'Mi equipo'} />
         <span>Mi equipo</span>
     </NavLink>

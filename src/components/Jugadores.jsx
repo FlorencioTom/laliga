@@ -43,6 +43,7 @@ export const Jugadores = () => {
   const [cambioJugador, setCambioJugador] = useState(null);
   const [open, setOpen] = useState(false);
   const [openCoach, setOpenCoach] = useState(false);
+  const [estadio, setEstadio] = useState(null);
 
   const handleOpen = async (jugador) => {
     await obtenerBandera(jugador.nacionalidad.toLowerCase()); 
@@ -118,10 +119,9 @@ export const Jugadores = () => {
     setLoading(true); // Iniciar el loader cuando comienza la carga
     try {
       const respuesta = await getAllPlayersByTeam(value);
-      //console.log('Respuesta de jugadores:', respuesta.plantilla.jugadores);
       setJugadores(respuesta.plantilla.jugadores);
       setEntrenador(respuesta.plantilla.entrenador);
-      
+      setEstadio(respuesta.estadio);
     } catch (error) {
       console.error('Error al obtener jugadores:', error);
     } finally {
@@ -288,7 +288,7 @@ export const Jugadores = () => {
         )}
          </SimpleBar>
       </div>
-      <Campo jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador}></Campo>
+      <Campo estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador}></Campo>
     </div>
       <Modal
       aria-labelledby="transition-modal-title"

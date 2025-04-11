@@ -111,7 +111,6 @@ code {
 }
 .scroll-equipos{
   border-top-right-radius: 20px;
-  overflow: hidden;
 }
 
 .scroll-suplentes .simplebar-content{
@@ -270,6 +269,8 @@ a{
 .centro{
   display: flex;
   justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .loader-campo{
@@ -337,7 +338,7 @@ a{
   }
 }
 
-.miembro-info p{
+.miembro-info p, .estadio{
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -158,25 +158,32 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
             {estadio ? (
               <>
                 <Swiper
-                  modules={[Navigation, Pagination, Scrollbar, A11y]}
+                  modules={[Navigation, Pagination]}
                   spaceBetween={20}
                   slidesPerView={1} // Muestra 1 slide a la vez, puedes usar 2 si quieres ambas visibles
                   navigation
                   pagination={{ clickable: true }}
                   scrollbar={{ draggable: true }}
+                  loop={true}
                 >
-                  <SwiperSlide>
+                  <SwiperSlide
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      height: '60vh'
+                    }}>
                     <img 
                       src={estadio.fotos['dentro']} 
                       alt="Interior del estadio" 
-                      style={{ width: '100%', height: 'auto', borderRadius: '10px' }} 
+                      style={{ width: '100%', height: 'auto'}} 
                     />
                   </SwiperSlide>
                   <SwiperSlide>
                     <img 
                       src={estadio.fotos['fuera']} 
                       alt="Exterior del estadio" 
-                      style={{ width: '100%', height: 'auto', borderRadius: '10px' }} 
+                      style={{ width: '100%', height: 'auto'}} 
                     />
                   </SwiperSlide>
                 </Swiper>

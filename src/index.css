@@ -348,5 +348,10 @@ a{
   border-top-right-radius:20px;
 }
 
+.swiper-wrapper{
+  align-items: center !important;
+}
 
-
+.swiper-pagination-bullet-active {
+  background: #FF4A42 !important;
+}

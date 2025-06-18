@@ -283,7 +283,14 @@ export const Jugadores = () => {
                   <img src={x.foto} alt={x.nombre} onClick={() => handleOpen(x)}/>
                   <span>{x.nombre}</span>
                 </div>
-              ))}
+            ))}
+            {jugadores && entrenador && ( 
+              <div className='addJugador'>
+                <div className='circle-plus'>
+                  <i class="fa-solid fa-plus"></i>
+                </div>
+              </div>
+            )}
           </>
         )}
          </SimpleBar>

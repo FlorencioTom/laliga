@@ -15,6 +15,13 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
 import Campo from './Campo';
+import {useForm} from 'react-hook-form';
+import FormControl from '@mui/material/FormControl';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputLabel from '@mui/material/InputLabel';
+import InputAdornment from '@mui/material/InputAdornment';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import IconButton from '@mui/material/IconButton';
 
 const style = {
   position: 'absolute',
@@ -23,6 +30,24 @@ const style = {
   transform: 'translate(-50%, -50%)',
   width: 200,
   bgcolor: '#FF4A42',
+  border: '2px solidrgb(192, 56, 49)',
+  boxShadow: 24,
+  p: 4,
+  display: 'flex',           
+  flexDirection: 'column',   
+  alignItems: 'center',      
+  textAlign: 'center', 
+  borderRadius: 10,
+  color:'white'   
+};
+
+const nuevoJugador = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 200,
+  bgcolor: '#fff',
   border: '2px solidrgb(192, 56, 49)',
   boxShadow: 24,
   p: 4,
@@ -43,7 +68,19 @@ export const Jugadores = () => {
   const [cambioJugador, setCambioJugador] = useState(null);
   const [open, setOpen] = useState(false);
   const [openCoach, setOpenCoach] = useState(false);
+  const [openNuevo, setOpenNuevo] = useState(false);
   const [estadio, setEstadio] = useState(null);
+
+  const { register, handleSubmit, formState: { errors } } = useForm();
+  const onSubmit = async (data) => {
+    try {
+    
+ 
+    } catch (error) {
+      console.log("Error en la petición:", error);  // Imprimir el error si lo hubiera
+    }
+    console.log("Errores del formulario:", errors); // Imprimir los errores de validación
+  };
 
   const handleOpen = async (jugador) => {
     await obtenerBandera(jugador.nacionalidad.toLowerCase()); 
@@ -81,6 +118,14 @@ export const Jugadores = () => {
   const handleExited = () => {
     setJugadorSeleccionado(null);
     setBandera('');
+  };
+
+  const handleCloseNuevo = () => {
+    setOpenNuevo(false);
+  }
+
+  const handleNuevo = () => {
+    setOpenNuevo(false);
   };
 
   const siguienteJugador = async (num) => {
@@ -286,7 +331,7 @@ export const Jugadores = () => {
             ))}
             {jugadores && entrenador && ( 
               <div className='addJugador'>
-                <div className='circle-plus'>
+                <div className='circle-plus' onClick={() => setOpenNuevo(true)}>
                   <i class="fa-solid fa-plus"></i>
                 </div>
               </div>
@@ -410,6 +455,196 @@ export const Jugadores = () => {
             )}
         </Box>
       </Fade>
+    </Modal>
+    <Modal
+      aria-labelledby="transition-modal-title"
+      aria-describedby="transition-modal-description"
+      open={openNuevo}
+      onClose={handleCloseNuevo}
+      closeAfterTransition
+      slots={{ backdrop: Backdrop }}
+      slotProps={{ backdrop: { timeout: 500 } }}>
+      <Fade in={openNuevo} onExited={handleNuevo}>
+        <Box sx={nuevoJugador}>
+                <h2 id="transition-modal-title" style={{ marginTop: '0px', color:'#000' }}>Nuevo jugador</h2>
+                <img src={''} alt={''} style={{ width: '60px' }} />
+                <img src={''} style={{ width: '60px', margin:'20px' }} />
+                <div style={{display:'flex', gap:'10px', alignItems: 'center'}}>
+                  <form className='formularioNuevoJugador' onSubmit={handleSubmit(onSubmit)}>
+                    <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
+                      <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
+                          Nombre
+                      </InputLabel>
+                      <OutlinedInput id="outlined-adornment-usuario" type='text'
+                        endAdornment={
+                          <InputAdornment position="end">
+                            <IconButton aria-label="user icon" edge="end">
+                              <AccountCircleIcon />
+                            </IconButton>
+                          </InputAdornment>
+                        }
+                        label="Nombre"
+                        sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                          '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                        }}
+                        {...register("nombre", {required: true})}
+                      />
+                    </FormControl>
+                    <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
+                      <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
+                          Apodo
+                      </InputLabel>
+                      <OutlinedInput id="outlined-adornment-usuario" type='text'
+                        endAdornment={
+                          <InputAdornment position="end">
+                            <IconButton aria-label="user icon" edge="end">
+                              <AccountCircleIcon />
+                            </IconButton>
+                          </InputAdornment>
+                        }
+                        label="Nombre"
+                        sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                          '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                        }}
+                        {...register("apodo", {required: true})}
+                      />
+                    </FormControl>
+                    <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
+                      <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
+                          Dorsal
+                      </InputLabel>
+                      <OutlinedInput id="outlined-adornment-usuario" type='number'
+                        endAdornment={
+                          <InputAdornment position="end">
+                            <IconButton aria-label="user icon" edge="end">
+                              <AccountCircleIcon />
+                            </IconButton>
+                          </InputAdornment>
+                        }
+                        label="Nombre"
+                        sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                          '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                        }}
+                        {...register("dorsal", {required: true})}
+                      />
+                    </FormControl>
+                    <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
+                      <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
+                          nacimiento
+                      </InputLabel>
+                      <OutlinedInput id="outlined-adornment-usuario" type='date'
+                        endAdornment={
+                          <InputAdornment position="end">
+                            <IconButton aria-label="user icon" edge="end">
+                              <AccountCircleIcon />
+                            </IconButton>
+                          </InputAdornment>
+                        }
+                        label="Nombre"
+                        sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                          '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                        }}
+                        {...register("nacimiento", {required: true})}
+                      />
+                    </FormControl>
+                    <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
+                      <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
+                          altura
+                      </InputLabel>
+                      <OutlinedInput id="outlined-adornment-usuario" type='number' step='0.1'
+                        endAdornment={
+                          <InputAdornment position="end">
+                            <IconButton aria-label="user icon" edge="end">
+                              <AccountCircleIcon />
+                            </IconButton>
+                          </InputAdornment>
+                        }
+                        label="Nombre"
+                        sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                          '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                        }}
+                        {...register("altura", {required: true})}
+                      />
+                    </FormControl>
+                    <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
+                      <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
+                          1ª Posicion
+                      </InputLabel>
+                      <OutlinedInput id="outlined-adornment-usuario" type='text' step='0.1'
+                        endAdornment={
+                          <InputAdornment position="end">
+                            <IconButton aria-label="user icon" edge="end">
+                              <AccountCircleIcon />
+                            </IconButton>
+                          </InputAdornment>
+                        }
+                        label="Nombre"
+                        sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                          '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                        }}
+                        {...register("posicion", {required: true})}
+                      />
+                    </FormControl>
+                    <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
+                      <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
+                          País
+                      </InputLabel>
+                      <OutlinedInput id="outlined-adornment-usuario" type='text' step='0.1'
+                        endAdornment={
+                          <InputAdornment position="end">
+                            <IconButton aria-label="user icon" edge="end">
+                              <AccountCircleIcon />
+                            </IconButton>
+                          </InputAdornment>
+                        }
+                        label="Nombre"
+                        sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                          '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                        }}
+                        {...register("pais", {required: true})}
+                      />
+                    </FormControl>
+                    <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
+                      <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
+                          foto
+                      </InputLabel>
+                      <OutlinedInput id="outlined-adornment-usuario" type='file'
+                        endAdornment={
+                          <InputAdornment position="end">
+                            <IconButton aria-label="user icon" edge="end">
+                              <AccountCircleIcon />
+                            </IconButton>
+                          </InputAdornment>
+                        }
+                        label="Nombre"
+                        sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                          '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                        }}
+                        {...register("foto", {required: true})}
+                      />
+                    </FormControl>
+                  </form>
+                </div>
+                <div style={{display:'flex', gap:'10px', marginTop:'30px'}}>
+                  <Button  variant="contained" onClick={handleCloseNuevo} sx={{ 
+                    backgroundColor: 'white', 
+                    '&:hover': {
+                      backgroundColor: '#FF4A42',
+                    },
+                    color: 'black',
+                    borderRadius: 10
+                  }}>Cerrar</Button>
+                  <Button variant="contained" sx={{ 
+                    backgroundColor: 'white', 
+                    '&:hover': {
+                      backgroundColor: '#FF4A42',
+                    },
+                    color: 'black',
+                    borderRadius: 10
+                  }}>Crear</Button>
+                </div>
+        </Box>
+      </Fade>      
     </Modal>
   </>
   );

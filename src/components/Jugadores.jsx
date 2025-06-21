@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { getAllPlayersByTeam, addPlayer, addCoach } from '../Api/Api';
 import Loader from 'rsuite/Loader';
 import SimpleBar from 'simplebar-react';
@@ -22,6 +22,15 @@ import InputLabel from '@mui/material/InputLabel';
 import InputAdornment from '@mui/material/InputAdornment';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import IconButton from '@mui/material/IconButton';
+import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
+import CheckroomIcon from '@mui/icons-material/Checkroom';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import HeightIcon from '@mui/icons-material/Height';
+import ControlCameraIcon from '@mui/icons-material/ControlCamera';
+import FlagCircleIcon from '@mui/icons-material/FlagCircle';
+import PhotoIcon from '@mui/icons-material/Photo';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
 const style = {
   position: 'absolute',
@@ -70,7 +79,7 @@ export const Jugadores = () => {
   const [openCoach, setOpenCoach] = useState(false);
   const [openNuevo, setOpenNuevo] = useState(false);
   const [estadio, setEstadio] = useState(null);
-
+  const inputRefCalendar = useRef();
   const { register, handleSubmit, formState: { errors } } = useForm();
   const onSubmit = async (data) => {
     try {
@@ -80,6 +89,15 @@ export const Jugadores = () => {
       console.log("Error en la petición:", error);  // Imprimir el error si lo hubiera
     }
     console.log("Errores del formulario:", errors); // Imprimir los errores de validación
+  };
+
+    const handleCalendarClick = () => {
+    if (inputRefCalendar.current) {
+      // En navegadores modernos
+      inputRefCalendar.current.showPicker?.();
+      // Fallback para otros
+      inputRefCalendar.current.click();
+    }
   };
 
   const handleOpen = async (jugador) => {
@@ -304,6 +322,10 @@ export const Jugadores = () => {
     return posicionEncontrada ? posicionEncontrada.shortName : posicion;
   }
 
+  const handleChangePosicion = () => {
+
+  }
+
   return (
     <>
     <div className='container'>
@@ -498,11 +520,11 @@ export const Jugadores = () => {
                         endAdornment={
                           <InputAdornment position="end">
                             <IconButton aria-label="user icon" edge="end">
-                              <AccountCircleIcon />
+                              <EmojiEmotionsIcon/>
                             </IconButton>
                           </InputAdornment>
                         }
-                        label="Nombre"
+                        label="Apodo"
                         sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                           '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                         }}
@@ -517,11 +539,11 @@ export const Jugadores = () => {
                         endAdornment={
                           <InputAdornment position="end">
                             <IconButton aria-label="user icon" edge="end">
-                              <AccountCircleIcon />
+                              <CheckroomIcon/>
                             </IconButton>
                           </InputAdornment>
                         }
-                        label="Nombre"
+                        label="Dorsal"
                         sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                           '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                         }}
@@ -530,61 +552,74 @@ export const Jugadores = () => {
                     </FormControl>
                     <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
                       <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
-                          nacimiento
+                          Nacimiento
                       </InputLabel>
-                      <OutlinedInput id="outlined-adornment-usuario" type='date'
+                      <OutlinedInput id="outlined-adornment-usuario" type='date' inputRef={inputRefCalendar} defaultValue="2000-01-01"
                         endAdornment={
                           <InputAdornment position="end">
-                            <IconButton aria-label="user icon" edge="end">
-                              <AccountCircleIcon />
+                            <IconButton aria-label="user icon" edge="end" onClick={handleCalendarClick}>
+                              <CalendarTodayIcon/>
                             </IconButton>
                           </InputAdornment>
                         }
-                        label="Nombre"
+                        label="AltNacimiento"
                         sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                           '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                          '& input::-webkit-calendar-picker-indicator': {display: 'none', WebkitAppearance: 'none'}
                         }}
                         {...register("nacimiento", {required: true})}
                       />
                     </FormControl>
                     <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
                       <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
-                          altura
+                          Altura
                       </InputLabel>
                       <OutlinedInput id="outlined-adornment-usuario" type='number' step='0.1'
                         endAdornment={
                           <InputAdornment position="end">
                             <IconButton aria-label="user icon" edge="end">
-                              <AccountCircleIcon />
+                              <HeightIcon />
                             </IconButton>
                           </InputAdornment>
                         }
-                        label="Nombre"
+                        label="Altura"
                         sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                           '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                         }}
                         {...register("altura", {required: true})}
                       />
                     </FormControl>
-                    <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
-                      <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
-                          1ª Posicion
-                      </InputLabel>
-                      <OutlinedInput id="outlined-adornment-usuario" type='text' step='0.1'
-                        endAdornment={
-                          <InputAdornment position="end">
-                            <IconButton aria-label="user icon" edge="end">
-                              <AccountCircleIcon />
-                            </IconButton>
-                          </InputAdornment>
-                        }
-                        label="Nombre"
-                        sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+          <FormControl sx={{ m: 1, width: 200 }} variant="outlined">
+          <InputLabel id="demo-multiple-name-label" htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>Posicion</InputLabel>
+          <Select
+            input={<OutlinedInput label="Posicion" 
+            sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                           '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                        }}
-                        {...register("posicion", {required: true})}
-                      />
-                    </FormControl>
+                        }}/>}
+            labelId="Posicion"
+            id="demo-simple-select-filled"
+            value={''}
+            onChange={handleChangePosicion}
+          >
+            <MenuItem value={''}>
+              <em>None</em>
+            </MenuItem>
+            <MenuItem value={'portero'}>Portero</MenuItem>
+            <MenuItem value={'lateral derecha'}>lateral derecha</MenuItem>
+            <MenuItem value={'lateral izquierda'}>lateral izquierda</MenuItem>
+            <MenuItem value={'central izquierda'}>central izquierda</MenuItem>
+            <MenuItem value={'central derecha'}>central derecha</MenuItem>
+            <MenuItem value={'defensas'}>Defensas</MenuItem>
+            <MenuItem value={'centrocampista derecha'}>Centrocampista derecha</MenuItem>
+            <MenuItem value={'centrocampista izquierda'}>Centrocampista izquierda</MenuItem>
+            <MenuItem value={'centrocampista centro'}>Centrocampista centro</MenuItem>
+            <MenuItem value={'centrocampistas'}>Centrocampistas</MenuItem>
+            <MenuItem value={'delantero'}>Delantero centro</MenuItem>
+            <MenuItem value={'extremo izquierda'}>extremo izquierda</MenuItem>
+            <MenuItem value={'extremo derecha'}>extremo derecha</MenuItem>
+            <MenuItem value={'delanteros'}>Delanteros</MenuItem>
+          </Select>
+          </FormControl>
                     <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
                       <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
                           País
@@ -593,11 +628,11 @@ export const Jugadores = () => {
                         endAdornment={
                           <InputAdornment position="end">
                             <IconButton aria-label="user icon" edge="end">
-                              <AccountCircleIcon />
+                              <FlagCircleIcon />
                             </IconButton>
                           </InputAdornment>
                         }
-                        label="Nombre"
+                        label="País"
                         sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                           '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                         }}
@@ -612,11 +647,11 @@ export const Jugadores = () => {
                         endAdornment={
                           <InputAdornment position="end">
                             <IconButton aria-label="user icon" edge="end">
-                              <AccountCircleIcon />
+                              <PhotoIcon />
                             </IconButton>
                           </InputAdornment>
                         }
-                        label="Nombre"
+                        label="Foto"
                         sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                           '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                         }}

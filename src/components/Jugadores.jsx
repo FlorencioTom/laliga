@@ -83,9 +83,11 @@ export const Jugadores = () => {
   const [estadio, setEstadio] = useState(null);
   const inputRefCalendar = useRef();
   const [nacionalidades, setNacionalidades] = useState('');
-  const [posicion, setPosicion] = useState();
-  const [nacionalidad, setNacionalidad] = useState();
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const [posicion, setPosicion] = useState('');
+  const [nacionalidad, setNacionalidad] = useState('');
+  const [nuevaFotoJugador, setNuevaFotoJugador] = useState(['','']);
+  const [edicion, setEdicion] = useState([false, {}]);
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
   useEffect(() => {
     getNacionalidades();
@@ -109,11 +111,11 @@ export const Jugadores = () => {
   }
 
   const onSubmit = async (data) => {
-    try {
-    } catch (error) {
-      console.log("Error en la petición:", error);  // Imprimir el error si lo hubiera
-    }
-    console.log("Errores del formulario:", errors); // Imprimir los errores de validación
+    console.log(data,ids);
+    //end point para enviar los datos al backend
+
+    reset();
+    handleCloseNuevo();
   };
 
     const handleCalendarClick = () => {
@@ -165,10 +167,30 @@ export const Jugadores = () => {
 
   const handleCloseNuevo = () => {
     setOpenNuevo(false);
+    setNacionalidad('');
+    setPosicion('');
+    setNuevaFotoJugador(['','']);
+    setBandera('');
+    reset();
   }
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setNuevaFotoJugador([file, url]);
+    }
+  }
+
+  const triggerFileSelect = () => {
+    document.getElementById('file-upload').click();
+  };
 
   const handleNuevo = () => {
     setOpenNuevo(false);
+    setNacionalidad('');
+    setPosicion('');
+    setNuevaFotoJugador(['','']);
   };
 
   const siguienteJugador = async (num) => {
@@ -250,7 +272,7 @@ export const Jugadores = () => {
     if(token){
       //console.log(jugador);
       //const info = {token, jugador};
-      console.log(jugador.nacimiento);
+      //console.log(jugador.nacimiento);
       const respuesta = await addPlayer(jugador);
       
       if(respuesta.status === 201){
@@ -385,7 +407,7 @@ export const Jugadores = () => {
             {jugadores && entrenador && ( 
               <div className='addJugador'>
                 <div className='circle-plus' onClick={() => setOpenNuevo(true)}>
-                  <i class="fa-solid fa-plus"></i>
+                  <i className="fa-solid fa-plus"></i>
                 </div>
               </div>
             )}
@@ -520,201 +542,215 @@ export const Jugadores = () => {
       <Fade in={openNuevo} onExited={handleNuevo}>
         <Box sx={nuevoJugador}>
                 <h2 id="transition-modal-title" style={{ marginTop: '0px', color:'#000' }}>Nuevo jugador</h2>
+                {nuevaFotoJugador[1] && (
+                  <img
+                    src={nuevaFotoJugador[1]}
+                    alt={nacionalidad}
+                    style={{ width: '100px', marginBottom: '20px', objectFit: 'cover', borderRadius: '4px' }}
+                  />
+                )}
                 <img src={bandera} alt={nacionalidad} style={{ width: '60px', marginBottom:'20px' }} />
                 <div style={{display:'flex', gap:'10px', alignItems: 'center'}}>
                   <form className='formularioNuevoJugador' onSubmit={handleSubmit(onSubmit)}>
-                    <div>
-                      <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
-                        <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
-                            Nombre
-                        </InputLabel>
-                        <OutlinedInput id="outlined-adornment-usuario" type='text'
-                          endAdornment={
-                            <InputAdornment position="end">
-                              <IconButton aria-label="user icon" edge="end">
-                                <AccountCircleIcon />
-                              </IconButton>
-                            </InputAdornment>
-                          }
-                          label="Nombre"
-                          sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                            '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                          }}
-                          {...register("nombre", {required: true})}
-                        />
-                      </FormControl>
-                      <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
-                        <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
-                            Apodo
-                        </InputLabel>
-                        <OutlinedInput id="outlined-adornment-usuario" type='text'
-                          endAdornment={
-                            <InputAdornment position="end">
-                              <IconButton aria-label="user icon" edge="end">
-                                <EmojiEmotionsIcon/>
-                              </IconButton>
-                            </InputAdornment>
-                          }
-                          label="Apodo"
-                          sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                            '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                          }}
-                          {...register("apodo", {required: true})}
-                        />
-                      </FormControl>
-                      <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
-                        <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
-                            Dorsal
-                        </InputLabel>
-                        <OutlinedInput id="outlined-adornment-usuario" type='number'
-                          endAdornment={
-                            <InputAdornment position="end">
-                              <IconButton aria-label="user icon" edge="end">
-                                <CheckroomIcon/>
-                              </IconButton>
-                            </InputAdornment>
-                          }
-                          label="Dorsal"
-                          sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                            '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                          }}
-                          {...register("dorsal", {required: true})}
-                        />
-                      </FormControl>
-                      <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
-                        <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
-                            Nacimiento
-                        </InputLabel>
-                        <OutlinedInput id="outlined-adornment-usuario" type='date' inputRef={inputRefCalendar} defaultValue="2000-01-01"
-                          endAdornment={
-                            <InputAdornment position="end">
-                              <IconButton aria-label="user icon" edge="end" onClick={handleCalendarClick}>
-                                <CalendarTodayIcon/>
-                              </IconButton>
-                            </InputAdornment>
-                          }
-                          label="AltNacimiento"
-                          sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                            '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                            '& input::-webkit-calendar-picker-indicator': {display: 'none', WebkitAppearance: 'none'}
-                          }}
-                          {...register("nacimiento", {required: true})}
-                        />
-                      </FormControl>
-                    </div>
-                    <div>
-                      <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
-                        <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
-                            Altura
-                        </InputLabel>
-                        <OutlinedInput id="outlined-adornment-usuario" type='number' step='0.1'
-                          endAdornment={
-                            <InputAdornment position="end">
-                              <IconButton aria-label="user icon" edge="end">
-                                <HeightIcon />
-                              </IconButton>
-                            </InputAdornment>
-                          }
-                          label="Altura"
-                          sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                            '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                          }}
-                          {...register("altura", {required: true})}
-                        />
-                      </FormControl>
-                      <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
-                        <InputLabel id="demo-multiple-name-label" htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>Posicion</InputLabel>
-                        <Select
-                          input={<OutlinedInput label="Posicion" 
-                          sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                                        '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                                      }}/>}
-                          labelId="Posicion"
-                          id="demo-simple-select-filled"
-                          value={posicion}
-                          onChange={handleChangePosicion}
-                        >
-                          <MenuItem value={''}>
-                            None
-                          </MenuItem>
-                          <MenuItem value={'portero'}>Portero</MenuItem>
-                          <MenuItem value={'lateral derecha'}>lateral derecha</MenuItem>
-                          <MenuItem value={'lateral izquierda'}>lateral izquierda</MenuItem>
-                          <MenuItem value={'central izquierda'}>central izquierda</MenuItem>
-                          <MenuItem value={'central derecha'}>central derecha</MenuItem>
-                          <MenuItem value={'defensas'}>Defensas</MenuItem>
-                          <MenuItem value={'centrocampista derecha'}>Centrocampista derecha</MenuItem>
-                          <MenuItem value={'centrocampista izquierda'}>Centrocampista izquierda</MenuItem>
-                          <MenuItem value={'centrocampista centro'}>Centrocampista centro</MenuItem>
-                          <MenuItem value={'centrocampistas'}>Centrocampistas</MenuItem>
-                          <MenuItem value={'delantero'}>Delantero centro</MenuItem>
-                          <MenuItem value={'extremo izquierda'}>extremo izquierda</MenuItem>
-                          <MenuItem value={'extremo derecha'}>extremo derecha</MenuItem>
-                          <MenuItem value={'delanteros'}>Delanteros</MenuItem>
-                        </Select>
-                      </FormControl>
-                      <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
-                        <InputLabel id="demo-multiple-name-label" htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>Nacionalidad</InputLabel>
-                        <Select
-                          input={<OutlinedInput label="Nacionalidad" 
-                          sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                            '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                          }}/>}
-                          labelId="Posicion"
-                          id="demo-simple-select-filled"
-                          value={nacionalidad}
-                          onChange={handleChangeNacionalidad}
-                        >
-                          <MenuItem value={''}>
-                            <em>None</em>
-                          </MenuItem>
-                          {nacionalidades && nacionalidades.map((x, index) => (
-                            <MenuItem value={x} key={index}>
-                              {x}
+                    <div className='campos'>
+                      <div>
+                        <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
+                          <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
+                              Nombre
+                          </InputLabel>
+                          <OutlinedInput id="outlined-adornment-usuario" type='text'
+                            endAdornment={
+                              <InputAdornment position="end">
+                                <IconButton aria-label="user icon" edge="end">
+                                  <AccountCircleIcon />
+                                </IconButton>
+                              </InputAdornment>
+                            }
+                            label="Nombre"
+                            sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                              '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                            }}
+                            {...register("nombre", {required: true})}
+                          />
+                        </FormControl>
+                        <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
+                          <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
+                              Apodo
+                          </InputLabel>
+                          <OutlinedInput id="outlined-adornment-usuario" type='text'
+                            endAdornment={
+                              <InputAdornment position="end">
+                                <IconButton aria-label="user icon" edge="end">
+                                  <EmojiEmotionsIcon/>
+                                </IconButton>
+                              </InputAdornment>
+                            }
+                            label="Apodo"
+                            sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                              '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                            }}
+                            {...register("apodo", {required: false})}
+                          />
+                        </FormControl>
+                        <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
+                          <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
+                              Dorsal
+                          </InputLabel>
+                          <OutlinedInput id="outlined-adornment-usuario" type='number'
+                            endAdornment={
+                              <InputAdornment position="end">
+                                <IconButton aria-label="user icon" edge="end">
+                                  <CheckroomIcon/>
+                                </IconButton>
+                              </InputAdornment>
+                            }
+                            label="Dorsal"
+                            sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                              '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                            }}
+                            {...register("dorsal", {required: true})}
+                          />
+                        </FormControl>
+                        <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
+                          <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
+                              Nacimiento
+                          </InputLabel>
+                          <OutlinedInput id="outlined-adornment-usuario" type='date' inputRef={inputRefCalendar} defaultValue="2000-01-01"
+                            endAdornment={
+                              <InputAdornment position="end">
+                                <IconButton aria-label="user icon" edge="end" onClick={handleCalendarClick}>
+                                  <CalendarTodayIcon/>
+                                </IconButton>
+                              </InputAdornment>
+                            }
+                            label="AltNacimiento"
+                            sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                              '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                              '& input::-webkit-calendar-picker-indicator': {display: 'none', WebkitAppearance: 'none'}
+                            }}
+                            {...register("nacimiento", {required: true})}
+                          />
+                        </FormControl>
+                      </div>
+                      <div>
+                        <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
+                          <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
+                              Altura
+                          </InputLabel>
+                          <OutlinedInput id="outlined-adornment-usuario" type='number' step='0.1'
+                            endAdornment={
+                              <InputAdornment position="end">
+                                <IconButton aria-label="user icon" edge="end">
+                                  <HeightIcon />
+                                </IconButton>
+                              </InputAdornment>
+                            }
+                            label="Altura"
+                            sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                              '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                            }}
+                            {...register("altura", {required: true})}
+                          />
+                        </FormControl>
+                        <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
+                          <InputLabel id="demo-multiple-name-label" htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>Posicion</InputLabel>
+                          <Select
+                            input={<OutlinedInput label="Posicion" 
+                            sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                                          '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                                        }}/>}
+                            labelId="Posicion"
+                            id="demo-simple-select-filled"
+                            value={posicion || ''}
+                            onChange={(e) => setPosicion(e.target.value)}
+                          >
+                            <MenuItem value={''}>
+                              None
                             </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                      <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
-                        <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
-                            foto
-                        </InputLabel>
-                        <OutlinedInput id="outlined-adornment-usuario" type='file'
-                          endAdornment={
-                            <InputAdornment position="end">
-                              <IconButton aria-label="user icon" edge="end">
-                                <PhotoIcon />
-                              </IconButton>
-                            </InputAdornment>
-                          }
-                          label="Foto"
-                          sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                            '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
-                          }}
-                          {...register("foto", {required: true})}
-                        />
-                      </FormControl>
+                            <MenuItem value={'portero'}>Portero</MenuItem>
+                            <MenuItem value={'lateral derecha'}>lateral derecha</MenuItem>
+                            <MenuItem value={'lateral izquierda'}>lateral izquierda</MenuItem>
+                            <MenuItem value={'central izquierda'}>central izquierda</MenuItem>
+                            <MenuItem value={'central derecha'}>central derecha</MenuItem>
+                            <MenuItem value={'defensas'}>Defensas</MenuItem>
+                            <MenuItem value={'centrocampista derecha'}>Centrocampista derecha</MenuItem>
+                            <MenuItem value={'centrocampista izquierda'}>Centrocampista izquierda</MenuItem>
+                            <MenuItem value={'centrocampista centro'}>Centrocampista centro</MenuItem>
+                            <MenuItem value={'centrocampistas'}>Centrocampistas</MenuItem>
+                            <MenuItem value={'delantero'}>Delantero centro</MenuItem>
+                            <MenuItem value={'extremo izquierda'}>extremo izquierda</MenuItem>
+                            <MenuItem value={'extremo derecha'}>extremo derecha</MenuItem>
+                            <MenuItem value={'delanteros'}>Delanteros</MenuItem>
+                          </Select>
+                        </FormControl>
+                        <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
+                          <InputLabel id="demo-multiple-name-label" htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>Nacionalidad</InputLabel>
+                          <Select
+                            input={<OutlinedInput label="Nacionalidad" 
+                            sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                              '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                            }}/>}
+                            labelId="Posicion"
+                            id="demo-simple-select-filled"
+                            value={nacionalidad}
+                            onChange={handleChangeNacionalidad}
+                          >
+                            <MenuItem value={''}>
+                              <em>None</em>
+                            </MenuItem>
+                            {nacionalidades && nacionalidades.map((x, index) => (
+                              <MenuItem value={x} key={index}>
+                                {x}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                        <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
+                          <InputLabel htmlFor="file-mock" sx={{color: 'gray','&.Mui-focused': { color: '#FF4A42' },'&:hover': { color: '#FF4A42' }}}>
+                            Foto
+                          </InputLabel>
+                          <OutlinedInput
+                            id="file-mock"
+                            value={nuevaFotoJugador[0].name || ''}
+                            readOnly
+                            endAdornment={
+                              <InputAdornment position="end">
+                                <IconButton aria-label="seleccionar foto" edge="end" onClick={triggerFileSelect}>
+                                  <PhotoIcon />
+                                </IconButton>
+                              </InputAdornment>
+                            }
+                            label="Foto"
+                            sx={{
+                              '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#FF4A42' },
+                              '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#FF4A42' },
+                            }}
+                          />
+
+                          {/* Input oculto que realmente maneja el archivo */}
+                          <input
+                            type="file"
+                            id="file-upload"
+                            style={{ display: 'none' }}
+                              {...register("foto", {
+                                required: true,
+                                onChange: handleFileChange,  // Aquí integras tu función
+                              })}
+                          />
+                        </FormControl>
+                      </div>
+                    </div>
+                    <div style={{display:'flex', gap:'10px', marginTop:'30px', justifyContent:'center'}}>
+                      <Button variant="contained" type='submit' sx={{ 
+                        backgroundColor: 'white','&:hover': {backgroundColor: '#FF4A42', color:'white'},color: 'black',borderRadius: 10
+                      }}>Crear</Button>
+                      <Button variant="contained" onClick={handleCloseNuevo} sx={{ 
+                        backgroundColor: 'white', '&:hover': {backgroundColor: '#000', color:'white'},color: 'black', borderRadius: 10
+                      }}>Cerrar</Button>
                     </div>
                   </form>
                 </div>
-                <div style={{display:'flex', gap:'10px', marginTop:'30px'}}>
-                  <Button  variant="contained" onClick={handleCloseNuevo} sx={{ 
-                    backgroundColor: 'white', 
-                    '&:hover': {
-                      backgroundColor: '#FF4A42',
-                    },
-                    color: 'black',
-                    borderRadius: 10
-                  }}>Cerrar</Button>
-                  <Button variant="contained" sx={{ 
-                    backgroundColor: 'white', 
-                    '&:hover': {
-                      backgroundColor: '#FF4A42',
-                    },
-                    color: 'black',
-                    borderRadius: 10
-                  }}>Crear</Button>
-                </div>
+
         </Box>
       </Fade>      
     </Modal>

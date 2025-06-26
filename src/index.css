@@ -230,8 +230,10 @@ a{
   border-radius: 8px;
 }
 .formularioNuevoJugador{
-  display: flex;
-  gap:20px;
+  .campos{
+    display: flex;
+    gap:20px;
+  }
 }
 .submit{
   width: 100px;

@@ -1,6 +1,6 @@
 import axios from 'axios';
-import Equipo  from '../Interfaces/interfaces'; // Importa la interfaz Equipo, que representa la estructura completa
-
+import Equipo from '../Interfaces/interfaces'; // Importa la interfaz Equipo, que representa la estructura completa
+const cloudName = 'demhp5yfg';
 // URL base de la API
 const API_BASE_URL = "https://laligaback-deploy.vercel.app"; // Reemplaza con tu URL
   
@@ -48,17 +48,55 @@ export const getAllPlayersByTeam = async(equipo:string) => {
   return response.data.data;
 };
 
-export const addPlayer = async(jugador:any) => {
+export const uploadImageToCloudinary = async (file:any) => {
+  const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+
+  const formData = new FormData();
+  formData.append('file', file);
+  //que el preset lo genere apartir del nomre del equipo
+  formData.append('upload_preset', 'real-madrid');
+  formData.append('folder', 'laliga');
+
+  try {
+    const response = await axios.post(url, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    // Retorna la URL pública de la imagen subida
+    return response.data.secure_url;
+  } catch (error) {
+    console.error('Error subiendo imagen a Cloudinary:', error);
+    throw error;
+  }
+};
+
+export const addPlayerToTeam = async(idEquipo:string, jugador:any, foto:any) => {
+  const formData = new FormData();
+
+  // Adjuntas los campos del jugador al FormData
+  for (const key in jugador) {
+    formData.append(key, jugador[key]);
+  }
+
+  // Adjuntas la imagen si existe
+  if (foto) {
+    formData.append('image', foto);
+    console.log(foto);
+  }
+
   const response = await api.post(
-    'login/add',
-    {jugador},  // Pasa un objeto vacío como payload si no necesitas enviar datos adicionales.
+    `equipos/${idEquipo}`,
+    formData,
     {
-      withCredentials: true,  // Para enviar cookies.
-      /*headers: {
-        Cookie: `access_token=${cookie}`, // Puedes enviar la cookie manualmente si no se está enviando automáticamente.
-      }*/
+      withCredentials: true,
+      headers: {
+        
+      }
     }
   );
+
   return response.data;
 
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { getAllPlayersByTeam, addPlayer, addCoach } from '../Api/Api';
+import { getAllPlayersByTeam, addPlayer, addCoach, addPlayerToTeam } from '../Api/Api';
 import Loader from 'rsuite/Loader';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
@@ -31,7 +31,7 @@ import FlagCircleIcon from '@mui/icons-material/FlagCircle';
 import PhotoIcon from '@mui/icons-material/Photo';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import {getAllTeams} from '../Api/Api';
+import {getAllTeams, uploadImageToCloudinary} from '../Api/Api';
 
 const style = {
   position: 'absolute',
@@ -111,7 +111,11 @@ export const Jugadores = () => {
   }
 
   const onSubmit = async (data) => {
-    console.log(data,ids);
+    console.log(data, ids);
+    //upload de la imagen a cloudinary, deveulve la url
+    const response = await uploadImageToCloudinary(nuevaFotoJugador[0]);
+    //el jugador con la foto camiada a la url de cloudinary
+    console.log(response);
     //end point para enviar los datos al backend
 
     reset();
@@ -263,16 +267,16 @@ export const Jugadores = () => {
   };
 
   const fichar = async(jugador) => {
-    const token = Cookies.get('access_token');
-    /*console.log('-------------------------------------');
+    /*const token = Cookies.get('access_token');
+    console.log('-------------------------------------');
     for (const [key, value] of Object.entries(jugador)) {
       console.log(`Tipo de ${key}:`, typeof value); // 
     }
-    console.log('-------------------------------------'); */
+    console.log('-------------------------------------'); 
     if(token){
-      //console.log(jugador);
-      //const info = {token, jugador};
-      //console.log(jugador.nacimiento);
+      console.log(jugador);
+      const info = {token, jugador};
+      console.log(jugador.nacimiento);
       const respuesta = await addPlayer(jugador);
       
       if(respuesta.status === 201){
@@ -290,11 +294,11 @@ export const Jugadores = () => {
         title: "Oops...",
         text: `Inicia sesion para añadir jugadores a tu plantilla`
       });
-    }
+    }*/
   }
 
   const ficharCoach = async(coach) => {
-    const token = Cookies.get('access_token');
+    /*const token = Cookies.get('access_token');
     if(token){
       const respuesta = await addCoach(coach);
       if(respuesta.status === 201){
@@ -312,7 +316,7 @@ export const Jugadores = () => {
         title: "Oops...",
         text: `Inicia sesion para fichar a ${coach.nombre}`
       });
-    }
+    }*/
   }
 
   const recibirJugador = (jugador) => {

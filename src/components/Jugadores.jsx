@@ -113,9 +113,13 @@ export const Jugadores = () => {
   const onSubmit = async (data) => {
     console.log(data, ids);
     //upload de la imagen a cloudinary, deveulve la url
-    const response = await uploadImageToCloudinary(nuevaFotoJugador[0]);
+    const respuesta = await getAllPlayersByTeam(ids);
+    const response = await uploadImageToCloudinary(nuevaFotoJugador[0], respuesta.carpeta);
+
+    //añadir jugador a la plantilla del equipo, en la data hay que camiar la url del jugador
+    const addPlayer = await addPlayerToTeam(ids, data);
     //el jugador con la foto camiada a la url de cloudinary
-    console.log(response);
+    //console.log(response);
     //end point para enviar los datos al backend
 
     reset();

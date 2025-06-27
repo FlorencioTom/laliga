@@ -48,14 +48,14 @@ export const getAllPlayersByTeam = async(equipo:string) => {
   return response.data.data;
 };
 
-export const uploadImageToCloudinary = async (file:any) => {
+export const uploadImageToCloudinary = async (file:any, folder:string) => {
   const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
 
   const formData = new FormData();
   formData.append('file', file);
   //que el preset lo genere apartir del nomre del equipo
-  formData.append('upload_preset', 'real-madrid');
-  formData.append('folder', 'laliga');
+  formData.append('upload_preset', 'default');
+  formData.append('folder', `laliga/${folder}`);
 
   try {
     const response = await axios.post(url, formData, {
@@ -72,18 +72,12 @@ export const uploadImageToCloudinary = async (file:any) => {
   }
 };
 
-export const addPlayerToTeam = async(idEquipo:string, jugador:any, foto:any) => {
+export const addPlayerToTeam = async(idEquipo:string, jugador:any) => {
   const formData = new FormData();
 
   // Adjuntas los campos del jugador al FormData
   for (const key in jugador) {
     formData.append(key, jugador[key]);
-  }
-
-  // Adjuntas la imagen si existe
-  if (foto) {
-    formData.append('image', foto);
-    console.log(foto);
   }
 
   const response = await api.post(

@@ -86,12 +86,9 @@ export const Jugadores = () => {
   const [posicion, setPosicion] = useState('');
   const [nacionalidad, setNacionalidad] = useState('');
   const [nuevaFotoJugador, setNuevaFotoJugador] = useState(['','']);
+  const [jugadoresChanged, setJugadoresChanged] = useState(false);
   const [edicion, setEdicion] = useState([false, {}]);
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
-
-  useEffect(() => {
-    getNacionalidades();
-  }, []);
 
   const getNacionalidades = async() => {
     try {
@@ -111,16 +108,21 @@ export const Jugadores = () => {
   }
 
   const onSubmit = async (data) => {
-    console.log(data, ids);
-    //upload de la imagen a cloudinary, deveulve la url
     const respuesta = await getAllPlayersByTeam(ids);
     const response = await uploadImageToCloudinary(nuevaFotoJugador[0], respuesta.carpeta);
 
-    //añadir jugador a la plantilla del equipo, en la data hay que camiar la url del jugador
+    data.titular = false;
+    data.foto = response;
+    data.posicion = posicion;
+    data.nacionalidad = nacionalidad;
+    data.dorsal = Number(data.dorsal);
+
+    console.log(data);
     const addPlayer = await addPlayerToTeam(ids, data);
-    //el jugador con la foto camiada a la url de cloudinary
-    //console.log(response);
-    //end point para enviar los datos al backend
+
+    if(addPlayer.status === 200){
+      setJugadoresChanged(prev => !prev);
+    }
 
     reset();
     handleCloseNuevo();
@@ -227,11 +229,12 @@ export const Jugadores = () => {
   const {ids} = useParams();
 
   useEffect(() => {
+    getNacionalidades();
     setCambioJugador(null);
     if (ids) {
       getJugadores(ids);
     }
-  }, [ids]);
+  }, [ids, jugadoresChanged]);
 
   const getJugadores = async (value) => {
     setLoading(true); // Iniciar el loader cuando comienza la carga

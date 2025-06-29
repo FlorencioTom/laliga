@@ -91,7 +91,7 @@ export const addPlayerToTeam = async(idEquipo:string, jugador:any) => {
     }
   );
 
-  return response.data;
+  return response;
 
 };
 

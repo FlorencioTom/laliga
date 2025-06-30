@@ -22,6 +22,7 @@ import InputLabel from '@mui/material/InputLabel';
 import InputAdornment from '@mui/material/InputAdornment';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import CheckroomIcon from '@mui/icons-material/Checkroom';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -29,8 +30,11 @@ import HeightIcon from '@mui/icons-material/Height';
 import ControlCameraIcon from '@mui/icons-material/ControlCamera';
 import FlagCircleIcon from '@mui/icons-material/FlagCircle';
 import PhotoIcon from '@mui/icons-material/Photo';
+import AddIcon from '@mui/icons-material/Add';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {getAllTeams, uploadImageToCloudinary} from '../Api/Api';
 
 const style = {
@@ -105,7 +109,7 @@ export const Jugadores = () => {
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   const onSubmit = async (data) => {
     const respuesta = await getAllPlayersByTeam(ids);
@@ -138,6 +142,7 @@ export const Jugadores = () => {
   };
 
   const handleOpen = async (jugador) => {
+    //console.log(jugador.nacionalidad.toLowerCase());
     await obtenerBandera(jugador.nacionalidad.toLowerCase()); 
     if(cambioJugador === null){
       setJugadorSeleccionado(jugador); // Almacenar el jugador seleccionado
@@ -253,10 +258,12 @@ export const Jugadores = () => {
   const obtenerBandera = async (nacionalidad) => {
     try {
       // Convertir la nacionalidad a minúsculas
+      //console.log(nacionalidad);
       const nacionalidadMin = nacionalidad.toLowerCase();
       // Hacer la solicitud a la API para obtener todos los países
-      const response = await axios.get(`https://restcountries.com/v3.1/all`);
+      const response = await axios.get(`https://restcountries.com/v3.1/all?fields=name,translations,flags`);
       // Buscar la bandera del país cuya traducción coincida con la nacionalidad
+      //console.log(response.data);
       const paisEncontrado = response.data.find(pais => {
         return pais.translations.spa && pais.translations.spa.common.toLowerCase() === nacionalidadMin;
       });
@@ -464,7 +471,7 @@ export const Jugadores = () => {
                     <p>{jugadorSeleccionado.nacionalidad}</p>                   
                   </div>
                 </div>
-                <div style={{display:'flex', gap:'10px', marginTop:'30px'}}>
+                <div style={{display:'flex', gap:'10px', marginTop:'15px'}}>
                   <Button  variant="contained" onClick={handleClose} sx={{ 
                     backgroundColor: 'white', 
                     '&:hover': {
@@ -481,6 +488,11 @@ export const Jugadores = () => {
                     color: 'black',
                     borderRadius: 10
                   }}>Fichar</Button>
+                </div>
+                <div style={{marginTop:'20PX'}}>
+                  <IconButton aria-label="person add" edge="end" onClick={handleCloseNuevo} sx={{color:'red'}}>
+                    <DeleteIcon sx={{ color: 'red', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
+                  </IconButton>
                 </div>
               </>
             ) : (
@@ -751,13 +763,14 @@ export const Jugadores = () => {
                         </FormControl>
                       </div>
                     </div>
-                    <div style={{display:'flex', gap:'10px', marginTop:'30px', justifyContent:'center'}}>
-                      <Button variant="contained" type='submit' sx={{ 
-                        backgroundColor: 'white','&:hover': {backgroundColor: '#FF4A42', color:'white'},color: 'black',borderRadius: 10
-                      }}>Crear</Button>
-                      <Button variant="contained" onClick={handleCloseNuevo} sx={{ 
-                        backgroundColor: 'white', '&:hover': {backgroundColor: '#000', color:'white'},color: 'black', borderRadius: 10
-                      }}>Cerrar</Button>
+                    <div style={{display:'flex', gap:'30px', marginTop:'30px', justifyContent:'center'}}>
+                        <IconButton aria-label="person add" edge="end" sx={{color:'green'}} type="submit">
+                          <PersonAddIcon sx={{ color: 'green', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
+                        </IconButton>
+
+                        <IconButton aria-label="person add" edge="end" onClick={handleCloseNuevo} sx={{color:'red'}}>
+                          <CloseIcon sx={{ color: 'red', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
+                        </IconButton>
                     </div>
                   </form>
                 </div>

@@ -72,6 +72,22 @@ export const uploadImageToCloudinary = async (file:any, folder:string) => {
   }
 };
 
+export const deletePlayerFromTeam = async (idEquipo: string, jugador: any) => {
+  console.log(idEquipo, jugador);
+  /*const response = await api.delete(
+    `equipos/${idEquipo}`,
+    {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: jugador
+    }
+  );
+
+  return response;*/
+};
+
 export const addPlayerToTeam = async(idEquipo:string, jugador:any) => {
   const formData = new FormData();
 

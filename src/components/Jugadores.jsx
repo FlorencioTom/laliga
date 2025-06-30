@@ -35,7 +35,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {getAllTeams, uploadImageToCloudinary} from '../Api/Api';
+import {getAllTeams, uploadImageToCloudinary, deletePlayerFromTeam} from '../Api/Api';
 
 const style = {
   position: 'absolute',
@@ -397,6 +397,13 @@ export const Jugadores = () => {
     obtenerBandera(event.target.value);
   }
 
+  const eliminarJugador = async(ids, jugadorSeleccionado) => {
+    const respuesta = await deletePlayerFromTeam(ids, jugadorSeleccionado);
+
+    setJugadoresChanged(prev => !prev);
+    handleClose();
+  }
+
   return (
     <>
     <div className='container'>
@@ -490,7 +497,7 @@ export const Jugadores = () => {
                   }}>Fichar</Button>
                 </div>
                 <div style={{marginTop:'20PX'}}>
-                  <IconButton aria-label="person add" edge="end" onClick={handleCloseNuevo} sx={{color:'red'}}>
+                  <IconButton aria-label="person add" edge="end" onClick={() => eliminarJugador(ids, jugadorSeleccionado)} sx={{color:'red'}}>
                     <DeleteIcon sx={{ color: 'red', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
                   </IconButton>
                 </div>

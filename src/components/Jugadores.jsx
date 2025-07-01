@@ -35,7 +35,9 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {getAllTeams, uploadImageToCloudinary, deletePlayerFromTeam} from '../Api/Api';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import {getAllTeams, uploadImageToCloudinary, deletePlayerFromTeam, editPlayerFromTeam} from '../Api/Api';
 
 const style = {
   position: 'absolute',
@@ -169,6 +171,7 @@ export const Jugadores = () => {
 
   const handleClose = () => {
     setOpen(false);
+    setEdicion([false, {}])
   };
 
   const handleCloseCoach = () => {
@@ -399,9 +402,28 @@ export const Jugadores = () => {
 
   const eliminarJugador = async(ids, jugadorSeleccionado) => {
     const respuesta = await deletePlayerFromTeam(ids, jugadorSeleccionado);
+    if(respuesta.status === 200){
+      setJugadoresChanged(prev => !prev);
+      handleClose();
+      console.log(respuesta.data);
+    }
+  }
 
-    setJugadoresChanged(prev => !prev);
-    handleClose();
+  const activarEdicion = async(ids, jugadorSeleccionado) => {
+    if(edicion[0]){
+      setEdicion([false, {}]);
+    }else{
+      setEdicion([true, {jugadorSeleccionado}]);
+    }
+  } 
+
+  const editarJugador = async(ids, jugadorSeleccionado) => {
+    /*const respuesta = await editPlayerFromTeam(ids, jugadorSeleccionado);
+    if(respuesta.status === 200){
+      setJugadoresChanged(prev => !prev);
+      handleClose();
+      console.log(respuesta.data);
+    }*/
   }
 
   return (
@@ -478,27 +500,41 @@ export const Jugadores = () => {
                     <p>{jugadorSeleccionado.nacionalidad}</p>                   
                   </div>
                 </div>
-                <div style={{display:'flex', gap:'10px', marginTop:'15px'}}>
-                  <Button  variant="contained" onClick={handleClose} sx={{ 
-                    backgroundColor: 'white', 
-                    '&:hover': {
-                      backgroundColor: 'white',
-                    },
-                    color: 'black',
-                    borderRadius: 10
-                  }}>Cerrar</Button>
-                  <Button variant="contained" sx={{ 
-                    backgroundColor: 'white', 
-                    '&:hover': {
-                      backgroundColor: 'white',
-                    },
-                    color: 'black',
-                    borderRadius: 10
-                  }}>Fichar</Button>
-                </div>
-                <div style={{marginTop:'20PX'}}>
+                {edicion[0] ? (
+                  <div style={{marginTop:'15px', display:'flex', gap:'30px'}}>
+                    <IconButton aria-label="person add" edge="end" onClick={() => setEdicion([false, {}])} sx={{color:'red'}}>
+                      <CloseIcon sx={{ color: 'red', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
+                    </IconButton>
+                    <IconButton aria-label="person add" edge="end" onClick={() => editarJugador(ids, jugadorSeleccionado)} sx={{color:'#007bff'}}>
+                      <SaveIcon sx={{ color: '#007bff', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
+                    </IconButton>
+                  </div>
+                ) : (
+                  <div style={{display:'flex', gap:'10px', marginTop:'15px'}}>
+                    <Button  variant="contained" onClick={handleClose} sx={{ 
+                      backgroundColor: 'white', 
+                      '&:hover': {
+                        backgroundColor: 'white',
+                      },
+                      color: 'black',
+                      borderRadius: 10
+                    }}>Cerrar</Button>
+                    <Button variant="contained" sx={{ 
+                      backgroundColor: 'white', 
+                      '&:hover': {
+                        backgroundColor: 'white',
+                      },
+                      color: 'black',
+                      borderRadius: 10
+                    }}>Fichar</Button>
+                  </div>
+                )}
+                <div style={{marginTop:'20PX', display:'flex', gap:'30px'}}>
                   <IconButton aria-label="person add" edge="end" onClick={() => eliminarJugador(ids, jugadorSeleccionado)} sx={{color:'red'}}>
                     <DeleteIcon sx={{ color: 'red', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
+                  </IconButton>
+                  <IconButton aria-label="person add" edge="end" onClick={() => activarEdicion(ids, jugadorSeleccionado)} sx={{color:'#007bff'}}>
+                    <EditIcon sx={{ color: '#007bff', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
                   </IconButton>
                 </div>
               </>
@@ -551,9 +587,7 @@ export const Jugadores = () => {
                     color: 'black',
                     borderRadius: 10
                   }}>Fichar</Button>
-                  
                 </div>
-                
               </>
             ) : (
               <p>Cargando información del Entrenador...</p>

@@ -15,7 +15,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
 import Campo from './Campo';
-import {useForm} from 'react-hook-form';
+import {Controller, useForm} from 'react-hook-form';
 import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
@@ -59,6 +59,7 @@ export const Jugadores = () => {
   const [edicion, setEdicion] = useState([false, {}]);
   const [ancho, setAncho] = useState(200);
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const { register:registerActualiza, setValue:setValueActualiza, control: controlActualiza} = useForm();
 
   const style = {
     position: 'absolute',
@@ -235,6 +236,10 @@ export const Jugadores = () => {
         break;
       }
     }
+    if(edicion[0]){
+      setEdicion([false,{}]);
+      setAncho(200);
+    }
   };
 
   const {ids} = useParams();
@@ -376,6 +381,17 @@ export const Jugadores = () => {
     return edad;
   };
 
+  const formateaNacimiento = (fechaNacimiento) => {
+    const [dia, mes, anio] = fechaNacimiento.split('/').map(String); 
+    console.log(`${anio}-${mes}-${dia}`);
+    return `${anio}-${mes}-${dia}`;
+  }
+
+  const formateaAltura = (altura) => {
+    const [unidades, decimales] = altura.replace("m", "").split('.').map(String); 
+    return `${unidades}${decimales}`;
+  }
+
   const nickNamePosition = (posicion) => {
     const posiciones = [
       { fullName: 'extremo izquierda', shortName: 'EI' },
@@ -418,6 +434,12 @@ export const Jugadores = () => {
       setAncho(200);
     }else{
       setEdicion([true, {jugadorSeleccionado}]);
+      setValueActualiza("nacimiento", formateaNacimiento(jugadorSeleccionado.nacimiento));
+      setValueActualiza("dorsal", Number(jugadorSeleccionado.dorsal));
+      setValueActualiza("altura", formateaAltura(jugadorSeleccionado.altura));
+      setValueActualiza("posicion", jugadorSeleccionado.posicion.toLowerCase());
+      console.log(jugadorSeleccionado.nacionalidad.toLowerCase());
+      setValueActualiza("nacionalidad", jugadorSeleccionado.nacionalidad.toLowerCase());
       setAncho(300);
     }
   } 
@@ -429,6 +451,10 @@ export const Jugadores = () => {
       handleClose();
       console.log(respuesta.data);
     }*/
+  }
+
+  const actualizarJugador = async(data) => {
+    console.log(data);
   }
 
   return (
@@ -512,36 +538,36 @@ export const Jugadores = () => {
                             <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'white','&.Mui-focused': {color: 'white'}}}>
                               Nacimiento
                             </InputLabel>
-                            <OutlinedInput id="outlined-adornment-usuario" type='date' value={'2000-11-04'}
+                            <OutlinedInput id="outlined-adornment-usuario" type='date'
                               label="Nacimiento"
                               sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
                                 color:'white', '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
                               }}
-                              {...register("nacimiento", {required: true})}
+                              {...registerActualiza("nacimiento", {required: true})}
                             />
                           </FormControl>
                           <FormControl sx={{ m: 1, width: '150px' }} variant="outlined">
                             <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'white','&.Mui-focused': {color: 'white'}}}>
                               Dorsal
                             </InputLabel>
-                            <OutlinedInput id="outlined-adornment-usuario" type='number' defaultValue={jugadorSeleccionado.dorsal}
+                            <OutlinedInput id="outlined-adornment-usuario" type='number'
                               label="Dorsal"
                               sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
                                 color:'white', '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
                               }}
-                              {...register("dorsal", {required: true})}
+                              {...registerActualiza("dorsal", {required: true})}
                             />
                           </FormControl>
                           <FormControl sx={{ m: 1, width: '150px' }} variant="outlined">
                             <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'white','&.Mui-focused': {color: 'white'}}}>
                               Altura
                             </InputLabel>
-                            <OutlinedInput id="outlined-adornment-usuario" type='number' defaultValue={jugadorSeleccionado.altura}
+                            <OutlinedInput id="outlined-adornment-usuario" type='number' 
                               label="Altura"
                               sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
                                 color:'white', '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
                               }}
-                              {...register("dorsal", {required: true})}
+                              {...registerActualiza("altura", {required: true})}
                             />
                           </FormControl>
                         </div>
@@ -560,32 +586,40 @@ export const Jugadores = () => {
                             >
                               Posición
                             </InputLabel>
-                            <Select
-                              input={<OutlinedInput label="Posicion" 
-                              sx={{color:'white','&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
-                                '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
-                              }}/>}
-                              labelId="Posicion"
-                              id="demo-simple-select-filled"
-                            >
-                              <MenuItem value={''}>
-                                None
-                              </MenuItem>
-                              <MenuItem value={'portero'}>Portero</MenuItem>
-                              <MenuItem value={'lateral derecha'}>lateral derecha</MenuItem>
-                              <MenuItem value={'lateral izquierda'}>lateral izquierda</MenuItem>
-                              <MenuItem value={'central izquierda'}>central izquierda</MenuItem>
-                              <MenuItem value={'central derecha'}>central derecha</MenuItem>
-                              <MenuItem value={'defensas'}>Defensas</MenuItem>
-                              <MenuItem value={'centrocampista derecha'}>Centrocampista derecha</MenuItem>
-                              <MenuItem value={'centrocampista izquierda'}>Centrocampista izquierda</MenuItem>
-                              <MenuItem value={'centrocampista centro'}>Centrocampista centro</MenuItem>
-                              <MenuItem value={'centrocampistas'}>Centrocampistas</MenuItem>
-                              <MenuItem value={'delantero'}>Delantero centro</MenuItem>
-                              <MenuItem value={'extremo izquierda'}>extremo izquierda</MenuItem>
-                              <MenuItem value={'extremo derecha'}>extremo derecha</MenuItem>
-                              <MenuItem value={'delanteros'}>Delanteros</MenuItem>
-                            </Select>
+                            <Controller
+                              name="posicion"
+                              control={controlActualiza}
+                              rules={{ required: true }}
+                              render={({ field }) => (
+                              <Select
+                                {...field}
+                                input={<OutlinedInput label="Posicion" 
+                                sx={{color:'white','&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                                  '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                                }}/>}
+                                labelId="Posicion"
+                                id="demo-simple-select-filled"
+                              >
+                                <MenuItem value={''}>
+                                  None
+                                </MenuItem>
+                                <MenuItem value={'portero'}>Portero</MenuItem>
+                                <MenuItem value={'lateral derecha'}>lateral derecha</MenuItem>
+                                <MenuItem value={'lateral izquierda'}>lateral izquierda</MenuItem>
+                                <MenuItem value={'central izquierda'}>central izquierda</MenuItem>
+                                <MenuItem value={'central derecha'}>central derecha</MenuItem>
+                                <MenuItem value={'defensas'}>Defensas</MenuItem>
+                                <MenuItem value={'centrocampista derecha'}>Centrocampista derecha</MenuItem>
+                                <MenuItem value={'centrocampista izquierda'}>Centrocampista izquierda</MenuItem>
+                                <MenuItem value={'centrocampista centro'}>Centrocampista centro</MenuItem>
+                                <MenuItem value={'centrocampistas'}>Centrocampistas</MenuItem>
+                                <MenuItem value={'delantero'}>Delantero centro</MenuItem>
+                                <MenuItem value={'extremo izquierda'}>extremo izquierda</MenuItem>
+                                <MenuItem value={'extremo derecha'}>extremo derecha</MenuItem>
+                                <MenuItem value={'delantero'}>Delantero</MenuItem>
+                              </Select>
+                              )}
+                            />
                           </FormControl>
                           <FormControl sx={{ m: 1, width: '150px' }} variant="outlined">
                             <InputLabel id="demo-multiple-name-label" htmlFor="outlined-adornment-usuario"
@@ -599,25 +633,33 @@ export const Jugadores = () => {
                               }}>
                             Nacionalidad
                             </InputLabel>
-                            <Select
-                              input={<OutlinedInput label="Nacionalidad" 
-                              sx={{color:'white','&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
-                                '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
-                              }}/>}
-                              labelId="Posicion"
-                              id="demo-simple-select-filled"
-                            >
-                              <MenuItem value={''}>
-                                <em>None</em>
-                              </MenuItem>
-                              {nacionalidades && nacionalidades.map((x, index) => (
-                                <MenuItem value={x} key={index}>
-                                  {x}
-                                </MenuItem>
-                              ))}
-                            </Select>
+                              <Controller
+                                name="nacionalidad"
+                                control={controlActualiza}
+                                rules={{ required: true }}
+                                render={({ field }) => (
+                                <Select
+                                  {...field}
+                                  input={<OutlinedInput label="Nacionalidad" 
+                                  sx={{color:'white','&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                                    '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                                  }}/>}
+                                  labelId="Posicion"
+                                  id="demo-simple-select-filled"
+                                >
+                                  <MenuItem value={''}>
+                                    <em>None</em>
+                                  </MenuItem>
+                                  {nacionalidades && nacionalidades.map((x, index) => (
+                                    <MenuItem value={x ? x.toLowerCase() : ""} key={index}>
+                                      {x}
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                              )}
+                            />
                           </FormControl>
-                          <FormControl sx={{ m: 1, width: '150px' }} variant="outlined">
+                          {/*<FormControl sx={{ m: 1, width: '150px' }} variant="outlined">
                             <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'white','&.Mui-focused': {color: 'white'}}}>
                               Apodo
                             </InputLabel>
@@ -626,9 +668,9 @@ export const Jugadores = () => {
                               sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
                                 color:'white', '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
                               }}
-                              {...register("apodo", {required: true})}
+                              {...registerActualiza("apodo", {required: true})}
                             />
-                          </FormControl>
+                          </FormControl>*/}
                         </div>
                       </form>
                     ):(

@@ -390,3 +390,6 @@ a{
     color:#FF4A42;
   }
 }
+.formularioActualizaJugador{
+  display: flex;
+}

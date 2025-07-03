@@ -39,43 +39,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import {getAllTeams, uploadImageToCloudinary, deletePlayerFromTeam, editPlayerFromTeam} from '../Api/Api';
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 200,
-  bgcolor: '#FF4A42',
-  border: '2px solidrgb(192, 56, 49)',
-  boxShadow: 24,
-  p: 4,
-  display: 'flex',           
-  flexDirection: 'column',   
-  alignItems: 'center',      
-  textAlign: 'center', 
-  borderRadius: 10,
-  color:'white'   
-};
-
-const nuevoJugador = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 450,
-  padding:20,
-  bgcolor: '#fff',
-  border: '2px solidrgb(192, 56, 49)',
-  boxShadow: 24,
-  p: 4,
-  display: 'flex',           
-  flexDirection: 'column',   
-  alignItems: 'center',      
-  textAlign: 'center', 
-  borderRadius: 10,
-  color:'white'   
-};
-
 export const Jugadores = () => {
   const [jugadores, setJugadores] = useState([]);
   const [entrenador, setEntrenador] = useState(null);
@@ -94,7 +57,46 @@ export const Jugadores = () => {
   const [nuevaFotoJugador, setNuevaFotoJugador] = useState(['','']);
   const [jugadoresChanged, setJugadoresChanged] = useState(false);
   const [edicion, setEdicion] = useState([false, {}]);
+  const [ancho, setAncho] = useState(200);
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
+
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: `${ancho}px`,
+    bgcolor: '#FF4A42',
+    border: '2px solidrgb(192, 56, 49)',
+    boxShadow: 24,
+    p: 4,
+    display: 'flex',           
+    flexDirection: 'column',   
+    alignItems: 'center',      
+    textAlign: 'center', 
+    borderRadius: 10,
+    color:'white',
+    transition: 'width 0.3s ease'
+  };
+
+  const nuevoJugador = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 450,
+    padding:20,
+    bgcolor: '#fff',
+    border: '2px solidrgb(192, 56, 49)',
+    boxShadow: 24,
+    p: 4,
+    display: 'flex',           
+    flexDirection: 'column',   
+    alignItems: 'center',      
+    textAlign: 'center', 
+    borderRadius: 10,
+    color:'white'   
+  };
 
   const getNacionalidades = async() => {
     try {
@@ -171,7 +173,8 @@ export const Jugadores = () => {
 
   const handleClose = () => {
     setOpen(false);
-    setEdicion([false, {}])
+    setEdicion([false, {}]);
+    setAncho(200);
   };
 
   const handleCloseCoach = () => {
@@ -412,8 +415,10 @@ export const Jugadores = () => {
   const activarEdicion = async(ids, jugadorSeleccionado) => {
     if(edicion[0]){
       setEdicion([false, {}]);
+      setAncho(200);
     }else{
       setEdicion([true, {jugadorSeleccionado}]);
+      setAncho(300);
     }
   } 
 
@@ -486,23 +491,160 @@ export const Jugadores = () => {
                 <img src={bandera} style={{ width: '60px', margin:'20px' }} />
                 <div style={{display:'flex', gap:'10px', alignItems: 'center'}}>
                   <div>
-                    <p>Edad:</p>
-                    <p>Dorsal:</p>
-                    <p>Altura:</p>
-                    <p>Posicion:</p> 
-                    <p>País:</p>
+                    {edicion[0] ? (
+                      <></>
+                    ):(
+                      <>
+                        <p>Edad:</p>
+                        <p>Dorsal:</p>
+                        <p>Altura:</p>
+                        <p>Posicion:</p> 
+                        <p>País:</p>
+                      </>
+                    )}
                   </div>
                   <div>
-                    <p>{calculaEdad(jugadorSeleccionado.nacimiento)} años</p>
-                    <p>{jugadorSeleccionado.dorsal}</p>
-                    <p>{jugadorSeleccionado.altura}</p>
-                    <p>{nickNamePosition(jugadorSeleccionado.posicion)}</p>
-                    <p>{jugadorSeleccionado.nacionalidad}</p>                   
+                    {console.log(jugadorSeleccionado.nacimiento)}
+                    {edicion[0] ? (
+                      <form className='formularioActualizaJugador'>
+                        <div>
+                          <FormControl sx={{ m: 1, width: '150px' }} variant="outlined">
+                            <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'white','&.Mui-focused': {color: 'white'}}}>
+                              Nacimiento
+                            </InputLabel>
+                            <OutlinedInput id="outlined-adornment-usuario" type='date' value={'2000-11-04'}
+                              label="Nacimiento"
+                              sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                                color:'white', '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                              }}
+                              {...register("nacimiento", {required: true})}
+                            />
+                          </FormControl>
+                          <FormControl sx={{ m: 1, width: '150px' }} variant="outlined">
+                            <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'white','&.Mui-focused': {color: 'white'}}}>
+                              Dorsal
+                            </InputLabel>
+                            <OutlinedInput id="outlined-adornment-usuario" type='number' defaultValue={jugadorSeleccionado.dorsal}
+                              label="Dorsal"
+                              sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                                color:'white', '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                              }}
+                              {...register("dorsal", {required: true})}
+                            />
+                          </FormControl>
+                          <FormControl sx={{ m: 1, width: '150px' }} variant="outlined">
+                            <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'white','&.Mui-focused': {color: 'white'}}}>
+                              Altura
+                            </InputLabel>
+                            <OutlinedInput id="outlined-adornment-usuario" type='number' defaultValue={jugadorSeleccionado.altura}
+                              label="Altura"
+                              sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                                color:'white', '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                              }}
+                              {...register("dorsal", {required: true})}
+                            />
+                          </FormControl>
+                        </div>
+                        <div>
+                          <FormControl sx={{ m: 1, width: '150px' }} variant="outlined">
+                            <InputLabel 
+                              htmlFor="outlined-adornment-usuario"
+                              sx={{
+                                color: 'white !important',
+                                '&.Mui-focused': { color: 'white !important' },
+                                '&.MuiFormLabel-root': { color: 'white !important' },
+                                '&.MuiInputLabel-root': { color: 'white !important' },
+                                '&.MuiInputLabel-shrink': { color: 'white !important' },
+                                '&:hover': { color: 'white !important' }
+                              }}
+                            >
+                              Posición
+                            </InputLabel>
+                            <Select
+                              input={<OutlinedInput label="Posicion" 
+                              sx={{color:'white','&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                                '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                              }}/>}
+                              labelId="Posicion"
+                              id="demo-simple-select-filled"
+                            >
+                              <MenuItem value={''}>
+                                None
+                              </MenuItem>
+                              <MenuItem value={'portero'}>Portero</MenuItem>
+                              <MenuItem value={'lateral derecha'}>lateral derecha</MenuItem>
+                              <MenuItem value={'lateral izquierda'}>lateral izquierda</MenuItem>
+                              <MenuItem value={'central izquierda'}>central izquierda</MenuItem>
+                              <MenuItem value={'central derecha'}>central derecha</MenuItem>
+                              <MenuItem value={'defensas'}>Defensas</MenuItem>
+                              <MenuItem value={'centrocampista derecha'}>Centrocampista derecha</MenuItem>
+                              <MenuItem value={'centrocampista izquierda'}>Centrocampista izquierda</MenuItem>
+                              <MenuItem value={'centrocampista centro'}>Centrocampista centro</MenuItem>
+                              <MenuItem value={'centrocampistas'}>Centrocampistas</MenuItem>
+                              <MenuItem value={'delantero'}>Delantero centro</MenuItem>
+                              <MenuItem value={'extremo izquierda'}>extremo izquierda</MenuItem>
+                              <MenuItem value={'extremo derecha'}>extremo derecha</MenuItem>
+                              <MenuItem value={'delanteros'}>Delanteros</MenuItem>
+                            </Select>
+                          </FormControl>
+                          <FormControl sx={{ m: 1, width: '150px' }} variant="outlined">
+                            <InputLabel id="demo-multiple-name-label" htmlFor="outlined-adornment-usuario"
+                              sx={{
+                                color: 'white !important',
+                                '&.Mui-focused': { color: 'white !important' },
+                                '&.MuiFormLabel-root': { color: 'white !important' },
+                                '&.MuiInputLabel-root': { color: 'white !important' },
+                                '&.MuiInputLabel-shrink': { color: 'white !important' },
+                                '&:hover': { color: 'white !important' }
+                              }}>
+                            Nacionalidad
+                            </InputLabel>
+                            <Select
+                              input={<OutlinedInput label="Nacionalidad" 
+                              sx={{color:'white','&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                                '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                              }}/>}
+                              labelId="Posicion"
+                              id="demo-simple-select-filled"
+                            >
+                              <MenuItem value={''}>
+                                <em>None</em>
+                              </MenuItem>
+                              {nacionalidades && nacionalidades.map((x, index) => (
+                                <MenuItem value={x} key={index}>
+                                  {x}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                          <FormControl sx={{ m: 1, width: '150px' }} variant="outlined">
+                            <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'white','&.Mui-focused': {color: 'white'}}}>
+                              Apodo
+                            </InputLabel>
+                            <OutlinedInput id="outlined-adornment-usuario" type='text'
+                              label="Dorsal"
+                              sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                                color:'white', '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                              }}
+                              {...register("apodo", {required: true})}
+                            />
+                          </FormControl>
+                        </div>
+                      </form>
+                    ):(
+                      <>
+                        <p>{calculaEdad(jugadorSeleccionado.nacimiento)} años</p>
+                        <p>{jugadorSeleccionado.dorsal}</p>
+                        <p>{jugadorSeleccionado.altura}</p>
+                        <p>{nickNamePosition(jugadorSeleccionado.posicion)}</p>
+                        <p>{jugadorSeleccionado.nacionalidad}</p> 
+                      </>
+                    )}
                   </div>
                 </div>
                 {edicion[0] ? (
                   <div style={{marginTop:'15px', display:'flex', gap:'30px'}}>
-                    <IconButton aria-label="person add" edge="end" onClick={() => setEdicion([false, {}])} sx={{color:'red'}}>
+                    <IconButton aria-label="person add" edge="end" onClick={() => {setEdicion([false, {}]);setAncho(200)}} sx={{color:'red'}}>
                       <CloseIcon sx={{ color: 'red', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
                     </IconButton>
                     <IconButton aria-label="person add" edge="end" onClick={() => editarJugador(ids, jugadorSeleccionado)} sx={{color:'#007bff'}}>
@@ -530,12 +672,18 @@ export const Jugadores = () => {
                   </div>
                 )}
                 <div style={{marginTop:'20PX', display:'flex', gap:'30px'}}>
-                  <IconButton aria-label="person add" edge="end" onClick={() => eliminarJugador(ids, jugadorSeleccionado)} sx={{color:'red'}}>
-                    <DeleteIcon sx={{ color: 'red', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
-                  </IconButton>
-                  <IconButton aria-label="person add" edge="end" onClick={() => activarEdicion(ids, jugadorSeleccionado)} sx={{color:'#007bff'}}>
-                    <EditIcon sx={{ color: '#007bff', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
-                  </IconButton>
+                {edicion[0] ? (
+                  <></>
+                ):(
+                  <>
+                    <IconButton aria-label="person add" edge="end" onClick={() => eliminarJugador(ids, jugadorSeleccionado)} sx={{color:'red'}}>
+                      <DeleteIcon sx={{ color: 'red', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
+                    </IconButton>
+                    <IconButton aria-label="person add" edge="end" onClick={() => activarEdicion(ids, jugadorSeleccionado)} sx={{color:'#007bff'}}>
+                      <EditIcon sx={{ color: '#007bff', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
+                    </IconButton>
+                  </>
+                )}
                 </div>
               </>
             ) : (

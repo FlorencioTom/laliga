@@ -182,6 +182,7 @@ export const Jugadores = () => {
     setOpen(false);
     setEdicion([false, {}]);
     setAncho(200);
+    setActualizaFotoJugador(['','']);
   };
 
   const handleCloseCoach = () => {
@@ -441,6 +442,7 @@ export const Jugadores = () => {
     const respuesta = await deletePlayerFromTeam(ids, jugadorSeleccionado);
     if(respuesta.status === 200){
       setJugadoresChanged(prev => !prev);
+      setNuevaFotoJugador(null);
       handleClose();
       console.log(respuesta.data);
     }
@@ -474,7 +476,11 @@ export const Jugadores = () => {
       }
       const nuevaInfoJugador = {...getValuesActualiza(), foto:response}
       const edicion = await editPlayerFromTeam(ids, jugadorSeleccionado, nuevaInfoJugador);
-      console.log(edicion);
+      if(edicion.status === 200){
+        setJugadoresChanged(prev => !prev);
+        handleClose();
+        //console.log(edicion.data);
+      }
     }else{
       console.error('form no válido');
     }

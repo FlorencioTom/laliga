@@ -88,16 +88,27 @@ export const deletePlayerFromTeam = async(idEquipo: string, jugador: any) => {
   return response;
 };
 
-export const editPlayerFromTeam = async(idEquipo: string, jugador: any) => {
-  //console.log(idEquipo, jugador);
+export const editPlayerFromTeam = async(idEquipo: string, jugadorOriginal: any, jugadorNuevo:any) => {
+  const formData = new FormData();
+
+  for (const key in jugadorNuevo) {
+    formData.append(key, jugadorNuevo[key]);
+  }
+
+  formData.append('jugadorOriginal', JSON.stringify(jugadorOriginal));
+
+  console.log(formData);
+
   const response = await api.patch(
     `equipos/${idEquipo}`,
+    formData,
     {
       withCredentials: true,
       headers: {
-        'Content-Type':'application/json',
+        
       },
-      data: jugador
+      //data:{jugadorOriginal, jugadorNuevo} 
+      //tengo que mandar el jugador original y el jugador nuevo al node
     }
   );
 
@@ -107,7 +118,6 @@ export const editPlayerFromTeam = async(idEquipo: string, jugador: any) => {
 export const addPlayerToTeam = async(idEquipo:string, jugador:any) => {
   const formData = new FormData();
 
-  // Adjuntas los campos del jugador al FormData
   for (const key in jugador) {
     formData.append(key, jugador[key]);
   }

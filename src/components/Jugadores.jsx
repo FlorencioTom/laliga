@@ -55,11 +55,17 @@ export const Jugadores = () => {
   const [posicion, setPosicion] = useState('');
   const [nacionalidad, setNacionalidad] = useState('');
   const [nuevaFotoJugador, setNuevaFotoJugador] = useState(['','']);
+  const [actualizaFotoJugador, setActualizaFotoJugador] = useState(['','']);
   const [jugadoresChanged, setJugadoresChanged] = useState(false);
   const [edicion, setEdicion] = useState([false, {}]);
   const [ancho, setAncho] = useState(200);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
-  const { register:registerActualiza, setValue:setValueActualiza, control: controlActualiza} = useForm();
+  const [nuevoNombre, setNuevoNombre] = useState('');
+  const {register, handleSubmit, reset, formState: { errors } } = useForm();
+  const {register:registerActualiza, 
+    setValue:setValueActualiza,
+    control: controlActualiza,
+    getValues:getValuesActualiza,
+    trigger:triggerActualiza} = useForm();
 
   const style = {
     position: 'absolute',
@@ -204,8 +210,20 @@ export const Jugadores = () => {
     }
   }
 
+  const handleActualizaFoto = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setActualizaFotoJugador([file, url]);
+    }
+  }
+
   const triggerFileSelect = () => {
     document.getElementById('file-upload').click();
+  };
+
+  const triggerFileSelectNuevaFoto = () => {
+    document.getElementById('nueva-foto').click();
   };
 
   const handleNuevo = () => {
@@ -440,17 +458,26 @@ export const Jugadores = () => {
       setValueActualiza("posicion", jugadorSeleccionado.posicion.toLowerCase());
       console.log(jugadorSeleccionado.nacionalidad.toLowerCase());
       setValueActualiza("nacionalidad", jugadorSeleccionado.nacionalidad.toLowerCase());
+      setValueActualiza("nombre", jugadorSeleccionado.nombre);
       setAncho(300);
     }
   } 
 
-  const editarJugador = async(ids, jugadorSeleccionado) => {
-    /*const respuesta = await editPlayerFromTeam(ids, jugadorSeleccionado);
-    if(respuesta.status === 200){
-      setJugadoresChanged(prev => !prev);
-      handleClose();
-      console.log(respuesta.data);
-    }*/
+  const editarJugador = async(jugadorSeleccionado) => {
+    const esValido = await triggerActualiza();
+    if(esValido){
+      console.log('form actulizar válido');
+      const respuesta = await getAllPlayersByTeam(ids);
+      let response = null
+      if(actualizaFotoJugador[0]){
+        response = await uploadImageToCloudinary(actualizaFotoJugador[0], respuesta.carpeta);
+      }
+      const nuevaInfoJugador = {...getValuesActualiza(), foto:response}
+      const edicion = await editPlayerFromTeam(ids, jugadorSeleccionado, nuevaInfoJugador);
+      console.log(edicion);
+    }else{
+      console.error('form no válido');
+    }
   }
 
   const actualizarJugador = async(data) => {
@@ -508,7 +535,25 @@ export const Jugadores = () => {
         <Box sx={style}>
             {jugadorSeleccionado ? (
               <>
-                <h2 id="transition-modal-title" style={{ marginTop: '0px' }}>{jugadorSeleccionado.nombre}</h2>
+                {/* Si el modo edicion está activado el nombre pasa a ser un input */}
+                <div>
+                    {edicion[0] ? (
+                      <FormControl sx={{ m: 1, width: '150px' }} variant="outlined">
+                            <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'white','&.Mui-focused': {color: 'white'}}}>
+                              Nombre
+                            </InputLabel>
+                            <OutlinedInput id="outlined-adornment-usuario" type='text' 
+                              label="Nombre"
+                              sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                                color:'white', '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                              }}
+                              {...registerActualiza("nombre", {required: true})}
+                            />
+                      </FormControl>
+                    ):(
+                      <h2 id="transition-modal-title" style={{ marginTop: '0px' }}>{jugadorSeleccionado.nombre}</h2>
+                    )}
+                </div>
                 <div style={{display:'flex', gap:'20px', alignItems: 'center'}}>
                   <div className='nextPlayer' onClick={() => {siguienteJugador(-1)}}><i className="fa-solid fa-arrow-left"></i></div>
                   <img src={jugadorSeleccionado.foto} alt={jugadorSeleccionado.nombre} style={{ width: '100px' }} />
@@ -659,18 +704,48 @@ export const Jugadores = () => {
                               )}
                             />
                           </FormControl>
-                          {/*<FormControl sx={{ m: 1, width: '150px' }} variant="outlined">
-                            <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'white','&.Mui-focused': {color: 'white'}}}>
-                              Apodo
-                            </InputLabel>
-                            <OutlinedInput id="outlined-adornment-usuario" type='text'
-                              label="Dorsal"
-                              sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
-                                color:'white', '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
-                              }}
-                              {...registerActualiza("apodo", {required: true})}
-                            />
-                          </FormControl>*/}
+                          <FormControl sx={{ m: 1, width: '150px' }} variant="outlined">
+                          <InputLabel htmlFor="file-mock" sx={{
+                                color: 'white !important',
+                                '&.Mui-focused': { color: 'white !important' },
+                                '&.MuiFormLabel-root': { color: 'white !important' },
+                                '&.MuiInputLabel-root': { color: 'white !important' },
+                                '&.MuiInputLabel-shrink': { color: 'white !important' },
+                                '&:hover': { color: 'white !important' }
+                              }}> 
+                            Nueva foto
+                          </InputLabel>
+                          <OutlinedInput
+                            id="file-mock"
+                            value={actualizaFotoJugador[0].name || ''}
+                            readOnly
+                            endAdornment={
+                              <InputAdornment position="end">
+                                <IconButton aria-label="seleccionar foto" edge="end" onClick={triggerFileSelectNuevaFoto}>
+                                  <PhotoIcon />
+                                </IconButton>
+                              </InputAdornment>
+                            }
+                            label="Nueva Foto"
+                            sx={{
+                              color: 'white',
+                              '& input': { color: 'white' }, 
+                              '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
+                              '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
+                            }}
+                          />
+
+                          {/* Input oculto que realmente maneja el archivo */}
+                          <input
+                            type="file"
+                            id="nueva-foto"
+                            style={{ display: 'none' }}
+                              {...registerActualiza("foto", {
+                                required: false,
+                                onChange: handleActualizaFoto
+                              })}
+                          />
+                        </FormControl>
                         </div>
                       </form>
                     ):(
@@ -689,7 +764,7 @@ export const Jugadores = () => {
                     <IconButton aria-label="person add" edge="end" onClick={() => {setEdicion([false, {}]);setAncho(200)}} sx={{color:'red'}}>
                       <CloseIcon sx={{ color: 'red', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
                     </IconButton>
-                    <IconButton aria-label="person add" edge="end" onClick={() => editarJugador(ids, jugadorSeleccionado)} sx={{color:'#007bff'}}>
+                    <IconButton aria-label="person add" edge="end" onClick={() => editarJugador(jugadorSeleccionado)} sx={{color:'#007bff'}}>
                       <SaveIcon sx={{ color: '#007bff', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
                     </IconButton>
                   </div>

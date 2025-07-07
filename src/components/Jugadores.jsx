@@ -168,6 +168,13 @@ export const Jugadores = () => {
   }
 
   const onSubmit = async (data) => {
+    
+    const confirmado = await pedirConfirmacion(`Estás seguro de querer añadir a ${data.nombre}?`);
+    if (!confirmado) {
+      console.log("Operación cancelada por el usuario.");
+      return;
+    }
+    
     const respuesta = await getAllPlayersByTeam(ids);
     const response = await uploadImageToCloudinary(nuevaFotoJugador[0], respuesta.carpeta);
 
@@ -181,13 +188,6 @@ export const Jugadores = () => {
     const alturaStr = data.altura.toString();
     data.altura = `${alturaStr.slice(0,1)}.${alturaStr.slice(1)}m`;
     console.log(data);
-
-    const confirmado = await pedirConfirmacion(`Estás seguro de querer añadir a ${data.nombre}?`);
-
-    if (!confirmado) {
-      console.log("Operación cancelada por el usuario.");
-      return;
-    }
 
     const addPlayer = await addPlayerToTeam(ids, data);
 

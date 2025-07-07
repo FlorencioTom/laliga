@@ -27,10 +27,7 @@ import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import CheckroomIcon from '@mui/icons-material/Checkroom';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import HeightIcon from '@mui/icons-material/Height';
-import ControlCameraIcon from '@mui/icons-material/ControlCamera';
-import FlagCircleIcon from '@mui/icons-material/FlagCircle';
 import PhotoIcon from '@mui/icons-material/Photo';
-import AddIcon from '@mui/icons-material/Add';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
@@ -66,6 +63,7 @@ export const Jugadores = () => {
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [snackbar, setSnackbar] = useState({open: false, message: '', severity: '', Transition: Slide});
   const {register, handleSubmit, reset, formState: { errors } } = useForm();
+  const [openConfirmacion, setOpenConfirmacion] = useState(false);
   const {register:registerActualiza, 
     setValue:setValueActualiza,
     control: controlActualiza,
@@ -136,7 +134,10 @@ export const Jugadores = () => {
     data.posicion = posicion;
     data.nacionalidad = nacionalidad;
     data.dorsal = Number(data.dorsal);
-
+    const [year, month, day] = data.nacimiento.split('-');
+    data.nacimiento = `${day}/${month}/${year}`;
+    const alturaStr = data.altura.toString();
+    data.altura = `${alturaStr.slice(0,1)}.${alturaStr.slice(1)}m`;
     console.log(data);
     const addPlayer = await addPlayerToTeam(ids, data);
 
@@ -509,6 +510,29 @@ export const Jugadores = () => {
     }
     setSnackbar({ open: false, message: '', severity: ''});
   }
+
+  const confirmaOperacion = (operacion) => {
+    switch (operacion) {
+      case "crear":
+        // Lógica para crear
+        console.log("Creando elemento...");
+        break;
+
+      case "editar":
+        // Lógica para editar
+        console.log("Editando elemento...");
+        break;
+
+      case "eliminar":
+        // Lógica para eliminar
+        console.log("Eliminando elemento...");
+        break;
+
+      default:
+        console.log("Operación no válida");
+        break;
+    }
+  };
 
   return (
     <>
@@ -1006,7 +1030,7 @@ export const Jugadores = () => {
                           <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
                               Altura
                           </InputLabel>
-                          <OutlinedInput id="outlined-adornment-usuario" type='number' step='0.1'
+                          <OutlinedInput id="outlined-adornment-usuario" type='number' inputProps={{min: 100, max:999, step: 1}}
                             endAdornment={
                               <InputAdornment position="end">
                                 <IconButton aria-label="user icon" edge="end">
@@ -1018,7 +1042,7 @@ export const Jugadores = () => {
                             sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                               '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                             }}
-                            {...register("altura", {required: true})}
+                            {...register("altura", {required: true, min: 100, max: 999 })}
                           />
                         </FormControl>
                         <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">

@@ -157,7 +157,7 @@ export const Jugadores = () => {
     setOpenConfirmacion({open:false, message:''});
     if (resolverConfirmacion) resolverConfirmacion(true);
   };
-
+  
   const handleCancelar = () => {
     setOpenConfirmacion({open:false, message:''});
     if (resolverConfirmacion) resolverConfirmacion(false);
@@ -168,7 +168,7 @@ export const Jugadores = () => {
   }
 
   const onSubmit = async (data) => {
-    
+
     const confirmado = await pedirConfirmacion(`Estás seguro de querer añadir a ${data.nombre}?`);
     if (!confirmado) {
       console.log("Operación cancelada por el usuario.");

@@ -38,6 +38,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import {getAllTeams, uploadImageToCloudinary, deletePlayerFromTeam, editPlayerFromTeam} from '../Api/Api';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import Slide from '@mui/material/Slide';
+
 
 export const Jugadores = () => {
   const [jugadores, setJugadores] = useState([]);
@@ -60,6 +64,7 @@ export const Jugadores = () => {
   const [edicion, setEdicion] = useState([false, {}]);
   const [ancho, setAncho] = useState(200);
   const [nuevoNombre, setNuevoNombre] = useState('');
+  const [snackbar, setSnackbar] = useState({open: false, message: '', severity: '', Transition: Slide});
   const {register, handleSubmit, reset, formState: { errors } } = useForm();
   const {register:registerActualiza, 
     setValue:setValueActualiza,
@@ -74,7 +79,7 @@ export const Jugadores = () => {
     transform: 'translate(-50%, -50%)',
     width: `${ancho}px`,
     bgcolor: '#FF4A42',
-    border: '2px solidrgb(192, 56, 49)',
+    border: '2px solid #FF4A42',
     boxShadow: 24,
     p: 4,
     display: 'flex',           
@@ -94,7 +99,7 @@ export const Jugadores = () => {
     width: 450,
     padding:20,
     bgcolor: '#fff',
-    border: '2px solidrgb(192, 56, 49)',
+    border: '2px solid rgb(255, 255, 255)',
     boxShadow: 24,
     p: 4,
     display: 'flex',           
@@ -137,6 +142,8 @@ export const Jugadores = () => {
 
     if(addPlayer.status === 200){
       setJugadoresChanged(prev => !prev);
+      console.log('Este es el mensaje añadir un jugador: ', addPlayer.data.message);
+      handleSnack(addPlayer.data.message, 'success');
     }
 
     reset();
@@ -442,8 +449,9 @@ export const Jugadores = () => {
     const respuesta = await deletePlayerFromTeam(ids, jugadorSeleccionado);
     if(respuesta.status === 200){
       setJugadoresChanged(prev => !prev);
-      setNuevaFotoJugador(null);
+      setNuevaFotoJugador(['','']);
       handleClose();
+      handleSnack(respuesta.data.message, 'success');
       console.log(respuesta.data);
     }
   }
@@ -479,6 +487,7 @@ export const Jugadores = () => {
       if(edicion.status === 200){
         setJugadoresChanged(prev => !prev);
         handleClose();
+        handleSnack(edicion.data.message, 'success');
         //console.log(edicion.data);
       }
     }else{
@@ -490,8 +499,33 @@ export const Jugadores = () => {
     console.log(data);
   }
 
+  const handleSnack = (mensaje, severity) => {
+    setSnackbar({ open: true, message: mensaje, severity: severity});
+  };
+
+  const closeSnack = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbar({ open: false, message: '', severity: ''});
+  }
+
   return (
     <>
+    <Snackbar open={snackbar.open}
+      autoHideDuration={4000}
+      onClose={closeSnack}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      key='snackbar'>
+      <Alert
+        onClose={closeSnack}
+        severity={snackbar.severity}
+        variant="filled"
+        sx={{ width: '100%' }}
+      >
+        {snackbar.message}
+      </Alert>
+    </Snackbar>
     <div className='container'>
       <div className='jugadores'>
        <SimpleBar className='scroll-suplentes'>

@@ -33,6 +33,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import CheckIcon from '@mui/icons-material/Check';
 import SaveIcon from '@mui/icons-material/Save';
 import {getAllTeams, uploadImageToCloudinary, deletePlayerFromTeam, editPlayerFromTeam} from '../Api/Api';
 import Snackbar from '@mui/material/Snackbar';
@@ -63,7 +64,8 @@ export const Jugadores = () => {
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [snackbar, setSnackbar] = useState({open: false, message: '', severity: '', Transition: Slide});
   const {register, handleSubmit, reset, formState: { errors } } = useForm();
-  const [openConfirmacion, setOpenConfirmacion] = useState(false);
+  const [openConfirmacion, setOpenConfirmacion] = useState({open:false, message: ''});
+  const [resolverConfirmacion, setResolverConfirmacion] = useState(null);
   const {register:registerActualiza, 
     setValue:setValueActualiza,
     control: controlActualiza,
@@ -108,6 +110,25 @@ export const Jugadores = () => {
     color:'white'   
   };
 
+  const modalConfirmacion = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: `200px`,
+    bgcolor: '#FF4A42',
+    border: '2px solid #FF4A42',
+    boxShadow: 24,
+    p: 4,
+    display: 'flex',           
+    flexDirection: 'column',   
+    alignItems: 'center',      
+    textAlign: 'center', 
+    borderRadius: 10,
+    color:'white',
+    transition: 'width 0.3s ease'
+  };
+
   const getNacionalidades = async() => {
     try {
       const teams = await getAllTeams();
@@ -125,6 +146,27 @@ export const Jugadores = () => {
     }
   };
 
+  const pedirConfirmacion = (mensaje) => {
+    return new Promise((resolve) => {
+      setResolverConfirmacion(() => resolve);
+      setOpenConfirmacion({open:true, message:mensaje});
+    });
+  };
+
+  const handleAceptar = () => {
+    setOpenConfirmacion({open:false, message:''});
+    if (resolverConfirmacion) resolverConfirmacion(true);
+  };
+
+  const handleCancelar = () => {
+    setOpenConfirmacion({open:false, message:''});
+    if (resolverConfirmacion) resolverConfirmacion(false);
+  };
+
+  const onExitConfirmacion = () => {
+    resolverConfirmacion(false);
+  }
+
   const onSubmit = async (data) => {
     const respuesta = await getAllPlayersByTeam(ids);
     const response = await uploadImageToCloudinary(nuevaFotoJugador[0], respuesta.carpeta);
@@ -139,6 +181,14 @@ export const Jugadores = () => {
     const alturaStr = data.altura.toString();
     data.altura = `${alturaStr.slice(0,1)}.${alturaStr.slice(1)}m`;
     console.log(data);
+
+    const confirmado = await pedirConfirmacion(`Estás seguro de querer añadir a ${data.nombre}?`);
+
+    if (!confirmado) {
+      console.log("Operación cancelada por el usuario.");
+      return;
+    }
+
     const addPlayer = await addPlayerToTeam(ids, data);
 
     if(addPlayer.status === 200){
@@ -536,6 +586,29 @@ export const Jugadores = () => {
 
   return (
     <>
+    <Modal
+      aria-labelledby="transition-modal-title"
+      aria-describedby="transition-modal-description"
+      open={openConfirmacion.open}
+      onClose={handleClose}
+      closeAfterTransition
+      slots={{ backdrop: Backdrop }}
+      slotProps={{ backdrop: { timeout: 500 } }}
+    >
+      <Fade in={openConfirmacion.open} onExited={onExitConfirmacion}>
+        <Box sx={modalConfirmacion}>
+          <h3> {openConfirmacion.message} </h3>
+          <div style={{display:'flex', gap:'30px'}}>
+            <IconButton aria-label="person add" edge="end" onClick={() => {handleAceptar()}} sx={{color:'green'}}>
+              <CheckIcon sx={{ color: 'green', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
+            </IconButton>
+            <IconButton aria-label="person add" edge="end" onClick={() => {handleCancelar()}} sx={{color:'red'}}>
+              <CloseIcon sx={{ color: 'red', backgroundColor:'#c6c6c6', padding:'10px', borderRadius:'50%'  }}/>
+            </IconButton>
+          </div>
+        </Box>
+      </Fade>
+    </Modal>
     <Snackbar open={snackbar.open}
       autoHideDuration={4000}
       onClose={closeSnack}

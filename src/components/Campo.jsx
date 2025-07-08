@@ -9,9 +9,12 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Backdrop from '@mui/material/Backdrop';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import Slide from '@mui/material/Slide';
 import { Virtual } from 'swiper/modules';
 // import Swiper core and required modules
-import { Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
+import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from 'swiper/modules';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 
@@ -44,11 +47,12 @@ const style = {
 };
 
 
-export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio}) {
+export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam}) {
   const [data, setData] = useState(jugadores);
   const [loading, setLoading] = useState(true);
   const [cambioJugador, setCambioJugador] = useState(null);
   const [open, setOpen] = useState(false);
+  const [snackbar, setSnackbar] = useState({open: false, Transition: Slide});
   //const [estadio, setEstadio] = useState(null);
 
   useEffect(() => {
@@ -62,6 +66,7 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
 
   const handleClose = () => {
     setOpen(false);
+    closeSnack();
   };
 
   const handleOpen = async () => {
@@ -108,6 +113,17 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
     }
   };
 
+  const closeSnack = (event, reason) => {
+    if (reason === 'clickaway') {
+      return; // Evita que se cierre si se hace click fuera
+    }
+    setSnackbar({open:false})
+  }
+
+  const openSnack = () => {
+    setSnackbar({open:true})
+  }
+
   return (
     <>
       <div className="centro">
@@ -153,17 +169,34 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
       slots={{ backdrop: Backdrop }}
       slotProps={{ backdrop: { timeout: 500 } }}
       >
-      <Fade in={open}>
+      <Fade in={open} onEnter={() => openSnack()} onExit={() => closeSnack()}>
         <Box sx={style}>
             {estadio ? (
               <>
+                <Snackbar open={snackbar.open}
+                  onClose={closeSnack}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                  key='snackbar'>
+                  <Alert
+                    onClose={closeSnack}
+                    variant="info"
+                    icon={false}
+                    sx={{ width: '100%' }}
+                  >
+                    <audio src={`/sounds/${idTeam}.mp3`} autoPlay controls onLoadedMetadata={(e) => {e.target.volume = 0.5}}/>
+                  </Alert>
+                </Snackbar>
                 <Swiper
-                  modules={[Navigation, Pagination]}
+                  modules={[Navigation, Pagination, Autoplay]}
                   spaceBetween={20}
                   slidesPerView={1} // Muestra 1 slide a la vez, puedes usar 2 si quieres ambas visibles
                   navigation
                   pagination={{ clickable: true }}
                   scrollbar={{ draggable: true }}
+                  autoplay={{
+                    delay: 3000,
+                    disableOnInteraction: false
+                  }}
                   loop={true}
                 >
                   <SwiperSlide

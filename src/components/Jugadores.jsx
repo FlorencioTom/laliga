@@ -157,7 +157,7 @@ export const Jugadores = () => {
     setOpenConfirmacion({open:false, message:''});
     if (resolverConfirmacion) resolverConfirmacion(true);
   };
-  
+
   const handleCancelar = () => {
     setOpenConfirmacion({open:false, message:''});
     if (resolverConfirmacion) resolverConfirmacion(false);
@@ -497,6 +497,12 @@ export const Jugadores = () => {
   }
 
   const eliminarJugador = async(ids, jugadorSeleccionado) => {
+    const confirmado = await pedirConfirmacion(`Estás seguro de querer eliminar a ${jugadorSeleccionado.nombre}?`);
+    if (!confirmado) {
+      console.log("Operación cancelada por el usuario.");
+      return;
+    }
+
     const respuesta = await deletePlayerFromTeam(ids, jugadorSeleccionado);
     if(respuesta.status === 200){
       setJugadoresChanged(prev => !prev);
@@ -527,6 +533,11 @@ export const Jugadores = () => {
   const editarJugador = async(jugadorSeleccionado) => {
     const esValido = await triggerActualiza();
     if(esValido){
+      const confirmado = await pedirConfirmacion(`Estás seguro de querer editar a ${jugadorSeleccionado.nombre}?`);
+      if (!confirmado) {
+        console.log("Operación cancelada por el usuario.");
+        return;
+      }
       console.log('form actulizar válido');
       const respuesta = await getAllPlayersByTeam(ids);
       let response = null
@@ -561,28 +572,9 @@ export const Jugadores = () => {
     setSnackbar({ open: false, message: '', severity: ''});
   }
 
-  const confirmaOperacion = (operacion) => {
-    switch (operacion) {
-      case "crear":
-        // Lógica para crear
-        console.log("Creando elemento...");
-        break;
+  const reproducirAudio = (ids) => {
 
-      case "editar":
-        // Lógica para editar
-        console.log("Editando elemento...");
-        break;
-
-      case "eliminar":
-        // Lógica para eliminar
-        console.log("Eliminando elemento...");
-        break;
-
-      default:
-        console.log("Operación no válida");
-        break;
-    }
-  };
+  }
 
   return (
     <>
@@ -657,7 +649,7 @@ export const Jugadores = () => {
         )}
          </SimpleBar>
       </div>
-      <Campo estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador}></Campo>
+      <Campo estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids}></Campo>
     </div>
       <Modal
       aria-labelledby="transition-modal-title"

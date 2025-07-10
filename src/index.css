@@ -30,7 +30,7 @@ code {
   display: flex;
   justify-content: center;
   gap: 100px;
-  align-items: flex-start;
+  align-items: center;
   padding-right: 50px;
   padding-left: 50px;
 }
@@ -113,10 +113,22 @@ code {
   border-top-right-radius: 20px;
 }
 
+.jugadores{
+ height: 100vh; 
+}
+
+.jugadores .simplebar-content-wrapper{
+  height: 100% !important;
+  display: flex;
+  align-items: center;
+}
+
 .scroll-suplentes .simplebar-content{
+  height: 100%;
   width: 500px !important;
   display: flex !important;
-  flex-wrap: wrap;
+  align-items: center;
+  flex-wrap: wrap !important;
   gap: 10px;
 }
 

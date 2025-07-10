@@ -13,10 +13,15 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Slide from '@mui/material/Slide';
 import { Virtual } from 'swiper/modules';
-// import Swiper core and required modules
+import OutlinedInput from '@mui/material/OutlinedInput';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import {Controller, useForm} from 'react-hook-form';
 import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from 'swiper/modules';
-
+import InputLabel from '@mui/material/InputLabel';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { motion } from 'framer-motion';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -29,6 +34,22 @@ import 'swiper/css/virtual';
 import "animate.css";
 
 const API_BASE_URL = "https://laligaback-deploy.vercel.app";
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+
+const alineaciones = [
+  '4-3-3',
+  '4-4-2'
+];
   
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -46,6 +67,21 @@ const style = {
   width: '80vw'  
 };
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { 
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+};
+
 
 export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam}) {
   const [data, setData] = useState(jugadores);
@@ -53,6 +89,12 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
   const [cambioJugador, setCambioJugador] = useState(null);
   const [open, setOpen] = useState(false);
   const [snackbar, setSnackbar] = useState({open: false, Transition: Slide});
+  const { control, handleSubmit } = useForm({
+    defaultValues: {
+      Alineacion: '4-3-3', // valor inicial
+    },
+  });
+  const [alineacion, setAlineacion] = useState(null)
   //const [estadio, setEstadio] = useState(null);
 
   useEffect(() => {
@@ -62,7 +104,7 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
       //setEstadio(estadio);
     };
     fetchData();
-  }, [data, cambioJugador, jugadores]);
+  }, [data, cambioJugador, jugadores, alineacion]);
 
   const handleClose = () => {
     setOpen(false);
@@ -124,15 +166,66 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
     setSnackbar({open:true})
   }
 
+  const cambioAlineacion = (alineacion) => {
+    console.log('Alineacion seleccionada: ', alineacion);
+    setAlineacion(alineacion);
+  }
+
   return (
     <>
       <div className="centro">
-        <Button className='submit log estadio'variant="contained"
-          sx={{ backgroundColor: '#FF4A42','&:hover': {backgroundColor: '#FF4A42'},color: 'white', width:'auto'}}
-          onClick={() => handleOpen()}
+        <div style={{display:'flex', alignItems:'center'}}>
+          <Button className='submit log estadio'variant="contained"
+            sx={{ backgroundColor: '#FF4A42','&:hover': {backgroundColor: '#FF4A42'},color: 'white', width:'auto'}}
+            onClick={() => handleOpen()}
+            >
+            {estadio && estadio.nombre}
+          </Button>
+          <FormControl sx={{ m: 1, width: '140px', height:'40px' }} variant="outlined">
+            <InputLabel 
+              htmlFor="outlined-adornment-usuario"
+              sx={{
+                color: '#FF4A42 !important',
+                '&.Mui-focused': { color: '#FF4A42 !important' },
+                '&.MuiFormLabel-root': { color: '#FF4A42 !important' },
+                '&.MuiInputLabel-root': { color: '#FF4A42 !important' },
+                '&.MuiInputLabel-shrink': { color: '#FF4A42 !important' },
+                '&:hover': { color: '#FF4A42 !important' }
+              }}
           >
-          {estadio && estadio.nombre}
-        </Button>
+            Alineaciones
+          </InputLabel>
+          <Controller
+            name="Alineacion"
+            control={control}
+            rules={{ required: true }}
+            render={({ field }) => (
+            <Select
+              {...field}
+              value={field.value || ''}
+              input={<OutlinedInput label="Alineaciones" 
+              sx={{height:'40px' ,color:'#FF4A42','&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+                '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
+              }}/>}
+              labelId="Alineaciones"
+              id="demo-simple-select-filled"
+              onChange={(event) => {
+                field.onChange(event);
+                cambioAlineacion(event.target.value);
+              }}
+            >
+              <MenuItem>
+                None
+              </MenuItem>
+              {alineaciones && alineaciones.map((alineacion) => (
+                <MenuItem key={alineacion} value={alineacion}>
+                  {alineacion}
+                </MenuItem>
+              ))}
+            </Select>
+          )}/>
+          </FormControl>
+        </div>
         <div className="container-campo">
           <img src={campo}></img>  
           <FocusLock autoFocus={false} disabled={true}>

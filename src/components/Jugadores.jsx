@@ -69,6 +69,7 @@ export const Jugadores = () => {
   const [openNuevo, setOpenNuevo] = useState(false);
   const [estadio, setEstadio] = useState(null);
   const inputRefCalendar = useRef();
+  const simplebar = useRef();
   const [nacionalidades, setNacionalidades] = useState('');
   const [posicion, setPosicion] = useState('');
   const [nacionalidad, setNacionalidad] = useState('');
@@ -340,7 +341,7 @@ export const Jugadores = () => {
   useEffect(() => {
     getNacionalidades();
     setCambioJugador(null);
-    if (ids) {
+    if(ids){
       getJugadores(ids);
     }
   }, [ids, jugadoresChanged]);
@@ -356,6 +357,7 @@ export const Jugadores = () => {
       console.error('Error al obtener jugadores:', error);
     } finally {
       setLoading(false); // Ocultar el loader cuando termina la carga
+      //simplebar.current.recalculate();
     }
   };
 
@@ -633,15 +635,16 @@ export const Jugadores = () => {
     </Snackbar>
     <div className='container'>
       <div className="jugadores">
-        <SimpleBar className="scroll-suplentes">
+        <SimpleBar className="scroll-suplentes" ref={simplebar}>
           <motion.div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(4, minmax(100px, 1fr))',
+              gridTemplateColumns: 'repeat(5, minmax(100px, 1fr))',
               gap: '16px',
               justifyContent: 'center',
               alignItems: 'center',
               minHeight: '200px',
+              
             }}
             variants={containerVariants}
             initial="hidden"

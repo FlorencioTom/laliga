@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from "react";
 import FocusLock from "react-focus-lock";
-import { posiciones } from './posiciones';
+import { alineaciones } from './alineaciones';
 import campo from '../images/campo.jpg';
 import Loader from 'rsuite/Loader';
 import Button from '@mui/material/Button';
@@ -46,7 +46,7 @@ const MenuProps = {
   },
 };
 
-const alineaciones = [
+const alineacionesNombre = [
   '4-3-3',
   '4-4-2'
 ];
@@ -89,22 +89,42 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
   const [cambioJugador, setCambioJugador] = useState(null);
   const [open, setOpen] = useState(false);
   const [snackbar, setSnackbar] = useState({open: false, Transition: Slide});
-  const { control, handleSubmit } = useForm({
+  const [titulares, setTitulares] = [{}];
+  const { control, handleSubmit, getValues } = useForm({
     defaultValues: {
       Alineacion: '4-3-3', // valor inicial
     },
   });
-  const [alineacion, setAlineacion] = useState(null)
+  const [alineacion, setAlineacion] = useState('4-3-3')
   //const [estadio, setEstadio] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    console.log('La alineacion actual es: '+alineacion);
+    const precargarImagenes = async () => {
       setLoading(true);
+      //cambioAlineacion(getValues('Alineacion'));
+      const imagenesTitulares = jugadores
+        .filter(j => j.titular && j.foto)
+        .map(jugador => {
+          return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = jugador.foto;
+            img.onload = () => resolve(jugador.foto);
+            img.onerror = () => resolve(jugador.foto); // Resuelve incluso si falla la imagen para no bloquear
+          });
+        });
+
+      try {
+        await Promise.all(imagenesTitulares);
+      } catch (error) {
+        console.error('Error cargando imágenes:', error);
+      }
+
       setLoading(false);
-      //setEstadio(estadio);
     };
-    fetchData();
-  }, [data, cambioJugador, jugadores, alineacion]);
+
+    precargarImagenes();
+  }, [cambioJugador, jugadores, alineacion]);
 
   const handleClose = () => {
     setOpen(false);
@@ -116,14 +136,22 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
   };
 
   const posicionaCampo = (jugador) => {
-    let posicion = posiciones.find(x => jugador.posicion.toLowerCase() === x.posicion.toLowerCase() );
+    console.log('posicionar jugador en alinacion: '+ alineacion);
+    const alineacionActual = alineaciones.find(a => a.nombre === alineacion);
+    console.log('Alineacion actual: '+ alineacionActual);
+    const posicion = alineacionActual?.posiciones.find(
+      x => jugador.posicion.toLowerCase() === x.posicion.toLowerCase()
+    );
     return posicion ? posicion.ubicacion : {};
-  }
+  };
 
   const posicionaHTML = (jugador) => {
-    let posicion = posiciones.find(x => jugador.posicion.toLowerCase() === x.posicion.toLowerCase() );
+    const alineacionActual = alineaciones.find(a => a.nombre === alineacion);
+    const posicion = alineacionActual?.posiciones.find(
+      x => jugador.posicion.toLowerCase() === x.posicion.toLowerCase()
+    );
     return posicion ? posicion.tabIndex : {};
-  }
+  };
 
   const cambio = (jugador) => {
     if (cambioJugador === jugador) {
@@ -217,7 +245,7 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
               <MenuItem>
                 None
               </MenuItem>
-              {alineaciones && alineaciones.map((alineacion) => (
+              {alineacionesNombre && alineacionesNombre.map((alineacion) => (
                 <MenuItem key={alineacion} value={alineacion}>
                   {alineacion}
                 </MenuItem>

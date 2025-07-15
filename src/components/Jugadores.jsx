@@ -42,22 +42,8 @@ import Alert from '@mui/material/Alert';
 import Slide from '@mui/material/Slide';
 import Skeleton from '@mui/material/Skeleton';
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { 
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-};
-
 export const Jugadores = () => {
+  const [imagenesCargadas, setImagenesCargadas] = useState({});
   const [jugadores, setJugadores] = useState([]);
   const [entrenador, setEntrenador] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -346,12 +332,38 @@ export const Jugadores = () => {
     }
   }, [ids, jugadoresChanged]);
 
+  useEffect(() => {
+    if (!jugadores || jugadores.length === 0) return;
+
+    setImagenesCargadas(false);
+    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    const cargarTodas = async () => {
+      const promises = jugadores
+        .filter((x) => !x.titular)
+        .map((x) => new Promise((resolve) => {
+          const img = new Image();
+          img.src = x.foto;
+          img.onload = resolve;
+          img.onerror = resolve;
+        }));
+
+      await Promise.all(promises);
+      await delay(2000);
+      setImagenesCargadas(true);
+    };
+
+    cargarTodas();
+  }, [ids]);
+
   const getJugadores = async (value) => {
     setLoading(true); // Iniciar el loader cuando comienza la carga
     try {
       const respuesta = await getAllPlayersByTeam(value);
       setJugadores(respuesta.plantilla.jugadores);
       setEntrenador(respuesta.plantilla.entrenador);
+
+
+
       setEstadio(respuesta.estadio);
     } catch (error) {
       console.error('Error al obtener jugadores:', error);
@@ -636,7 +648,7 @@ export const Jugadores = () => {
     <div className='container'>
       <div className="jugadores">
         <SimpleBar className="scroll-suplentes" ref={simplebar}>
-          <motion.div
+          <div
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(5, minmax(100px, 1fr))',
@@ -646,52 +658,44 @@ export const Jugadores = () => {
               minHeight: '200px',
               
             }}
-            variants={containerVariants}
             initial="hidden"
             animate={loading ? 'hidden' : 'visible'}
           >
-            {loading ? (
-              // Aquí pones tus Skeleton cards (igual estructura, solo esqueleto)
-              <>
-                {[...Array(18)].map((_, i) => (
-                  <div key={i} className="card skeleton">
-                    <Skeleton variant="rectangular" width={100} height={100} />
-                    <Skeleton width="60%" style={{ marginTop: 8 }} />
-                  </div>
-                ))}
-              </>
-            ) : (
-              <>
-                {entrenador && (
-                  <div className="card" variants={itemVariants}>
-                    <img
-                      src={entrenador.foto}
-                      alt={entrenador.nombre}
-                      onClick={() => handleOpenCoach(entrenador)}
-                    />
-                    <span>{entrenador.nombre}</span>
-                  </div>
-                )}
-
-                {jugadores
-                  .filter((x) => !x.titular)
-                  .map((x, index) => (
-                    <div className="card" key={index} variants={itemVariants}>
-                      <img src={x.foto} alt={x.nombre} onClick={() => handleOpen(x)} />
-                      <span>{x.nombre}</span>
+            {!imagenesCargadas ? (
+                  <>
+                    {[...Array(jugadores.filter((x) => !x.titular).length + 2)].map((_, i) => (
+                      <div key={i} className="card skeleton">
+                        <Skeleton variant="rectangular" width={100} height={100} />
+                        <Skeleton width="60%" style={{ marginTop: 8 }} />
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    {entrenador && (
+                      <div className="card">
+                        <img
+                          src={entrenador.foto}
+                          alt={entrenador.nombre}
+                          onClick={() => handleOpenCoach(entrenador)}
+                        />
+                        <span>{entrenador.nombre}</span>
+                      </div>
+                    )}
+                    {jugadores.filter((x) => !x.titular).map((x, index) => (
+                      <div className="card" key={index}>
+                        <img src={x.foto} alt={x.nombre} onClick={() => handleOpen(x)} />
+                        <span>{x.nombre}</span>
+                      </div>
+                    ))}
+                    <div className="addJugador">
+                      <div className="circle-plus" onClick={() => setOpenNuevo(true)}>
+                        <i className="fa-solid fa-plus"></i>
+                      </div>
                     </div>
-                  ))}
-
-                {entrenador && (
-                  <div className="addJugador" variants={itemVariants}>
-                    <div className="circle-plus" onClick={() => setOpenNuevo(true)}>
-                      <i className="fa-solid fa-plus"></i>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </motion.div>
+                  </>
+                )}   
+          </div>
         </SimpleBar>
       </div>
       <Campo estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids}></Campo>

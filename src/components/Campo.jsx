@@ -99,7 +99,7 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
   //const [estadio, setEstadio] = useState(null);
 
   useEffect(() => {
-    console.log('La alineacion actual es: '+alineacion);
+    //console.log('La alineacion actual es: '+alineacion);
     const precargarImagenes = async () => {
       setLoading(true);
       //cambioAlineacion(getValues('Alineacion'));
@@ -136,9 +136,9 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
   };
 
   const posicionaCampo = (jugador) => {
-    console.log('posicionar jugador en alinacion: '+ alineacion);
+    //console.log('posicionar jugador en alinacion: '+ alineacion);
     const alineacionActual = alineaciones.find(a => a.nombre === alineacion);
-    console.log('Alineacion actual: '+ alineacionActual);
+    //console.log('Alineacion actual: '+ alineacionActual);
     const posicion = alineacionActual?.posiciones.find(
       x => jugador.posicion.toLowerCase() === x.posicion.toLowerCase()
     );

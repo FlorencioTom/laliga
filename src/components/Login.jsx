@@ -13,14 +13,11 @@ import LoginIcon from '@mui/icons-material/Login';
 import {useForm} from 'react-hook-form';
 import {login} from '../Api/Api';
 import Cookies from 'js-cookie';
-import { useAuth } from './Contexto';
 
 export const Login = ({func}) => {
-
     const [showPassword, setShowPassword] = useState(false);
     const { register, handleSubmit, formState: { errors } } = useForm();
     const navigate = useNavigate();
-
     const handleClickShowPassword = () => setShowPassword((show) => !show);
   
     const handleMouseDownPassword = (event) => {
@@ -41,13 +38,13 @@ export const Login = ({func}) => {
           path: '/', // Habilita el acceso a la cookie en toda la aplicación
           secure: process.env.NODE_ENV === 'production', // Usa cookies seguras en producción
         });     // Imprimir la respuesta completa del servidor
-        func(log.tk);
+        func(log.tk, log.equipo);
         //navigate('/');
         //setToken(log.tk);
       } catch (error) {
         console.log("Error en la petición:", error);  // Imprimir el error si lo hubiera
       }
-      console.log("Errores del formulario:", errors); // Imprimir los errores de validación
+      //console.log("Errores del formulario:", errors); // Imprimir los errores de validación
     };
     
     return (

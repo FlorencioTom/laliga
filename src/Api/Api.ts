@@ -1,5 +1,7 @@
 import axios from 'axios';
 import Equipo from '../Interfaces/interfaces'; // Importa la interfaz Equipo, que representa la estructura completa
+import Cookies from 'js-cookie';
+
 const cloudName = 'demhp5yfg';
 // URL base de la API
 const API_BASE_URL = "https://laligaback-deploy.vercel.app"; // Reemplaza con tu URL
@@ -13,10 +15,11 @@ const api = axios.create({
   },
 });
 
-export const Auth = async (cookie:string) => {
+//funcion para utenticarse
+export const Auth = async (info:any) => {
   const response = await api.post(
-    '/login/info',
-    {},  // Pasa un objeto vacío como payload si no necesitas enviar datos adicionales.
+    '/login',
+    {info},  // Pasa un objeto vacío como payload si no necesitas enviar datos adicionales.
     {
       withCredentials: true,  // Para enviar cookies.
       /*headers: {
@@ -24,10 +27,23 @@ export const Auth = async (cookie:string) => {
       }*/
     }
   );
-  return response.data;
+  return response;
 };
 
-export const login = async(info: { nombre: string; password: string }) => {
+//funcion para otener la informacción del usuario
+/* export const getInfoUser = async(token:string) => {
+  const response = await api.post(
+    '/login/info',
+    {},  // Pasa un objeto vacío como payload si no necesitas enviar datos adicionales.
+    {
+      withCredentials: true,  // Para enviar cookies.
+
+    }
+  );
+  return response.data;
+} */
+
+export const login = async(info: any) => {
   const response = await api.post('/login', info);
   return response.data;
 };

@@ -8,14 +8,18 @@ import { BrowserRouter as Router, Routes, Route, useNavigate, Link} from 'react-
 import { Filtros } from './components/Filtros';
 import MiInfo from './components/MiInfo';
 import Cookies from 'js-cookie';
-
+import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
+import Button from '@mui/material/Button';
+import { useAuth } from './components/Contexto';
 
 export const App = () => {
 
   const [id, setId] = useState(null);
   const [prevItem, setPrevItem] = useState(null); // Estado para manejar itemPrevio
-  const [token, setToken] = useState<string | null>(null);
   const NotFound = () => <h2>Error 404: Página no encontrada</h2>;
+  const {setToken, setEquipo, equipo, token} = useAuth();
+
+  
 
   useEffect( () => {
     
@@ -41,8 +45,11 @@ export const App = () => {
     });
   }
 
+  const handleLogout = () => {
+    Cookies.remove('access_token'); 
+    setToken(null); 
+  }; 
 
-  
   return (
     <Router>
       <div className='total-frame'>
@@ -50,7 +57,26 @@ export const App = () => {
           <Link to="/" onClick={handleReset}>
             <img className='logo' src={laliga} alt='laliga-mini-logo' />
           </Link>
-
+          {token && (
+            <Button
+              onClick={handleLogout}
+              className='submit clo'
+              variant="contained"
+              sx={{
+                width: '40px',
+                height: '40px',
+                backgroundColor: '#FF4A42',
+                '&:hover': {
+                  backgroundColor: '#FF4A42',
+                },
+                color: 'white',
+                marginRight: '20px',
+              }}
+              type="submit"
+            >
+              <PowerSettingsNewIcon />
+            </Button>
+          )}
         </nav>
         <section className='section'>
           <SimpleBar className='scroll-equipos'>
@@ -61,7 +87,7 @@ export const App = () => {
                   <Routes>
                     <Route path="*" element={<NotFound />} />
                     <Route path="/" element={<Filtros/>} />
-                    <Route path="/equipo/:ids" element={<Jugadores  />} />
+                    <Route path="/equipo/:ids" element={<Jugadores origenMiEquipo={false}/>} />
                     <Route path="/miequipo" element={<MiInfo/>} />
                   </Routes>
               {/* </SimpleBar> */}

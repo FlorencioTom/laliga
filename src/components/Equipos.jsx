@@ -48,7 +48,7 @@ export const Equipos = ({passId}) => {
   }
 
   const itemPrevio = (num) => {
-    console.log('item previo indice: ' + num);
+    //console.log('item previo indice: ' + num);
       setPrevItemState(num);
   }
   

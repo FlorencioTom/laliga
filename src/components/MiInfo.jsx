@@ -6,15 +6,14 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { Auth } from '../Api/Api';
 import Cookies from 'js-cookie';
-import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
-import Button from '@mui/material/Button';
+import {Jugadores} from './Jugadores';
+import { useAuth } from './Contexto';
 import Loader from 'rsuite/Loader';
-
 
 const MiInfo = () => {
     const [value, setValue] = useState(0);
+    const {setToken, setEquipo, equipo, token} = useAuth();
     const [ tk, setTk ] = useState(null);
-    const [equipo, setEquipo] = useState(null);
 
     useEffect(() => {
       const fetchData = async () => {
@@ -22,9 +21,9 @@ const MiInfo = () => {
         if (token) {
           setTk(token); // Asume que tienes un estado `tk` donde lo guardas
           try {
-            const respuesta = await Auth();  // Espera a que la promesa se resuelva
-            console.log(respuesta.data);  // Imprime la respuesta resuelta
-            setEquipo(respuesta.data);
+            //const respuesta = await Auth();  // Espera a que la promesa se resuelva
+            //console.log(respuesta.data);  // Imprime la respuesta resuelta
+            //setEquipo(respuesta.data);
           } catch (error) {
             console.error("Error fetching auth data:", error);
           }
@@ -32,15 +31,19 @@ const MiInfo = () => {
       };
     
       fetchData();  // Llama a la función asíncrona dentro de useEffect
-    }, [tk]);
+    }, [token]);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
 
-    const updateToken = (tkn) => {
+    const updateToken = (tkn, equipo) => {
       setTk(tkn);
+      setToken(tkn);
+      setEquipo(equipo);
       Cookies.set('access_token', tkn);
+      console.log('eQUIPO IMPRESO DESDE MI iNFO: ', equipo); //Guardar mi equipo en el contexto
+      
     }
 
     const CustomTabPanel = (props) => {
@@ -61,44 +64,15 @@ const MiInfo = () => {
 
     const handleLogout = () => {
       Cookies.remove('access_token'); 
+      setToken(null);
       setTk(null); 
     };    
 
     return (
       
-      tk ? (
+      token ? (
         <>
-        <div className='jugadores'>
-
-          <>
-            {equipo && (
-              <div className='card '>
-                <img src={equipo.plantilla.entrenador.foto} alt={equipo.plantilla.entrenador.nombre} />
-                <span key={equipo.plantilla.entrenador.nombre}>{equipo.plantilla.entrenador.nombre}</span>
-              </div>
-            )}
-            {equipo &&
-              equipo.plantilla.jugadores.map((x, index) => (
-                <div className={`card`} key={index}>
-                  <img src={x.foto} alt={x.nombre}/>
-                  <span>{x.nombre}</span>
-                </div>
-              ))}
-          </>
-        
-      </div>
-
-        <Button onClick={handleLogout} className='submit clo'variant="contained" endIcon={<PowerSettingsNewIcon />}
-        sx={{ 
-          backgroundColor: '#FF4A42',  // Color de fondo del botón
-          '&:hover': {
-            backgroundColor: '#FF4A42',  // Color de fondo al pasar el mouse (hover)
-          },
-          color: 'white',  // Color del texto
-          marginRight: '20px'
-        }}
-        type="submit"
-        ></Button>
+          <Jugadores origenMiEquipo={true}></Jugadores>
         </>
       ) : (
         <div className='miInfo'>

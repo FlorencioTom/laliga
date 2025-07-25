@@ -41,8 +41,10 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Slide from '@mui/material/Slide';
 import Skeleton from '@mui/material/Skeleton';
+import { useAuth } from './Contexto';
 
-export const Jugadores = () => {
+export const Jugadores = ({origenMiEquipo}) => {
+  const {setToken, setEquipo, equipo, token} = useAuth();
   const [imagenesCargadas, setImagenesCargadas] = useState({});
   const [jugadores, setJugadores] = useState([]);
   const [entrenador, setEntrenador] = useState(null);
@@ -327,8 +329,18 @@ export const Jugadores = () => {
   useEffect(() => {
     getNacionalidades();
     setCambioJugador(null);
-    if(ids){
+    const token = Cookies.get('access_token');
+    if(token){
+      console.log('Hay token');
+      //aquí tengo que reciir la informacion del token
+    }else{
+      console.log('No hay token');
+    }
+
+    if(!origenMiEquipo){
       getJugadores(ids);
+    }else{
+      getJugadoresUser();
     }
   }, [ids, jugadoresChanged]);
 
@@ -361,17 +373,30 @@ export const Jugadores = () => {
       const respuesta = await getAllPlayersByTeam(value);
       setJugadores(respuesta.plantilla.jugadores);
       setEntrenador(respuesta.plantilla.entrenador);
-
-
-
       setEstadio(respuesta.estadio);
     } catch (error) {
       console.error('Error al obtener jugadores:', error);
     } finally {
       setLoading(false); // Ocultar el loader cuando termina la carga
-      //simplebar.current.recalculate();
+       //simplebar.current.recalculate();
     }
   };
+
+  const getJugadoresUser  = () => {
+    setLoading(true); // Iniciar el loader cuando comienza la carga
+    console.log('ahora deeria mostrar este equipo en el front: ', equipo);
+    try {
+      console.log('ahora deeria mostrar este equipo en el front: ', equipo);
+      setJugadores(equipo.plantilla.jugadores);
+      setEntrenador(equipo.plantilla.entrenador);
+      setEstadio(equipo.estadio);
+    } catch (error) {
+      console.error('Error al obtener jugadores:', error);
+    } finally {
+      setLoading(false); // Ocultar el loader cuando termina la carga
+      //simplebar.current.recalculate();
+    }   
+  }
 
   const obtenerBandera = async (nacionalidad) => {
     try {

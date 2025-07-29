@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { getAllPlayersByTeam, addPlayer, addCoach, addPlayerToTeam } from '../Api/Api';
+import { getAllPlayersByTeam, addPlayer, addCoach, addPlayerToTeam, addPlayerToUser } from '../Api/Api';
 import Loader from 'rsuite/Loader';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
@@ -41,6 +41,10 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Slide from '@mui/material/Slide';
 import Skeleton from '@mui/material/Skeleton';
+import Switch from '@mui/material/Switch';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormLabel from '@mui/material/FormLabel';
 import { useAuth } from './Contexto';
 
 export const Jugadores = ({origenMiEquipo}) => {
@@ -71,6 +75,8 @@ export const Jugadores = ({origenMiEquipo}) => {
   const {register, handleSubmit, reset, formState: { errors } } = useForm();
   const [openConfirmacion, setOpenConfirmacion] = useState({open:false, message: ''});
   const [resolverConfirmacion, setResolverConfirmacion] = useState(null);
+  const [isTitular, setIsTitular] = useState(false);
+
   const {register:registerActualiza, 
     setValue:setValueActualiza,
     control: controlActualiza,
@@ -149,6 +155,10 @@ export const Jugadores = ({origenMiEquipo}) => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleTitularidad = (event) => {
+    setIsTitular(event.target.checked);
   };
 
   const pedirConfirmacion = (mensaje) => {
@@ -423,35 +433,24 @@ export const Jugadores = ({origenMiEquipo}) => {
     }
   };
 
-  const fichar = async(jugador) => {
-    /*const token = Cookies.get('access_token');
-    console.log('-------------------------------------');
-    for (const [key, value] of Object.entries(jugador)) {
-      console.log(`Tipo de ${key}:`, typeof value); // 
-    }
-    console.log('-------------------------------------'); 
-    if(token){
-      console.log(jugador);
-      const info = {token, jugador};
-      console.log(jugador.nacimiento);
-      const respuesta = await addPlayer(jugador);
-      
-      if(respuesta.status === 201){
+  const fichar = async() => {
+    //console.log(jugadorSeleccionado);
+    //crear un metodo en el node para modificar usuario
+
+    try{
+      const respuesta = await addPlayerToUser(jugadorSeleccionado, token);
+      console.log(respuesta);
+      if(respuesta.status === 200){
         handleClose();
-        Swal.fire({
-          icon: `${respuesta.data}`,
-          text: `${respuesta.message}`
-        });
+        handleSnack(respuesta.data.message, 'success');
+        equipo.plantilla.jugadores.push(jugadorSeleccionado);
+        const equipoActualizado = equipo;
+        setEquipo(equipoActualizado);
+        console.log(equipoActualizado);
       }
-    
-    }else{
-      handleClose();
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: `Inicia sesion para añadir jugadores a tu plantilla`
-      });
-    }*/
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   const ficharCoach = async(coach) => {
@@ -741,18 +740,44 @@ export const Jugadores = ({origenMiEquipo}) => {
                 {/* Si el modo edicion está activado el nombre pasa a ser un input */}
                 <div>
                     {edicion[0] ? (
-                      <FormControl sx={{ m: 1, width: '150px' }} variant="outlined">
-                            <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'white','&.Mui-focused': {color: 'white'}}}>
-                              Nombre
-                            </InputLabel>
-                            <OutlinedInput id="outlined-adornment-usuario" type='text' 
-                              label="Nombre"
-                              sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
+                      <div style={{display:'flex', gap:'20px', alignItems:'center'}}>
+                        <FormControl sx={{ m: 1, width: '150px' }} variant="outlined">
+                              <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'white','&.Mui-focused': {color: 'white'}}}>
+                                Nombre
+                              </InputLabel>
+                              <OutlinedInput id="outlined-adornment-usuario" type='text' 
+                                label="Nombre"
+                                sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
                                 color:'white', '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'white'},
                               }}
                               {...registerActualiza("nombre", {required: true})}
-                            />
-                      </FormControl>
+                              />
+                        </FormControl>
+                        {/* Si el modo edicion está activado y además estoy en mi equipo */}
+                        <FormControl component="fieldset">
+                          <FormGroup aria-label="position" row>
+                            <FormControlLabel
+                                      value="end"
+                                      control={
+                                        <Switch
+                                          checked={isTitular}
+                                          onChange={handleTitularidad}
+                                          sx={{
+                                            '& .MuiSwitch-thumb': {
+                                              backgroundColor: isTitular ? 'green' : 'grey',
+                                            },
+                                            '& .MuiSwitch-track': {
+                                              backgroundColor: isTitular ? '#a5d6a7' : '#ccc',
+                                            }
+                                          }}
+                                        />
+                                      }
+                                      label={isTitular ? 'Titular  ' : 'Suplente'}
+                                      labelPlacement="top"
+                                    />
+                          </FormGroup>
+                        </FormControl>
+                      </div>
                     ):(
                       <h2 id="transition-modal-title" style={{ marginTop: '0px' }}>{jugadorSeleccionado.nombre}</h2>
                     )}
@@ -981,14 +1006,22 @@ export const Jugadores = ({origenMiEquipo}) => {
                       color: 'black',
                       borderRadius: 10
                     }}>Cerrar</Button>
-                    <Button variant="contained" sx={{ 
-                      backgroundColor: 'white', 
-                      '&:hover': {
-                        backgroundColor: 'white',
-                      },
-                      color: 'black',
-                      borderRadius: 10
-                    }}>Fichar</Button>
+                    {/* Este oton se visualiza si hay token */}
+                    {token && !origenMiEquipo && (
+                      <Button onClick={() => fichar()}
+                        variant="contained" 
+                        sx={{ 
+                          backgroundColor: 'white', 
+                          '&:hover': {
+                            backgroundColor: 'white',
+                          },
+                          color: 'black',
+                          borderRadius: 10
+                        }}
+                      >
+                        Fichar
+                      </Button>
+                    )}
                   </div>
                 )}
                 <div style={{marginTop:'20PX', display:'flex', gap:'30px'}}>

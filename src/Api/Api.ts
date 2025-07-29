@@ -153,6 +153,24 @@ export const addPlayerToTeam = async(idEquipo:string, jugador:any) => {
 
 };
 
+export const addPlayerToUser = async(jugador:any, token:string) => {
+
+  const response = await api.post(
+    `login/add`,
+    {jugador},
+    {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      }
+    }
+  );
+
+  return response;
+
+}
+
 export const addCoach = async(coach:any) => {
   const response = await api.post(
     'login/addCoach',

@@ -154,10 +154,13 @@ export const addPlayerToTeam = async(idEquipo:string, jugador:any) => {
 };
 
 export const addPlayerToUser = async(jugador:any, token:string) => {
-
+  const jugadorConTitularidad = {
+    ...jugador,
+    titular: false
+  };
   const response = await api.post(
     `login/add`,
-    {jugador},
+    {jugador: jugadorConTitularidad},
     {
       withCredentials: true,
       headers: {
@@ -185,6 +188,26 @@ export const addCoach = async(coach:any) => {
   return response.data;
 
 };
+
+export const changeStartingStatus = async(nombreJugador:string, token:string, titularidad:Boolean) => {
+  /*con el toquen accederé al nomre de usuario.
+  luego usco el nomre del jugador en el equipo
+  y le pongo la titularidad */
+  
+  const response = await api.post(
+    `login/cambiarTitularidad`,
+    {nombre: nombreJugador, titularidad: titularidad},
+    {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      }
+    }
+  );
+  return response.data;
+
+}
 
 
 

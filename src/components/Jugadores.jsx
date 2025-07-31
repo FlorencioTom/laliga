@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { getAllPlayersByTeam, addPlayer, addCoach, addPlayerToTeam, addPlayerToUser } from '../Api/Api';
+import { getAllPlayersByTeam, addPlayer, addCoach, addPlayerToTeam, addPlayerToUser, changeStartingStatus } from '../Api/Api';
 import Loader from 'rsuite/Loader';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
@@ -157,8 +157,44 @@ export const Jugadores = ({origenMiEquipo}) => {
     }
   };
 
-  const handleTitularidad = (event) => {
-    setIsTitular(event.target.checked);
+  const handleTitularidad = async(event) => {
+    //setIsTitular(event.target.checked);
+    const jugadorSeleccionadoNombre = jugadorSeleccionado.nombre
+    const respuesta = await changeStartingStatus(jugadorSeleccionadoNombre, token, event.target.checked);
+
+    if(respuesta.status === 200){
+      console.log(respuesta);
+      handleSnack(respuesta.message, 'success');
+
+      console.log('Antes: ', jugadores);
+      let nuevasTitularidades = [];
+
+      jugadores.forEach(jugador => {
+        if (jugador.nombre === jugadorSeleccionadoNombre) {
+          nuevasTitularidades.push({ ...jugador, titular: !jugador.titular });
+        } else {
+          nuevasTitularidades.push(jugador);
+        }
+      });
+      console.log('Despues: ', nuevasTitularidades);
+
+      const equipoActualizado = {
+        ...equipo,
+        plantilla: {
+          ...equipo.plantilla,
+          jugadores: nuevasTitularidades
+        }
+      };
+      
+      setEquipo(equipoActualizado);
+      setJugadores(nuevasTitularidades);
+
+      handleClose();
+      //setJugadoresChanged(prev => !prev);
+    }
+
+    //Metodo para camiar la titularidad de mi jugador
+
   };
 
   const pedirConfirmacion = (mensaje) => {
@@ -226,6 +262,10 @@ export const Jugadores = ({origenMiEquipo}) => {
   };
 
   const handleOpen = async (jugador) => {
+    if(token){
+      console.log(jugador);
+      setIsTitular(jugador.titular);
+    }
     //console.log(jugador.nacionalidad.toLowerCase());
     await obtenerBandera(jugador.nacionalidad.toLowerCase()); 
     if(cambioJugador === null){
@@ -321,7 +361,7 @@ export const Jugadores = ({origenMiEquipo}) => {
         } else {
           siguiente = jugadores[nextIndex];
         }
-  
+        //setIsTitular(siguiente.titular);
         setJugadorSeleccionado(siguiente);
         await obtenerBandera(siguiente.nacionalidad?.toLowerCase());
   
@@ -352,7 +392,7 @@ export const Jugadores = ({origenMiEquipo}) => {
     }else{
       getJugadoresUser();
     }
-  }, [ids, jugadoresChanged]);
+  }, [ids, jugadoresChanged, equipo]);
 
   useEffect(() => {
     if (!jugadores || jugadores.length === 0) return;
@@ -434,8 +474,9 @@ export const Jugadores = ({origenMiEquipo}) => {
   };
 
   const fichar = async() => {
-    //console.log(jugadorSeleccionado);
-    //crear un metodo en el node para modificar usuario
+
+    const jugadorActualizado = { ...jugadorSeleccionado, titular: false };
+    console.log(jugadorActualizado);
 
     try{
       const respuesta = await addPlayerToUser(jugadorSeleccionado, token);
@@ -443,7 +484,9 @@ export const Jugadores = ({origenMiEquipo}) => {
       if(respuesta.status === 200){
         handleClose();
         handleSnack(respuesta.data.message, 'success');
-        equipo.plantilla.jugadores.push(jugadorSeleccionado);
+        //camiar la titularidad a false
+        const jugadorActualizado = { ...jugadorSeleccionado, titular: false };
+        equipo.plantilla.jugadores.push(jugadorActualizado);
         const equipoActualizado = equipo;
         setEquipo(equipoActualizado);
         console.log(equipoActualizado);
@@ -757,24 +800,24 @@ export const Jugadores = ({origenMiEquipo}) => {
                         <FormControl component="fieldset">
                           <FormGroup aria-label="position" row>
                             <FormControlLabel
-                                      value="end"
-                                      control={
-                                        <Switch
-                                          checked={isTitular}
-                                          onChange={handleTitularidad}
-                                          sx={{
-                                            '& .MuiSwitch-thumb': {
-                                              backgroundColor: isTitular ? 'green' : 'grey',
-                                            },
-                                            '& .MuiSwitch-track': {
-                                              backgroundColor: isTitular ? '#a5d6a7' : '#ccc',
-                                            }
-                                          }}
-                                        />
-                                      }
-                                      label={isTitular ? 'Titular  ' : 'Suplente'}
-                                      labelPlacement="top"
-                                    />
+                              value="end"
+                              control={
+                                <Switch
+                                  checked={jugadorSeleccionado.titular}
+                                  onChange={handleTitularidad}
+                                  sx={{
+                                    '& .MuiSwitch-thumb': {
+                                      backgroundColor: jugadorSeleccionado.titular ? 'green' : 'grey',
+                                    },
+                                    '& .MuiSwitch-track': {
+                                      backgroundColor: jugadorSeleccionado.titular ? '#a5d6a7' : '#ccc',
+                                    }
+                                  }}
+                                />
+                              }
+                              label={jugadorSeleccionado.titular ? 'Titular  ' : 'Suplente'}
+                              labelPlacement="top"
+                            />
                           </FormGroup>
                         </FormControl>
                       </div>

@@ -131,6 +131,33 @@ export const editPlayerFromTeam = async(idEquipo: string, jugadorOriginal: any, 
   return response;
 }
 
+export const editPlayerFromUser = async(token: string, jugadorOriginal: any, jugadorNuevo:any) => {
+  const formData = new FormData();
+
+  for (const key in jugadorNuevo) {
+    formData.append(key, jugadorNuevo[key]);
+  }
+
+  formData.append('jugadorOriginal', JSON.stringify(jugadorOriginal));
+
+  console.log(formData);
+
+  const response = await api.post(
+    `login/actualizarJugador`,
+    formData,
+    {
+      withCredentials: true,
+      headers: {
+        'Authorization': `Bearer ${token}` 
+      },
+      //data:{jugadorOriginal, jugadorNuevo} 
+      //tengo que mandar el jugador original y el jugador nuevo al node
+    }
+  );
+
+  return response;
+}
+
 export const addPlayerToTeam = async(idEquipo:string, jugador:any) => {
   const formData = new FormData();
 

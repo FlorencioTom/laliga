@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { getAllPlayersByTeam, addPlayer, addCoach, addPlayerToTeam, addPlayerToUser, changeStartingStatus } from '../Api/Api';
+import { getAllPlayersByTeam, addPlayer, addCoach, addPlayerToTeam, addPlayerToUser, changeStartingStatus, editPlayerFromUser } from '../Api/Api';
 import Loader from 'rsuite/Loader';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
@@ -628,29 +628,60 @@ export const Jugadores = ({origenMiEquipo}) => {
   } 
 
   const editarJugador = async(jugadorSeleccionado) => {
-    const esValido = await triggerActualiza();
-    if(esValido){
-      const confirmado = await pedirConfirmacion(`Estás seguro de querer editar a ${jugadorSeleccionado.nombre}?`);
-      if (!confirmado) {
-        console.log("Operación cancelada por el usuario.");
-        return;
-      }
-      console.log('form actulizar válido');
-      const respuesta = await getAllPlayersByTeam(ids);
-      let response = null
-      if(actualizaFotoJugador[0]){
-        response = await uploadImageToCloudinary(actualizaFotoJugador[0], respuesta.carpeta);
-      }
-      const nuevaInfoJugador = {...getValuesActualiza(), foto:response}
-      const edicion = await editPlayerFromTeam(ids, jugadorSeleccionado, nuevaInfoJugador);
-      if(edicion.status === 200){
-        setJugadoresChanged(prev => !prev);
-        handleClose();
-        handleSnack(edicion.data.message, 'success');
-        //console.log(edicion.data);
+    if(!origenMiEquipo){
+      const esValido = await triggerActualiza();
+      if(esValido){
+        const confirmado = await pedirConfirmacion(`Estás seguro de querer editar a ${jugadorSeleccionado.nombre}?`);
+        if (!confirmado) {
+          console.log("Operación cancelada por el usuario.");
+          return;
+        }
+        console.log('form actulizar válido');
+        const respuesta = await getAllPlayersByTeam(ids);
+        let response = null
+        if(actualizaFotoJugador[0]){
+          response = await uploadImageToCloudinary(actualizaFotoJugador[0], respuesta.carpeta);
+        }
+        const nuevaInfoJugador = {...getValuesActualiza(), foto:response}
+        const edicion = await editPlayerFromTeam(ids, jugadorSeleccionado, nuevaInfoJugador);
+        if(edicion.status === 200){
+          setJugadoresChanged(prev => !prev);
+          handleClose();
+          handleSnack(edicion.data.message, 'success');
+          //console.log(edicion.data);
+        }
+      }else{
+        console.error('form no válido');
       }
     }else{
-      console.error('form no válido');
+      console.log('Estas intentado editar un jugador de tu plantilla');
+      const esValido = await triggerActualiza();
+      if(esValido){
+        const confirmado = await pedirConfirmacion(`Estás seguro de querer editar a ${jugadorSeleccionado.nombre}?`);
+        if (!confirmado) {
+          console.log("Operación cancelada por el usuario.");
+          return;
+        }
+        console.log('form actulizar válido');
+        const respuesta = await getJugadoresUser();;
+        let response = null
+        if(actualizaFotoJugador[0]){
+          response = await uploadImageToCloudinary(actualizaFotoJugador[0], 'usersUpdates');
+        }
+        const nuevaInfoJugador = {...getValuesActualiza(), foto:response}
+        const edicion = await editPlayerFromUser(token, jugadorSeleccionado, nuevaInfoJugador);
+        console.log(edicion);
+        if(edicion.status === 200){
+          setJugadoresChanged(prev => !prev);
+          handleClose();
+          handleSnack(edicion.data.message, 'success');
+          setEquipo(edicion.data.usuario);
+          setJugadores(edicion.data.usuario.plantilla.jugadores);
+          //console.log(edicion.data);
+        }
+      }else{
+        console.error('form no válido');
+      }
     }
   }
 

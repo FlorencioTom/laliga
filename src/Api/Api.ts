@@ -104,6 +104,23 @@ export const deletePlayerFromTeam = async(idEquipo: string, jugador: any) => {
   return response;
 };
 
+export const deletePlayerFromUser = async(token: string, jugador: any) => {
+  //console.log(idEquipo, jugador);
+  const response = await api.delete(
+    `login/eliminarJugador`,
+    {
+      withCredentials: true,
+      headers: {
+        'Content-Type':'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      data: jugador
+    }
+  );
+
+  return response;
+};
+
 export const editPlayerFromTeam = async(idEquipo: string, jugadorOriginal: any, jugadorNuevo:any) => {
   const formData = new FormData();
 

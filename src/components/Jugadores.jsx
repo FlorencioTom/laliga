@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { getAllPlayersByTeam, addPlayer, addCoach, addPlayerToTeam, addPlayerToUser, changeStartingStatus, editPlayerFromUser } from '../Api/Api';
+import { getAllPlayersByTeam, addPlayer, addCoach, addPlayerToTeam, addPlayerToUser, changeStartingStatus, editPlayerFromUser, deletePlayerFromUser } from '../Api/Api';
 import Loader from 'rsuite/Loader';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
@@ -600,14 +600,44 @@ export const Jugadores = ({origenMiEquipo}) => {
       return;
     }
 
-    const respuesta = await deletePlayerFromTeam(ids, jugadorSeleccionado);
-    if(respuesta.status === 200){
-      setJugadoresChanged(prev => !prev);
-      setNuevaFotoJugador(['','']);
-      handleClose();
-      handleSnack(respuesta.data.message, 'success');
-      console.log(respuesta.data);
+    if(!origenMiEquipo){
+      const respuesta = await deletePlayerFromTeam(ids, jugadorSeleccionado);
+      if(respuesta.status === 200){
+        setJugadoresChanged(prev => !prev);
+        setNuevaFotoJugador(['','']);
+        handleClose();
+        handleSnack(respuesta.data.message, 'success');
+        console.log(respuesta.data);
+      }
+    }else{
+      console.log('Estás tratando de eliminar un jugador de tu equipo');
+      const respuesta = await deletePlayerFromUser(token, jugadorSeleccionado);
+      if(respuesta.status === 200){
+        setJugadoresChanged(prev => !prev);
+        setNuevaFotoJugador(['','']);
+
+        console.log('Antes: ', jugadores);
+        let restoDeLaPlantilla = [];
+        restoDeLaPlantilla = jugadores.filter(j => j.nombre !== jugadorSeleccionado.nombre);
+        console.log('Despues: ', restoDeLaPlantilla);
+
+        const equipoActualizado = {
+          ...equipo,
+          plantilla: {
+            ...equipo.plantilla,
+            jugadores: restoDeLaPlantilla
+          }
+        };
+      
+        setEquipo(equipoActualizado);
+        setJugadores(restoDeLaPlantilla);
+
+        handleClose();
+        handleSnack(respuesta.data.message, 'success');
+        console.log(respuesta.data);
+      }
     }
+
   }
 
   const activarEdicion = async(ids, jugadorSeleccionado) => {

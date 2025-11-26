@@ -188,10 +188,10 @@ export const Jugadores = ({origenMiEquipo}) => {
           ...equipo.plantilla,
           jugadores: nuevasTitularidades
         }
-      };
+      };*/
       
-      setEquipo(equipoActualizado);
-      setJugadores(nuevasTitularidades); */
+      setEquipo(nuevoEquipo.data);
+      setJugadores(nuevoEquipo.data.plantilla.jugadores); 
 
       handleClose();
       //setJugadoresChanged(prev => !prev);

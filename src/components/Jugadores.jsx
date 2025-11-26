@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { getAllPlayersByTeam, addPlayer, addCoach, addPlayerToTeam, addPlayerToUser, changeStartingStatus, editPlayerFromUser, deletePlayerFromUser } from '../Api/Api';
+import { getAllPlayersByTeam, addPlayer, addCoach, addPlayerToTeam, addPlayerToUser, changeStartingStatus, editPlayerFromUser, deletePlayerFromUser, getTeamUser } from '../Api/Api';
 import Loader from 'rsuite/Loader';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
@@ -160,13 +160,17 @@ export const Jugadores = ({origenMiEquipo}) => {
   const handleTitularidad = async(event) => {
     //setIsTitular(event.target.checked);
     const jugadorSeleccionadoNombre = jugadorSeleccionado.nombre
-    const respuesta = await changeStartingStatus(jugadorSeleccionadoNombre, token, event.target.checked);
+    const respuesta = await changeStartingStatus(jugadorSeleccionadoNombre, token, event.target.checked, jugadorSeleccionado.posicion);
 
     if(respuesta.status === 200){
-      console.log(respuesta);
+      //getJugadoresUser();
+      console.log('Cam', respuesta);
       handleSnack(respuesta.message, 'success');
 
-      console.log('Antes: ', jugadores);
+      const nuevoEquipo = await getTeamUser(token);
+      console.log('de aquí deería sacar la info del equipo', nuevoEquipo);
+
+      /*console.log('Antes: ', jugadores);
       let nuevasTitularidades = [];
 
       jugadores.forEach(jugador => {
@@ -187,7 +191,7 @@ export const Jugadores = ({origenMiEquipo}) => {
       };
       
       setEquipo(equipoActualizado);
-      setJugadores(nuevasTitularidades);
+      setJugadores(nuevasTitularidades); */
 
       handleClose();
       //setJugadoresChanged(prev => !prev);
@@ -433,6 +437,7 @@ export const Jugadores = ({origenMiEquipo}) => {
   };
 
   const getJugadoresUser  = () => {
+    //
     setLoading(true); // Iniciar el loader cuando comienza la carga
     console.log('ahora deeria mostrar este equipo en el front: ', equipo);
     try {

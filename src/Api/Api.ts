@@ -30,18 +30,14 @@ export const Auth = async (info:any) => {
   return response;
 };
 
-//funcion para otener la informacción del usuario
-/* export const getInfoUser = async(token:string) => {
-  const response = await api.post(
-    '/login/info',
-    {},  // Pasa un objeto vacío como payload si no necesitas enviar datos adicionales.
-    {
-      withCredentials: true,  // Para enviar cookies.
-
+export const getTeamUser = async(token:string) => {
+  const response = await api.get('/login/getInfoUser', {
+    headers: {
+      Authorization: `Bearer ${token}`
     }
-  );
+  });
   return response.data;
-} */
+}
 
 export const login = async(info: any) => {
   const response = await api.post('/login', info);
@@ -233,14 +229,14 @@ export const addCoach = async(coach:any) => {
 
 };
 
-export const changeStartingStatus = async(nombreJugador:string, token:string, titularidad:Boolean) => {
+export const changeStartingStatus = async(nombreJugador:string, token:string, titularidad:Boolean, ps:string) => {
   /*con el toquen accederé al nomre de usuario.
   luego usco el nomre del jugador en el equipo
   y le pongo la titularidad */
   
   const response = await api.post(
     `login/cambiarTitularidad`,
-    {nombre: nombreJugador, titularidad: titularidad},
+    {nombre: nombreJugador, titularidad: titularidad, posicion:ps},
     {
       withCredentials: true,
       headers: {

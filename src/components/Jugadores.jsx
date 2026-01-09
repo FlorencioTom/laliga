@@ -831,7 +831,7 @@ export const Jugadores = ({origenMiEquipo}) => {
           </div>
         </SimpleBar>
       </div>
-      <Campo estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids}></Campo>
+      <Campo nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids}></Campo>
     </div>
       <Modal
       aria-labelledby="transition-modal-title"

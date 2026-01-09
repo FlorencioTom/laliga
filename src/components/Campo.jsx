@@ -22,6 +22,8 @@ import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from 'swiper/module
 import InputLabel from '@mui/material/InputLabel';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { motion } from 'framer-motion';
+import ImageIcon from '@mui/icons-material/Image';
+import AudioFileIcon from '@mui/icons-material/AudioFile';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -32,6 +34,8 @@ import 'swiper/css/scrollbar';
 // Import Swiper styles
 import 'swiper/css/virtual';
 import "animate.css";
+import { Padding } from '@mui/icons-material';
+import { TextAlignment } from '@cloudinary/url-gen/qualifiers';
 
 const API_BASE_URL = "https://laligaback-deploy.vercel.app";
 
@@ -67,6 +71,20 @@ const style = {
   width: '80vw'  
 };
 
+const styleNoPics = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  backgroundColor:'white',
+  borderRadius:'20px',
+  display:'flex',
+  justifyContent:'space-between',
+  cursor:'pointer',
+  padding:'20px',
+  gap:'20px'
+};
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: { 
@@ -83,11 +101,12 @@ const itemVariants = {
 };
 
 
-export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam}) {
+export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam}) {
   const [data, setData] = useState(jugadores);
   const [loading, setLoading] = useState(true);
   const [cambioJugador, setCambioJugador] = useState(null);
   const [open, setOpen] = useState(false);
+  const [openPic, setOpenPic] = useState(false); //Este estado es para cuando no hay imagenes de estadio
   const [snackbar, setSnackbar] = useState({open: false, Transition: Slide});
   const [titulares, setTitulares] = [{}];
   const { control, handleSubmit, getValues } = useForm({
@@ -100,6 +119,7 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
 
   useEffect(() => {
     //console.log('La alineacion actual es: '+alineacion);
+    console.log(nombre);
     const precargarImagenes = async () => {
       setLoading(true);
       //cambioAlineacion(getValues('Alineacion'));
@@ -128,11 +148,18 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
 
   const handleClose = () => {
     setOpen(false);
+    setOpenPic(false);
     closeSnack();
   };
 
   const handleOpen = async () => {
-    setOpen(true);
+    if (estadio.fotos['fuera'] === "" && estadio.fotos['dentro'] === "" ){
+      //console.log(estadio.fotos.dentro, estadio.fotos.fuera);
+      console.log("No hay fotos");
+      setOpenPic(true);
+    }else{
+      setOpen(true);
+    }
   };
 
   const posicionaCampo = (jugador) => {
@@ -207,7 +234,7 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
             sx={{ backgroundColor: '#FF4A42','&:hover': {backgroundColor: '#FF4A42'},color: 'white', width:'auto'}}
             onClick={() => handleOpen()}
             >
-            {estadio && estadio.nombre}
+            {estadio && (estadio.nombre || nombre)}
           </Button>
           <FormControl sx={{ m: 1, width: '140px', height:'40px' }} variant="outlined">
             <InputLabel 
@@ -282,13 +309,13 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
         </div>
       </div>
       <Modal
-      aria-labelledby="transition-modal-title"
-      aria-describedby="transition-modal-description"
-      open={open}
-      onClose={handleClose}
-      closeAfterTransition
-      slots={{ backdrop: Backdrop }}
-      slotProps={{ backdrop: { timeout: 500 } }}
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
+        open={open}
+        onClose={handleClose}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{ backdrop: { timeout: 500 } }}
       >
       <Fade in={open} onEnter={() => openSnack()} onExit={() => closeSnack()}>
         <Box sx={style}>
@@ -346,6 +373,46 @@ export default function Campo({jugadores, enviarJugador, cambioPosicionTitulares
               <p>Cargando fotos del estadio...</p>
             )}
         </Box>
+      </Fade>
+    </Modal>
+    <Modal
+      aria-labelledby="transition-modal-title"
+      aria-describedby="transition-modal-description"
+      open={openPic}
+      onClose={handleClose}
+      closeAfterTransition
+      slots={{ backdrop: Backdrop }}
+      slotProps={{ backdrop: { timeout: 500 } }}
+    >
+      <Fade in={openPic} onEnter={() => openSnack()} onExit={() => closeSnack()}>
+        <Box sx={styleNoPics}>
+          <div>
+            <ImageIcon
+              sx={{
+                fontSize: 100,
+                color: '#FF4A42',
+                transition: '0.2s',
+                '&:hover': {
+                  transform: 'scale(1.1)',
+                  color:'#ff4b42af'
+                },
+              }}
+            />
+          </div>
+          <div>
+            <AudioFileIcon
+              sx={{
+                fontSize: 100,
+                color: '#FF4A42',
+                transition: '0.2s',
+                '&:hover': {
+                  transform: 'scale(1.1)',
+                  color:'#ff4b42af'
+                },
+              }}
+            />
+          </div>
+        </Box>   
       </Fade>
     </Modal>
     </>

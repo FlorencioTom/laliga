@@ -24,6 +24,8 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { motion } from 'framer-motion';
 import ImageIcon from '@mui/icons-material/Image';
 import AudioFileIcon from '@mui/icons-material/AudioFile';
+import IconButton from '@mui/material/IconButton';
+import SendIcon from '@mui/icons-material/Send';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -116,6 +118,12 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
   });
   const [alineacion, setAlineacion] = useState('4-3-3')
   //const [estadio, setEstadio] = useState(null);
+
+  const {register:actualiza, 
+    setValue:setValueActualiza,
+    control: controlActualiza,
+    getValues:getValuesActualiza,
+    trigger:triggerActualiza} = useForm();
 
   useEffect(() => {
     //console.log('La alineacion actual es: '+alineacion);
@@ -224,6 +232,18 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
   const cambioAlineacion = (alineacion) => {
     console.log('Alineacion seleccionada: ', alineacion);
     setAlineacion(alineacion);
+  }
+
+  const onSubmit = async(data) => {
+    console.log('ahora todo al back');
+  }
+
+  const actualizaEstadio = () => {
+
+  }
+
+  const actualizaHimno = () => {
+
   }
 
   return (
@@ -386,32 +406,66 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
     >
       <Fade in={openPic} onEnter={() => openSnack()} onExit={() => closeSnack()}>
         <Box sx={styleNoPics}>
-          <div>
-            <ImageIcon
-              sx={{
-                fontSize: 100,
-                color: '#FF4A42',
-                transition: '0.2s',
-                '&:hover': {
-                  transform: 'scale(1.1)',
-                  color:'#ff4b42af'
-                },
-              }}
-            />
-          </div>
-          <div>
-            <AudioFileIcon
-              sx={{
-                fontSize: 100,
-                color: '#FF4A42',
-                transition: '0.2s',
-                '&:hover': {
-                  transform: 'scale(1.1)',
-                  color:'#ff4b42af'
-                },
-              }}
-            />
-          </div>
+          <form style={{display:'flex', flexDirection:'column'}} onSubmit={handleSubmit(onSubmit)}>
+            <div style={{display:'flex'}}>
+              <FormControl variant="outlined">
+                <label htmlFor="fotos-estadio">
+                  <IconButton component="span">
+                    <ImageIcon
+                      sx={{
+                        fontSize: 100,
+                        color: '#FF4A42',
+                        transition: '0.2s',
+                        '&:hover': {
+                          transform: 'scale(1.1)',
+                          color: '#ff4b42af',
+                        },
+                      }}
+                    />
+                  </IconButton>
+                </label>
+                <input
+                  type="file"
+                  id="fotos-estadio"
+                  style={{ display: 'none' }}
+                    {...actualiza("foto", {
+                      required: false,
+                      onChange: actualizaEstadio
+                    })}
+                />
+              </FormControl>
+              <FormControl variant="outlined">
+                <label htmlFor="himno">
+                  <IconButton component="span">
+                    <AudioFileIcon
+                      sx={{
+                        fontSize: 100,
+                        color: '#FF4A42',
+                        transition: '0.2s',
+                        '&:hover': {
+                          transform: 'scale(1.1)',
+                          color: '#ff4b42af',
+                        },
+                      }}
+                    />
+                  </IconButton>
+                </label>
+                <input
+                  type="file"
+                  id="himno"
+                  style={{ display: 'none' }}
+                    {...actualiza("himno", {
+                      required: false,
+                      onChange: actualizaHimno
+                    })}
+                />
+              </FormControl>
+            </div>
+            <Button className='submit log estadio'variant="contained"
+              sx={{ marginTop:'15px', backgroundColor: '#FF4A42','&:hover': {backgroundColor: '#FF4A42'},color: 'white', width:'auto'}}>
+              Enviar archivos
+            </Button>
+          </form>
         </Box>   
       </Fade>
     </Modal>

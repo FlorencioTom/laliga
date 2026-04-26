@@ -225,16 +225,24 @@ export const Jugadores = ({origenMiEquipo}) => {
   const onSubmit = async (data) => {
 
     const confirmado = await pedirConfirmacion(`Estás seguro de querer añadir a ${data.nombre}?`);
+
     if (!confirmado) {
       console.log("Operación cancelada por el usuario.");
       return;
     }
-    
-    const respuesta = await getAllPlayersByTeam(ids);
-    const response = await uploadImageToCloudinary(nuevaFotoJugador[0], respuesta.carpeta);
 
+    console.log(ids);
+    //const respuesta = await getAllPlayersByTeam(ids);
+    //const response = await uploadImageToCloudinary(nuevaFotoJugador[0], respuesta.carpeta);
     data.titular = false;
-    data.foto = response;
+    //data.foto = response;
+
+
+    
+    data.foto = null;
+
+
+
     data.posicion = posicion;
     data.nacionalidad = nacionalidad;
     data.dorsal = Number(data.dorsal);
@@ -244,13 +252,31 @@ export const Jugadores = ({origenMiEquipo}) => {
     data.altura = `${alturaStr.slice(0,1)}.${alturaStr.slice(1)}m`;
     console.log(data);
 
-    const addPlayer = await addPlayerToTeam(ids, data);
+    try{
+      const respuesta = await addPlayerToUser(data, token);
+      console.log(respuesta);
+      if(respuesta.status === 200){
+        handleClose();
+        handleSnack(respuesta.data.message, 'success');
+        //camiar la titularidad a false
+        const jugadorActualizado = { ...data, titular: false };
+        equipo.plantilla.jugadores.push(data);
+        const equipoActualizado = equipo;
+        setEquipo(equipoActualizado);
+        console.log(equipoActualizado);
+      }
+    } catch (error) {
+      console.log(error);
+    }    
+    
 
-    if(addPlayer.status === 200){
+    //const addPlayer = await addPlayerToTeam(ids, data);
+
+    /*if(addPlayer.status === 200){
       setJugadoresChanged(prev => !prev);
       console.log('Este es el mensaje añadir un jugador: ', addPlayer.data.message);
       handleSnack(addPlayer.data.message, 'success');
-    }
+    } */
 
     reset();
     handleCloseNuevo();

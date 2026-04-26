@@ -236,6 +236,8 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
 
   const onSubmit = async(data) => {
     console.log('ahora todo al back');
+    //recupero la foto
+    //recupero el audio
   }
 
   const actualizaEstadio = () => {

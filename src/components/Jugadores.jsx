@@ -235,13 +235,9 @@ export const Jugadores = ({origenMiEquipo}) => {
     //const respuesta = await getAllPlayersByTeam(ids);
     //const response = await uploadImageToCloudinary(nuevaFotoJugador[0], respuesta.carpeta);
     data.titular = false;
-    //data.foto = response;
-
-
-    
-    data.foto = null;
-
-
+    //subir la imagen a usuario/
+    const response = await uploadImageToCloudinary(nuevaFotoJugador[0], equipo?.nombre, true);
+    data.foto = response;
 
     data.posicion = posicion;
     data.nacionalidad = nacionalidad;
@@ -1270,7 +1266,7 @@ export const Jugadores = ({origenMiEquipo}) => {
                             sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                               '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                             }}
-                            {...register("nombre", {required: true})}
+                            {...register("nombre", {required: true, value: "tom"})}
                           />
                         </FormControl>
                         <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
@@ -1289,7 +1285,7 @@ export const Jugadores = ({origenMiEquipo}) => {
                             sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                               '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                             }}
-                            {...register("apodo", {required: false})}
+                            {...register("apodo", {required: false, value: "tom"})}
                           />
                         </FormControl>
                         <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
@@ -1308,7 +1304,7 @@ export const Jugadores = ({origenMiEquipo}) => {
                             sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                               '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                             }}
-                            {...register("dorsal", {required: true})}
+                            {...register("dorsal", {required: true,  value: "10"})}
                           />
                         </FormControl>
                         <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
@@ -1328,7 +1324,7 @@ export const Jugadores = ({origenMiEquipo}) => {
                               '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                               '& input::-webkit-calendar-picker-indicator': {display: 'none', WebkitAppearance: 'none'}
                             }}
-                            {...register("nacimiento", {required: true})}
+                            {...register("nacimiento", {required: true, value: "1998-11-04"})}
                           />
                         </FormControl>
                       </div>
@@ -1349,19 +1345,20 @@ export const Jugadores = ({origenMiEquipo}) => {
                             sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                               '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                             }}
-                            {...register("altura", {required: true, min: 100, max: 999 })}
+                            {...register("altura", {required: true, min: 100, max: 999,  value: "188" })}
                           />
                         </FormControl>
                         <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
                           <InputLabel id="demo-multiple-name-label" htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>Posicion</InputLabel>
                           <Select
+
                             input={<OutlinedInput label="Posicion" 
                             sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                                           '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                                         }}/>}
                             labelId="Posicion"
                             id="demo-simple-select-filled"
-                            value={posicion || ''}
+                            value={posicion ?? 'portero'} /* antes estaba esto: posicion || '' */
                             onChange={(e) => setPosicion(e.target.value)}
                           >
                             <MenuItem value={''}>
@@ -1392,7 +1389,7 @@ export const Jugadores = ({origenMiEquipo}) => {
                             }}/>}
                             labelId="Posicion"
                             id="demo-simple-select-filled"
-                            value={nacionalidad}
+                            value={nacionalidad || 'españa'} /* antes estaba esto: nacionalidad */
                             onChange={handleChangeNacionalidad}
                           >
                             <MenuItem value={''}>

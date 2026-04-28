@@ -60,14 +60,19 @@ export const getAllPlayersByTeam = async(equipo:string) => {
   return response.data.data;
 };
 
-export const uploadImageToCloudinary = async (file:any, folder:string) => {
+export const uploadImageToCloudinary = async (file:any, folder:string, user?:boolean) => {
   const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
 
   const formData = new FormData();
   formData.append('file', file);
   //que el preset lo genere apartir del nomre del equipo
   formData.append('upload_preset', 'default');
-  formData.append('folder', `laliga/${folder}`);
+  if(user){
+    console.log(folder);
+    formData.append('folder', `${folder}`);
+  }else{
+    formData.append('folder', `laliga/${folder}`);
+  }
 
   try {
     const response = await axios.post(url, formData, {

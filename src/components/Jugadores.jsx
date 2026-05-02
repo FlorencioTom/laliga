@@ -761,6 +761,34 @@ export const Jugadores = ({origenMiEquipo}) => {
 
   }
 
+  const ficharEntrenador = async () => {
+    alert('Quieres fichar a este entrenador');
+
+    console.log(entrenador);
+
+    console.log("TOKEN:", token);
+
+    if (!token) {
+      handleCloseCoach();
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: `Inicia sesión para fichar a ${entrenador.nombre}`
+      });
+      return;
+    }
+
+    const respuesta = await addCoach(entrenador, token);
+
+    if (respuesta.status === 200 || respuesta.status === 201) {
+      handleCloseCoach();
+      Swal.fire({
+        icon: "success",
+        text: respuesta.message
+      });
+    }
+  };
+
   return (
     <>
     <Modal
@@ -843,11 +871,13 @@ export const Jugadores = ({origenMiEquipo}) => {
                         <span>{x.nombre}</span>
                       </div>
                     ))}
-                    <div className="addJugador">
-                      <div className="circle-plus" onClick={() => setOpenNuevo(true)}>
-                        <i className="fa-solid fa-plus"></i>
+                    {!ids && (
+                      <div className="addJugador">
+                        <div className="circle-plus" onClick={() => setOpenNuevo(true)}>
+                          <i className="fa-solid fa-plus"></i>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </>
                 )}   
           </div>
@@ -1218,7 +1248,7 @@ export const Jugadores = ({origenMiEquipo}) => {
                     },
                     color: 'black',
                     borderRadius: 10
-                  }}>Fichar</Button>
+                  }} onClick={ficharEntrenador}>Fichar</Button>
                 </div>
               </>
             ) : (
@@ -1254,7 +1284,7 @@ export const Jugadores = ({origenMiEquipo}) => {
                           <InputLabel htmlFor="outlined-adornment-usuario" sx={{ color: 'gray','&.Mui-focused': {color: '#FF4A42'}, '&:hover': {color: '#FF4A42'}}}>
                               Nombre
                           </InputLabel>
-                          <OutlinedInput id="outlined-adornment-usuario" type='text'
+                          <OutlinedInput id="outlined-adornment-usuario" type='text' placeholder='Escribe tu nombre'
                             endAdornment={
                               <InputAdornment position="end">
                                 <IconButton aria-label="user icon" edge="end">
@@ -1266,7 +1296,7 @@ export const Jugadores = ({origenMiEquipo}) => {
                             sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                               '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                             }}
-                            {...register("nombre", {required: true, value: "tom"})}
+                            {...register("nombre", {required: true})}
                           />
                         </FormControl>
                         <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
@@ -1285,7 +1315,7 @@ export const Jugadores = ({origenMiEquipo}) => {
                             sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                               '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                             }}
-                            {...register("apodo", {required: false, value: "tom"})}
+                            {...register("apodo", {required: false})}
                           />
                         </FormControl>
                         <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
@@ -1304,7 +1334,7 @@ export const Jugadores = ({origenMiEquipo}) => {
                             sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                               '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                             }}
-                            {...register("dorsal", {required: true,  value: "10"})}
+                            {...register("dorsal", {required: true})}
                           />
                         </FormControl>
                         <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
@@ -1324,7 +1354,7 @@ export const Jugadores = ({origenMiEquipo}) => {
                               '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                               '& input::-webkit-calendar-picker-indicator': {display: 'none', WebkitAppearance: 'none'}
                             }}
-                            {...register("nacimiento", {required: true, value: "1998-11-04"})}
+                            {...register("nacimiento", {required: true})}
                           />
                         </FormControl>
                       </div>
@@ -1345,7 +1375,7 @@ export const Jugadores = ({origenMiEquipo}) => {
                             sx={{'&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                               '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: '#FF4A42'},
                             }}
-                            {...register("altura", {required: true, min: 100, max: 999,  value: "188" })}
+                            {...register("altura", {required: true, min: 100, max: 999})}
                           />
                         </FormControl>
                         <FormControl sx={{ m: 1, width: '200px' }} variant="outlined">
@@ -1389,7 +1419,7 @@ export const Jugadores = ({origenMiEquipo}) => {
                             }}/>}
                             labelId="Posicion"
                             id="demo-simple-select-filled"
-                            value={nacionalidad || 'españa'} /* antes estaba esto: nacionalidad */
+                            value={nacionalidad} /* antes estaba esto: nacionalidad */
                             onChange={handleChangeNacionalidad}
                           >
                             <MenuItem value={''}>

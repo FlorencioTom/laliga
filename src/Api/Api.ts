@@ -9,7 +9,7 @@ const API_BASE_URL = "https://laligaback-deploy.vercel.app"; // Reemplaza con tu
 // Instancia de axios con configuración base
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -219,18 +219,20 @@ export const addPlayerToUser = async(jugador:any, token:string) => {
 
 }
 
-export const addCoach = async(coach:any) => {
-  const response = await api.post(
+export const addCoach = async(coach:any, token:any) => {
+  //console.log(token);
+  /*const response = await api.post(
     'login/addCoach',
     {coach},  // Pasa un objeto vacío como payload si no necesitas enviar datos adicionales.
     {
       withCredentials: true,  // Para enviar cookies.
-      /*headers: {
-        Cookie: `access_token=${cookie}`, // Puedes enviar la cookie manualmente si no se está enviando automáticamente.
-      }*/
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, // Puedes enviar la cookie manualmente si no se está enviando automáticamente.
+      }
     }
   );
-  return response.data;
+  return response.data;*/
 
 };
 

@@ -52,6 +52,7 @@ export const Jugadores = ({origenMiEquipo}) => {
   const [imagenesCargadas, setImagenesCargadas] = useState({});
   const [jugadores, setJugadores] = useState([]);
   const [entrenador, setEntrenador] = useState(null);
+  const [entrenadorChanged, setEntrenadorChanged] = useState(false);
   const [loading, setLoading] = useState(true);
   const [jugadorSeleccionado, setJugadorSeleccionado] = useState(null);
   const [bandera, setBandera] = useState('');
@@ -761,12 +762,8 @@ export const Jugadores = ({origenMiEquipo}) => {
 
   }
 
-  const ficharEntrenador = async () => {
+  const ficharEntrenador = async() => {
     alert('Quieres fichar a este entrenador');
-
-    console.log(entrenador);
-
-    console.log("TOKEN:", token);
 
     if (!token) {
       handleCloseCoach();
@@ -779,6 +776,7 @@ export const Jugadores = ({origenMiEquipo}) => {
     }
 
     const respuesta = await addCoach(entrenador, token);
+    console.log(respuesta);
 
     if (respuesta.status === 200 || respuesta.status === 201) {
       handleCloseCoach();
@@ -786,6 +784,15 @@ export const Jugadores = ({origenMiEquipo}) => {
         icon: "success",
         text: respuesta.message
       });
+      /* HE DE CONSTRUIR UN NUEVO EQUIPO DONDE AÑADO AL ENTRENADOR PARA LUEGO HACER SETeEQUIPO */
+      const equipoActualizado = {
+        ...equipo,
+        plantilla: {
+          ...equipo.plantilla,
+          entrenador: entrenador
+        }
+      };
+      setEquipo(equipoActualizado);
     }
   };
 

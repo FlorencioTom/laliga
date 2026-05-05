@@ -763,15 +763,21 @@ export const Jugadores = ({origenMiEquipo}) => {
   }
 
   const ficharEntrenador = async() => {
-    alert('Quieres fichar a este entrenador');
+    
+    const confirmado = await pedirConfirmacion(`Estás seguro de querer fichar a ${entrenador.nombre}?`);
+    if (!confirmado) {
+      console.log("Operación cancelada por el usuario.");
+      return;
+    }
 
     if (!token) {
       handleCloseCoach();
-      Swal.fire({
+      handleSnack(`Inicia sesión para fichar a ${entrenador.nombre}`, 'error');
+      /*Swal.fire({
         icon: "error",
         title: "Oops...",
         text: `Inicia sesión para fichar a ${entrenador.nombre}`
-      });
+      });*/
       return;
     }
 
@@ -780,11 +786,11 @@ export const Jugadores = ({origenMiEquipo}) => {
 
     if (respuesta.status === 200 || respuesta.status === 201) {
       handleCloseCoach();
-      Swal.fire({
+      handleSnack(respuesta.message, 'success');
+      /*Swal.fire({
         icon: "success",
         text: respuesta.message
-      });
-      /* HE DE CONSTRUIR UN NUEVO EQUIPO DONDE AÑADO AL ENTRENADOR PARA LUEGO HACER SETeEQUIPO */
+      }); */
       const equipoActualizado = {
         ...equipo,
         plantilla: {

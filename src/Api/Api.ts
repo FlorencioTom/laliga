@@ -89,6 +89,35 @@ export const uploadImageToCloudinary = async (file:any, folder:string, user?:boo
   }
 };
 
+export const uploadTeamAnthemStadiumToCloudinary = async (files:any, folder:string, user?:boolean) => {
+  const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+  console.log(files, folder, user);
+  /*const formData = new FormData();
+  //formData.append('file', file);
+  //que el preset lo genere apartir del nomre del equipo
+  formData.append('upload_preset', 'default');
+  if(user){
+    console.log(folder);
+    formData.append('folder', `${folder}`);
+  }else{
+    formData.append('folder', `laliga/${folder}`);
+  }
+
+  try {
+    const response = await axios.post(url, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    // Retorna la URL pública de la imagen subida
+    return response.data.secure_url;
+  } catch (error) {
+    console.error('Error subiendo imagen a Cloudinary:', error);
+    throw error;
+  }*/
+};
+
 export const deletePlayerFromTeam = async(idEquipo: string, jugador: any) => {
   //console.log(idEquipo, jugador);
   const response = await api.delete(

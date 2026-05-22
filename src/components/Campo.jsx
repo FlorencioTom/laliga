@@ -26,6 +26,7 @@ import ImageIcon from '@mui/icons-material/Image';
 import AudioFileIcon from '@mui/icons-material/AudioFile';
 import IconButton from '@mui/material/IconButton';
 import SendIcon from '@mui/icons-material/Send';
+import {uploadTeamAnthemStadiumToCloudinary} from '../Api/Api';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -105,25 +106,36 @@ const itemVariants = {
 
 export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam}) {
   const [data, setData] = useState(jugadores);
+  const [info, setInfo] = useState({himno:false, estadio:false}); //aqui almacenamos si el equipo tiene himno y estadio
   const [loading, setLoading] = useState(true);
   const [cambioJugador, setCambioJugador] = useState(null);
   const [open, setOpen] = useState(false);
   const [openPic, setOpenPic] = useState(false); //Este estado es para cuando no hay imagenes de estadio
   const [snackbar, setSnackbar] = useState({open: false, Transition: Slide});
+  const [notificacion, setNotificacion] = useState({open: false, message: '', severity: '', Transition: Slide}); //es un snackbar
   const [titulares, setTitulares] = [{}];
-  const { control, handleSubmit, getValues } = useForm({
+  const [alineacion, setAlineacion] = useState('4-3-3');
+  /*const { control, handleSubmit, getValues } = useForm({
     defaultValues: {
       Alineacion: '4-3-3', // valor inicial
     },
   });
-  const [alineacion, setAlineacion] = useState('4-3-3')
+   */
+
   //const [estadio, setEstadio] = useState(null);
 
-  const {register:actualiza, 
-    setValue:setValueActualiza,
-    control: controlActualiza,
-    getValues:getValuesActualiza,
-    trigger:triggerActualiza} = useForm();
+const {
+  register,
+  handleSubmit,
+  control,
+  setValue,
+  getValues,
+  trigger
+} = useForm({
+  defaultValues: {
+    Alineacion: "4-3-3"
+  }
+});
 
   useEffect(() => {
     //console.log('La alineacion actual es: '+alineacion);
@@ -218,6 +230,17 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
     }
   };
 
+  const handleNotificacion = (mensaje, severity) => {
+    setNotificacion({ open: true, message: mensaje, severity: severity});
+  };
+
+  const closeNotificaion = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setNotificacion({ open: false, message: '', severity: ''});
+  }
+
   const closeSnack = (event, reason) => {
     if (reason === 'clickaway') {
       return; // Evita que se cierre si se hace click fuera
@@ -235,21 +258,58 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
   }
 
   const onSubmit = async(data) => {
-    console.log('ahora todo al back');
-    //recupero la foto
-    //recupero el audio
+    console.log(data);
+    /*console.log('ahora todo al back');
+    const foto = data.foto?.[0];
+    const himno = data.himno?.[0];
+
+    console.log(foto);
+    console.log(himno);
+    
+    paso el himno, paso el himno  la foto y tengo que ver en que carpetas de cloudinary lo guardo y lo organizo
+    
+    */                        
+
+    if(info.estadio && info.himno){
+      uploadTeamAnthemStadiumToCloudinary(data, nombre, true);  
+    }else{
+      handleNotificacion('Has de seleccionar una foto y un himno para tu equipo', 'warning');
+      //Notificacion indicando que faltan fotos de estadio o himno de equipo | snackback
+    }
   }
 
-  const actualizaEstadio = () => {
-
-  }
-
-  const actualizaHimno = () => {
-
+  const actualizaInfo = (info) => {
+    //Esto es para actualizar solo una propiedad del estado
+    if(info == 'estadio'){
+      setInfo((prev) => ({
+        ...prev,
+        estadio: true
+      }));
+    }
+    if(info == 'himno'){
+      setInfo((prev) => ({
+        ...prev,
+        himno: true
+      }));
+    }
   }
 
   return (
-    <>
+    <>    
+      <Snackbar open={notificacion.open}
+        autoHideDuration={4000}
+        onClose={closeNotificaion}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        key='snackbar'>
+          <Alert
+            onClose={closeNotificaion}
+            severity={notificacion.severity}
+            variant="filled"
+            sx={{ width: '100%' }}
+          >
+            {notificacion.message}
+          </Alert>
+        </Snackbar>
       <div className="centro">
         <div style={{display:'flex', alignItems:'center'}}>
           <Button className='submit log estadio'variant="contained"
@@ -430,9 +490,12 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
                   type="file"
                   id="fotos-estadio"
                   style={{ display: 'none' }}
-                    {...actualiza("foto", {
+                    {...register("foto", {
                       required: false,
-                      onChange: actualizaEstadio
+                      onChange: (e) => {
+                        actualizaInfo('estadio');
+                        return e;
+                      }
                     })}
                 />
               </FormControl>
@@ -456,14 +519,17 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
                   type="file"
                   id="himno"
                   style={{ display: 'none' }}
-                    {...actualiza("himno", {
+                    {...register("himno", {              
                       required: false,
-                      onChange: actualizaHimno
+                      onChange: (e) => { 
+                        actualizaInfo('himno');
+                        return e;
+                      }
                     })}
                 />
               </FormControl>
             </div>
-            <Button className='submit log estadio'variant="contained"
+            <Button className='submit log estadio'variant="contained" type="submit"
               sx={{ marginTop:'15px', backgroundColor: '#FF4A42','&:hover': {backgroundColor: '#FF4A42'},color: 'white', width:'auto'}}>
               Enviar archivos
             </Button>

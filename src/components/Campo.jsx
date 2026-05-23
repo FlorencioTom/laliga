@@ -26,6 +26,8 @@ import ImageIcon from '@mui/icons-material/Image';
 import AudioFileIcon from '@mui/icons-material/AudioFile';
 import IconButton from '@mui/material/IconButton';
 import SendIcon from '@mui/icons-material/Send';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {uploadTeamAnthemStadiumToCloudinary} from '../Api/Api';
 
 // Import Swiper styles
@@ -115,6 +117,8 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
   const [notificacion, setNotificacion] = useState({open: false, message: '', severity: '', Transition: Slide}); //es un snackbar
   const [titulares, setTitulares] = [{}];
   const [alineacion, setAlineacion] = useState('4-3-3');
+  const [inputEstadio, setInputEstadio] = useState(false);
+  const [inputHimno, setInputHimno] = useState(false);
   /*const { control, handleSubmit, getValues } = useForm({
     defaultValues: {
       Alineacion: '4-3-3', // valor inicial
@@ -259,38 +263,34 @@ const {
 
   const onSubmit = async(data) => {
     console.log(data);
-    /*console.log('ahora todo al back');
-    const foto = data.foto?.[0];
-    const himno = data.himno?.[0];
-
-    console.log(foto);
-    console.log(himno);
-    
-    paso el himno, paso el himno  la foto y tengo que ver en que carpetas de cloudinary lo guardo y lo organizo
-    
-    */                        
 
     if(info.estadio && info.himno){
-      uploadTeamAnthemStadiumToCloudinary(data, nombre, true);  
+      const response = await uploadTeamAnthemStadiumToCloudinary(data, nombre); 
+      if(response.status == 200){
+        handleClose();
+        handleNotificacion('Enhorabuena! ya tienes nuevo himno y estadio', 'success');
+      }
+      console.log(response); 
     }else{
       handleNotificacion('Has de seleccionar una foto y un himno para tu equipo', 'warning');
-      //Notificacion indicando que faltan fotos de estadio o himno de equipo | snackback
     }
   }
 
-  const actualizaInfo = (info) => {
+  const actualizaInfo = (info, e) => {
     //Esto es para actualizar solo una propiedad del estado
     if(info == 'estadio'){
       setInfo((prev) => ({
         ...prev,
         estadio: true
       }));
+      //setInputEstadio(!!(e.target.files && e.target.files.length > 0));
     }
     if(info == 'himno'){
       setInfo((prev) => ({
         ...prev,
         himno: true
       }));
+      //setInputHimno(!!(e.target.files && e.target.files.length > 0));
     }
   }
 
@@ -469,18 +469,32 @@ const {
       <Fade in={openPic} onEnter={() => openSnack()} onExit={() => closeSnack()}>
         <Box sx={styleNoPics}>
           <form style={{display:'flex', flexDirection:'column'}} onSubmit={handleSubmit(onSubmit)}>
-            <div style={{display:'flex'}}>
+            <div style={{display:'flex' }}>
+            </div>
+            <div style={{display:'flex' }}>
               <FormControl variant="outlined">
+                <IconButton component="span" sx={{width: 40, height: 40, borderRadius: '50%', display:'flex', justifyContent:'center'}}>
+                  <CancelIcon
+                    sx={{
+                      fontSize: 30,
+                      color: '#ff0d00ff',
+                      transition: '0.2s',
+                      '&:hover': {
+                        transform: 'scale(1.1)',
+                      },
+                    }}
+                  />
+              </IconButton> 
                 <label htmlFor="fotos-estadio">
                   <IconButton component="span">
                     <ImageIcon
                       sx={{
                         fontSize: 100,
-                        color: '#FF4A42',
+                        color: info.estadio ? '#FF4A42' : '#e6a4a16b',
                         transition: '0.2s',
                         '&:hover': {
                           transform: 'scale(1.1)',
-                          color: '#ff4b42af',
+                          color: info.estadio ? '#ff8b85b9' : '#e6a4a16b',
                         },
                       }}
                     />
@@ -488,28 +502,41 @@ const {
                 </label>
                 <input
                   type="file"
+                  accept=".jpg,.jpeg,.png,image/jpeg,image/png"
                   id="fotos-estadio"
                   style={{ display: 'none' }}
                     {...register("foto", {
                       required: false,
                       onChange: (e) => {
-                        actualizaInfo('estadio');
+                        actualizaInfo('estadio', e);
                         return e;
                       }
                     })}
                 />
               </FormControl>
               <FormControl variant="outlined">
+                <IconButton component="span" sx={{width: 40, height: 40, borderRadius: '50%', padding: 0}}>
+                  <CancelIcon
+                    sx={{
+                      fontSize: 30,
+                      color: '#ff0d00ff',
+                      transition: '0.2s',
+                      '&:hover': {
+                        transform: 'scale(1.1)',
+                      },
+                    }}
+                  />
+                </IconButton>
                 <label htmlFor="himno">
                   <IconButton component="span">
                     <AudioFileIcon
                       sx={{
                         fontSize: 100,
-                        color: '#FF4A42',
+                        color: info.himno ? '#FF4A42' : '#e6a4a16b',
                         transition: '0.2s',
                         '&:hover': {
                           transform: 'scale(1.1)',
-                          color: '#ff4b42af',
+                          color: info.himno ? '#ff8b85b9' : '#e6a4a16b',
                         },
                       }}
                     />
@@ -517,12 +544,13 @@ const {
                 </label>
                 <input
                   type="file"
+                  accept=".mp3,audio/mpeg"
                   id="himno"
                   style={{ display: 'none' }}
                     {...register("himno", {              
                       required: false,
                       onChange: (e) => { 
-                        actualizaInfo('himno');
+                        actualizaInfo('himno', e);
                         return e;
                       }
                     })}

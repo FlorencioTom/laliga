@@ -108,7 +108,7 @@ const itemVariants = {
 
 export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam}) {
   const [data, setData] = useState(jugadores);
-  const [info, setInfo] = useState({himno:false, estadio:false}); //aqui almacenamos si el equipo tiene himno y estadio
+  const [info, setInfo] = useState({himno:false, nombreAudio:null, estadio:false, nombreImagen:null}); //aqui almacenamos si el equipo tiene himno y estadio
   const [loading, setLoading] = useState(true);
   const [cambioJugador, setCambioJugador] = useState(null);
   const [open, setOpen] = useState(false);
@@ -278,17 +278,20 @@ const {
 
   const actualizaInfo = (info, e) => {
     //Esto es para actualizar solo una propiedad del estado
+    console.log(e)
     if(info == 'estadio'){
       setInfo((prev) => ({
         ...prev,
-        estadio: true
+        estadio: true,
+        nombreImagen:e.target.files?.[0]?.name || null                                          
       }));
       //setInputEstadio(!!(e.target.files && e.target.files.length > 0));
     }
     if(info == 'himno'){
       setInfo((prev) => ({
         ...prev,
-        himno: true
+        himno: true,
+        nombreAudio:e.target.files?.[0]?.name || null
       }));
       //setInputHimno(!!(e.target.files && e.target.files.length > 0));
     }
@@ -470,14 +473,19 @@ const {
         <Box sx={styleNoPics}>
           <form style={{display:'flex', flexDirection:'column'}} onSubmit={handleSubmit(onSubmit)}>
             <div style={{display:'flex' }}>
-            </div>
-            <div style={{display:'flex' }}>
               <FormControl variant="outlined">
-                <IconButton component="span" sx={{width: 40, height: 40, borderRadius: '50%', display:'flex', justifyContent:'center'}}>
+                <IconButton disabled={!info?.estadio} component="span" sx={{width: 40, height: 40, borderRadius: '50%', display:'flex', justifyContent:'center'}}>
                   <CancelIcon
+                    onClick={() => {
+                      setInfo((prev) => ({
+                        ...prev,
+                        estadio: false,
+                        nombreImagen:null                                           
+                      }));
+                    }}
                     sx={{
                       fontSize: 30,
-                      color: '#ff0d00ff',
+                      color: info?.estadio ? '#ff0d00ff' : '#e6a4a16b',
                       transition: '0.2s',
                       '&:hover': {
                         transform: 'scale(1.1)',
@@ -486,19 +494,22 @@ const {
                   />
               </IconButton> 
                 <label htmlFor="fotos-estadio">
-                  <IconButton component="span">
-                    <ImageIcon
-                      sx={{
-                        fontSize: 100,
-                        color: info.estadio ? '#FF4A42' : '#e6a4a16b',
-                        transition: '0.2s',
-                        '&:hover': {
-                          transform: 'scale(1.1)',
-                          color: info.estadio ? '#ff8b85b9' : '#e6a4a16b',
-                        },
-                      }}
-                    />
-                  </IconButton>
+                  <div style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
+                    <IconButton component="span">
+                      <ImageIcon
+                        sx={{
+                          fontSize: 100,
+                          color: info.estadio ? '#FF4A42' : '#e6a4a16b',
+                          transition: '0.2s',
+                          '&:hover': {
+                            transform: 'scale(1.1)',
+                            color: info.estadio ? '#ff8b85b9' : '#e6a4a16b',
+                          },
+                        }}
+                      />
+                    </IconButton>
+                    <span style={{ maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize:'10px' }}>{info?.nombreImagen || 'Selecciona imagen'}</span>
+                  </div>
                 </label>
                 <input
                   type="file"
@@ -515,11 +526,18 @@ const {
                 />
               </FormControl>
               <FormControl variant="outlined">
-                <IconButton component="span" sx={{width: 40, height: 40, borderRadius: '50%', padding: 0}}>
+                <IconButton disabled={!info?.himno} component="span" sx={{width: 40, height: 40, borderRadius: '50%', padding: 0}}>
                   <CancelIcon
+                    onClick={() => {
+                      setInfo((prev) => ({
+                        ...prev,
+                        himno: false,
+                        nombreAudio:null,                                       
+                      }));
+                    }}
                     sx={{
                       fontSize: 30,
-                      color: '#ff0d00ff',
+                      color: info?.himno ? '#ff0d00ff' : '#e6a4a16b',
                       transition: '0.2s',
                       '&:hover': {
                         transform: 'scale(1.1)',
@@ -528,19 +546,22 @@ const {
                   />
                 </IconButton>
                 <label htmlFor="himno">
-                  <IconButton component="span">
-                    <AudioFileIcon
-                      sx={{
-                        fontSize: 100,
-                        color: info.himno ? '#FF4A42' : '#e6a4a16b',
-                        transition: '0.2s',
-                        '&:hover': {
-                          transform: 'scale(1.1)',
-                          color: info.himno ? '#ff8b85b9' : '#e6a4a16b',
-                        },
-                      }}
-                    />
-                  </IconButton>
+                  <div style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
+                    <IconButton component="span">
+                      <AudioFileIcon
+                        sx={{
+                          fontSize: 100,
+                          color: info.himno ? '#FF4A42' : '#e6a4a16b',
+                          transition: '0.2s',
+                          '&:hover': {
+                            transform: 'scale(1.1)',
+                            color: info.himno ? '#ff8b85b9' : '#e6a4a16b',
+                          },
+                        }}
+                      />
+                    </IconButton>
+                    <span style={{ maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize:'10px'}}>{info?.nombreAudio || 'Selecciona imagen'}</span>
+                  </div>
                 </label>
                 <input
                   type="file"
@@ -557,7 +578,7 @@ const {
                 />
               </FormControl>
             </div>
-            <Button className='submit log estadio'variant="contained" type="submit"
+            <Button className='submit log estadio'variant="contained" type="submit" disabled={!(info.estadio && info.himno)}
               sx={{ marginTop:'15px', backgroundColor: '#FF4A42','&:hover': {backgroundColor: '#FF4A42'},color: 'white', width:'auto'}}>
               Enviar archivos
             </Button>

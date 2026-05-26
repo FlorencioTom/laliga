@@ -114,9 +114,14 @@ export const uploadTeamAnthemStadiumToCloudinary = async (files:any, folder:stri
       headers: { 'Content-Type': 'multipart/form-data' },
     });
 
+    // ACTUALIZAR USUARIO
+
+    const userResponse = await addAnthemAndStadiumToUser(himnoResponse.data.secure_url, estadioResponse.data.secure_url)
+
     return {
       estadio: estadioResponse.data.secure_url,
       himno: himnoResponse.data.secure_url,
+      user: userResponse,
       status:200
     };
 
@@ -124,6 +129,22 @@ export const uploadTeamAnthemStadiumToCloudinary = async (files:any, folder:stri
     console.error('Error subiendo archivos a Cloudinary:', error);
     throw error;
   }
+};
+
+export const addAnthemAndStadiumToUser = async(anthem: string, stadium: string) => {
+  //console.log(idEquipo, jugador);
+  /*const response = await api.post(
+    /*`equipos/${idEquipo}`,
+    {
+      withCredentials: true,
+      headers: {
+        'Content-Type':'application/json',
+      },
+      data: jugador
+    }
+  );*/
+
+  return 'response';
 };
 
 export const deletePlayerFromTeam = async(idEquipo: string, jugador: any) => {

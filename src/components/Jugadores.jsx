@@ -77,6 +77,7 @@ export const Jugadores = ({origenMiEquipo}) => {
   const [openConfirmacion, setOpenConfirmacion] = useState({open:false, message: ''});
   const [resolverConfirmacion, setResolverConfirmacion] = useState(null);
   const [isTitular, setIsTitular] = useState(false);
+  const [himnoEquipo, setHimnoEquipo] = useState(null);
 
   const {register:registerActualiza, 
     setValue:setValueActualiza,
@@ -407,6 +408,7 @@ export const Jugadores = ({origenMiEquipo}) => {
     getNacionalidades();
     setCambioJugador(null);
     const token = Cookies.get('access_token');
+    console.log(equipo);
     if(token){
       console.log('Hay token');
       //aquí tengo que reciir la informacion del token
@@ -450,6 +452,7 @@ export const Jugadores = ({origenMiEquipo}) => {
       const respuesta = await getAllPlayersByTeam(value);
       setJugadores(respuesta.plantilla.jugadores);
       setEntrenador(respuesta.plantilla.entrenador);
+      setHimnoEquipo(respuesta.himno);
       setEstadio(respuesta.estadio);
     } catch (error) {
       console.error('Error al obtener jugadores:', error);
@@ -468,6 +471,7 @@ export const Jugadores = ({origenMiEquipo}) => {
       setJugadores(equipo.plantilla.jugadores);
       setEntrenador(equipo.plantilla.entrenador);
       setEstadio(equipo.estadio);
+      setHimnoEquipo(equipo.himno);
     } catch (error) {
       console.error('Error al obtener jugadores:', error);
     } finally {
@@ -894,9 +898,9 @@ export const Jugadores = ({origenMiEquipo}) => {
                   </>
                 )}   
           </div>
-        </SimpleBar>
+        </SimpleBar>                
       </div>
-      <Campo nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids}></Campo>
+      <Campo nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids} himno={himnoEquipo}></Campo>
     </div>
       <Modal
       aria-labelledby="transition-modal-title"

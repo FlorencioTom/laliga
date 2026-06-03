@@ -89,7 +89,7 @@ export const uploadImageToCloudinary = async (file:any, folder:string, user?:boo
   }
 };
 
-export const uploadTeamAnthemStadiumToCloudinary = async (files:any, folder:string) => {
+export const uploadTeamAnthemStadiumToCloudinary = async (token:string, files:any, folder:string) => {
   const imageUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
   const audioUrl = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`;
 
@@ -115,8 +115,7 @@ export const uploadTeamAnthemStadiumToCloudinary = async (files:any, folder:stri
     });
 
     // ACTUALIZAR USUARIO
-
-    const userResponse = await addAnthemAndStadiumToUser(himnoResponse.data.secure_url, estadioResponse.data.secure_url)
+    const userResponse = await addAnthemAndStadiumToUser(token, himnoResponse.data.secure_url, estadioResponse.data.secure_url)
 
     return {
       estadio: estadioResponse.data.secure_url,
@@ -131,20 +130,21 @@ export const uploadTeamAnthemStadiumToCloudinary = async (files:any, folder:stri
   }
 };
 
-export const addAnthemAndStadiumToUser = async(anthem: string, stadium: string) => {
-  //console.log(idEquipo, jugador);
-  /*const response = await api.post(
-    /*`equipos/${idEquipo}`,
-    {
-      withCredentials: true,
-      headers: {
-        'Content-Type':'application/json',
-      },
-      data: jugador
-    }
-  );*/
+export const addAnthemAndStadiumToUser = async(token:string, anthem: string, stadium: string) => {
 
-  return 'response';
+  const response = await api.post(
+    'login/addAnthemAndStadiumToUser',
+    {anthem, stadium},  // Pasa un objeto vacío como payload si no necesitas enviar datos adicionales.
+    {
+      withCredentials: true,  // Para enviar cookies.
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, // Puedes enviar la cookie manualmente si no se está enviando automáticamente.
+      }
+    }
+  );
+  
+  return response.data;
 };
 
 export const deletePlayerFromTeam = async(idEquipo: string, jugador: any) => {

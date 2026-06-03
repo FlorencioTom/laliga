@@ -29,6 +29,7 @@ import SendIcon from '@mui/icons-material/Send';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {uploadTeamAnthemStadiumToCloudinary} from '../Api/Api';
+import { useAuth } from './Contexto';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -103,10 +104,11 @@ const containerVariants = {
 const itemVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1 },
-};
+};                  
 
 
-export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam}) {
+export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam, himno}) {
+  const {token} = useAuth();
   const [data, setData] = useState(jugadores);
   const [info, setInfo] = useState({himno:false, nombreAudio:null, estadio:false, nombreImagen:null}); //aqui almacenamos si el equipo tiene himno y estadio
   const [loading, setLoading] = useState(true);
@@ -182,6 +184,8 @@ const {
       console.log("No hay fotos");
       setOpenPic(true);
     }else{
+      console.log("hay fotos");
+      console.log("Este es el himno: ",himno);
       setOpen(true);
     }
   };
@@ -265,10 +269,11 @@ const {
     console.log(data);
 
     if(info.estadio && info.himno){
-      const response = await uploadTeamAnthemStadiumToCloudinary(data, nombre); 
+      const response = await uploadTeamAnthemStadiumToCloudinary(token, data, nombre); 
       if(response.status == 200){
         handleClose();
         handleNotificacion('Enhorabuena! ya tienes nuevo himno y estadio', 'success');
+        //aquí debería actualizar el equipo del front
       }
       console.log(response); 
     }else{
@@ -415,14 +420,14 @@ const {
                     variant="info"
                     icon={false}
                     sx={{ width: '100%' }}
-                  >
-                    <audio src={`/sounds/${idTeam}.mp3`} autoPlay controls onLoadedMetadata={(e) => {e.target.volume = 0.5}}/>
+                  >                           
+                    <audio src={himno} autoPlay controls onLoadedMetadata={(e) => {e.target.volume = 0.5}}/>
                   </Alert>
                 </Snackbar>
                 <Swiper
                   modules={[Navigation, Pagination, Autoplay]}
                   spaceBetween={20}
-                  slidesPerView={1} // Muestra 1 slide a la vez, puedes usar 2 si quieres ambas visibles
+                  slidesPerView={1} // Muestra 1 slide a la vez, puedes usar 2 si quieres ambas visibles `/sounds/${idTeam}.mp3`
                   navigation
                   pagination={{ clickable: true }}
                   scrollbar={{ draggable: true }}

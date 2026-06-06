@@ -558,7 +558,7 @@ const {
                         }}
                       />
                     </IconButton>
-                    <span style={{ maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize:'10px'}}>{info?.nombreAudio || 'Selecciona imagen'}</span>
+                    <span style={{ maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize:'10px'}}>{info?.nombreAudio || 'Selecciona audio'}</span>
                   </div>
                 </label>
                 <input

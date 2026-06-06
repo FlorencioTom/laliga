@@ -777,11 +777,6 @@ export const Jugadores = ({origenMiEquipo}) => {
     if (!token) {
       handleCloseCoach();
       handleSnack(`Inicia sesión para fichar a ${entrenador.nombre}`, 'error');
-      /*Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: `Inicia sesión para fichar a ${entrenador.nombre}`
-      });*/
       return;
     }
 
@@ -791,10 +786,6 @@ export const Jugadores = ({origenMiEquipo}) => {
     if (respuesta.status === 200 || respuesta.status === 201) {
       handleCloseCoach();
       handleSnack(respuesta.message, 'success');
-      /*Swal.fire({
-        icon: "success",
-        text: respuesta.message
-      }); */
       const equipoActualizado = {
         ...equipo,
         plantilla: {
@@ -805,6 +796,22 @@ export const Jugadores = ({origenMiEquipo}) => {
       setEquipo(equipoActualizado);
     }
   };
+
+  const actualizarHimnoYEstadio = async(urlHimno, urlEstadio) => {
+    const equipoActualizado = {
+      ...equipo,
+      himno: urlHimno,
+      estadio: {
+        ...equipo.estadio,
+        fotos: {
+          ...equipo.estadio.fotos,
+          dentro: urlEstadio,
+          fuera: urlEstadio
+        }
+      }
+    };
+    setEquipo(equipoActualizado);
+  }
 
   return (
     <>
@@ -900,7 +907,7 @@ export const Jugadores = ({origenMiEquipo}) => {
           </div>
         </SimpleBar>                
       </div>
-      <Campo nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids} himno={himnoEquipo}></Campo>
+      <Campo nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids} himno={himnoEquipo} onUpdateStadiumAnthem={actualizarHimnoYEstadio}></Campo>
     </div>
       <Modal
       aria-labelledby="transition-modal-title"

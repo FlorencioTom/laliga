@@ -107,7 +107,7 @@ const itemVariants = {
 };                  
 
 
-export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam, himno}) {
+export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam, himno, onUpdateStadiumAnthem}) {
   const {token} = useAuth();
   const [data, setData] = useState(jugadores);
   const [info, setInfo] = useState({himno:false, nombreAudio:null, estadio:false, nombreImagen:null}); //aqui almacenamos si el equipo tiene himno y estadio
@@ -121,14 +121,6 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
   const [alineacion, setAlineacion] = useState('4-3-3');
   const [inputEstadio, setInputEstadio] = useState(false);
   const [inputHimno, setInputHimno] = useState(false);
-  /*const { control, handleSubmit, getValues } = useForm({
-    defaultValues: {
-      Alineacion: '4-3-3', // valor inicial
-    },
-  });
-   */
-
-  //const [estadio, setEstadio] = useState(null);
 
 const {
   register,
@@ -273,6 +265,7 @@ const {
       if(response.status == 200){
         handleClose();
         handleNotificacion('Enhorabuena! ya tienes nuevo himno y estadio', 'success');
+        onUpdateStadiumAnthem(response.himno, response.estadio);
         //aquí debería actualizar el equipo del front
       }
       console.log(response); 

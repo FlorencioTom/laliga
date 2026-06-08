@@ -30,6 +30,8 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {uploadTeamAnthemStadiumToCloudinary} from '../Api/Api';
 import { useAuth } from './Contexto';
+import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import StadiumIcon from '@mui/icons-material/Stadium';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -107,7 +109,7 @@ const itemVariants = {
 };                  
 
 
-export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam, himno, onUpdateStadiumAnthem}) {
+export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam, himno, onUpdateStadiumAnthem, origen}) {
   const {token} = useAuth();
   const [data, setData] = useState(jugadores);
   const [info, setInfo] = useState({himno:false, nombreAudio:null, estadio:false, nombreImagen:null}); //aqui almacenamos si el equipo tiene himno y estadio
@@ -313,6 +315,48 @@ const {
         </Snackbar>
       <div className="centro">
         <div style={{display:'flex', alignItems:'center'}}>
+          {token !== null && origen === true && (
+            <div style={{display:'flex', gap:'10px', marginRight:'20px'}}>
+              <IconButton component="span" sx={{
+                    backgroundColor: '#ff4b4223',
+                    borderRadius: '50%',
+                    transition: '0.2s',
+                    '&:hover': {
+                      backgroundColor: '#ff4b4254',
+                      transform: 'scale(1.1)',
+                      '& .MuiSvgIcon-root': {
+                        color: '#FF4A42',
+                      }
+                    },
+                  }}>
+                <MusicNoteIcon
+                  sx={{
+                    fontSize: 30,
+                    color:'#ff4b429a'
+                  }}
+                />
+              </IconButton>
+              <IconButton component="span" sx={{
+                    backgroundColor: '#ff4b4223',
+                    borderRadius: '50%',
+                    transition: '0.2s',
+                    '&:hover': {
+                      backgroundColor: '#ff4b4254',
+                      transform: 'scale(1.1)',
+                      '& .MuiSvgIcon-root': {
+                        color: '#FF4A42',
+                      }
+                    },
+                  }}>
+                <StadiumIcon
+                  sx={{
+                    fontSize: 30,
+                    color:'#ff4b429a'
+                  }}
+                />
+              </IconButton>
+            </div>
+          )}
           <Button className='submit log estadio'variant="contained"
             sx={{ backgroundColor: '#FF4A42','&:hover': {backgroundColor: '#FF4A42'},color: 'white', width:'auto'}}
             onClick={() => handleOpen()}

@@ -85,8 +85,8 @@ const MiInfo = () => {
                           }
                         }}
                     >
-                        <Tab label="Login" sx={{ color: 'gray', '&.Mui-selected': { color: '#FF4A42' } }} />
-                        <Tab label="Registro" sx={{ color: 'gray', '&.Mui-selected': { color: '#FF4A42' } }} />
+                        <Tab label="Login" sx={{ color: 'gray', '&.Mui-selected': { color: '#FF4A42' }}} />
+                        <Tab label="Registro" sx={{ color: 'gray', '&.Mui-selected': { color: '#FF4A42'}}} />
                     </Tabs>
                 </Box>
                 <CustomTabPanel value={value} index={0}>

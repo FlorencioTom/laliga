@@ -408,9 +408,10 @@ export const Jugadores = ({origenMiEquipo}) => {
     getNacionalidades();
     setCambioJugador(null);
     const token = Cookies.get('access_token');
-    console.log(equipo);
+    setToken(token);
+    //console.log(equipo);
     if(token){
-      console.log('Hay token');
+      console.log('Hay token', token);
       //aquí tengo que reciir la informacion del token
     }else{
       console.log('No hay token');
@@ -907,7 +908,7 @@ export const Jugadores = ({origenMiEquipo}) => {
           </div>
         </SimpleBar>                
       </div>
-      <Campo nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids} himno={himnoEquipo} onUpdateStadiumAnthem={actualizarHimnoYEstadio}></Campo>
+      <Campo nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids} himno={himnoEquipo} onUpdateStadiumAnthem={actualizarHimnoYEstadio} origen={origenMiEquipo}></Campo>
     </div>
       <Modal
       aria-labelledby="transition-modal-title"

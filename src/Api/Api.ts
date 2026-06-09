@@ -89,6 +89,10 @@ export const uploadImageToCloudinary = async (file:any, folder:string, user?:boo
   }
 };
 
+export const uploadNewAnthemOrStadiumToCloudinary = async (token:string, files:any, folder:string) => {
+  return 'metodo en desarrollo';
+}
+
 export const uploadTeamAnthemStadiumToCloudinary = async (token:string, files:any, folder:string) => {
   const imageUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
   const audioUrl = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`;

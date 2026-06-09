@@ -29,6 +29,7 @@ import SendIcon from '@mui/icons-material/Send';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {uploadTeamAnthemStadiumToCloudinary} from '../Api/Api';
+import {uploadNewAnthemOrStadiumToCloudinary} from '../Api/Api';
 import { useAuth } from './Contexto';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
 import StadiumIcon from '@mui/icons-material/Stadium';
@@ -93,6 +94,20 @@ const styleNoPics = {
   gap:'20px'
 };
 
+const styleNoPics2 = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  backgroundColor:'white',
+  borderRadius:'20px',
+  display:'flex',
+  justifyContent:'center',
+  cursor:'pointer',
+  padding:'20px',
+  gap:'20px'
+};
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: { 
@@ -106,13 +121,19 @@ const containerVariants = {
 const itemVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1 },
-};                  
+};   
+
+const acceptMap = {
+  estadio: ".jpg,.jpeg,.png,image/jpeg,image/png",
+  himno: ".mp3,audio/mpeg",
+};
 
 
 export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam, himno, onUpdateStadiumAnthem, origen}) {
   const {token} = useAuth();
   const [data, setData] = useState(jugadores);
   const [info, setInfo] = useState({himno:false, nombreAudio:null, estadio:false, nombreImagen:null}); //aqui almacenamos si el equipo tiene himno y estadio
+  const [newFile, setNewFile] = useState({file:false, nameFile:null, wichFile:null}); //aqui almacenamos si el equipo tiene un nuevo himno o estadio
   const [loading, setLoading] = useState(true);
   const [cambioJugador, setCambioJugador] = useState(null);
   const [open, setOpen] = useState(false);
@@ -123,19 +144,14 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
   const [alineacion, setAlineacion] = useState('4-3-3');
   const [inputEstadio, setInputEstadio] = useState(false);
   const [inputHimno, setInputHimno] = useState(false);
-
-const {
-  register,
-  handleSubmit,
-  control,
-  setValue,
-  getValues,
-  trigger
-} = useForm({
-  defaultValues: {
-    Alineacion: "4-3-3"
-  }
-});
+  const [openUpdateFiles, setOpenUpdateFiles] = useState(false);
+  const {register, handleSubmit, control, setValue, getValues, trigger
+  } = useForm({
+    defaultValues: {
+      Alineacion: "4-3-3"
+    }
+  });
+  const {register:registerNewFile, handleSubmit:handleSubmitNewFile, control:controlNewFile} = useForm();
 
   useEffect(() => {
     //console.log('La alineacion actual es: '+alineacion);
@@ -169,8 +185,15 @@ const {
   const handleClose = () => {
     setOpen(false);
     setOpenPic(false);
+    setOpenUpdateFiles(false);
+    setNewFile({file:false, nameFile:null});
     closeSnack();
   };
+
+  const handleOpenUpdateFiles = async(wichFile) => {
+    setOpenUpdateFiles(true);
+    setNewFile({file:false, nameFile:null, wichFile:wichFile})
+  }
 
   const handleOpen = async () => {
     if (estadio.fotos['fuera'] === "" && estadio.fotos['dentro'] === "" ){
@@ -276,6 +299,13 @@ const {
     }
   }
 
+  const onSubmitNewFile = async(data) => {
+
+    const response = await uploadNewAnthemOrStadiumToCloudinary(token, data, newFile.wichFile); 
+    console.log(data, response);
+
+  }
+
   const actualizaInfo = (info, e) => {
     //Esto es para actualizar solo una propiedad del estado
     console.log(e)
@@ -295,6 +325,16 @@ const {
       }));
       //setInputHimno(!!(e.target.files && e.target.files.length > 0));
     }
+  }
+
+  const updateNewFile = (e) => {
+    //Esto es para actualizar solo una propiedad del estado
+    console.log(e)
+    setNewFile((prev) => ({
+      ...prev,
+      file: true,
+      nameFile:e.target.files?.[0]?.name || null                                          
+    }));
   }
 
   return (
@@ -317,7 +357,7 @@ const {
         <div style={{display:'flex', alignItems:'center'}}>
           {token !== null && origen === true && (
             <div style={{display:'flex', gap:'10px', marginRight:'20px'}}>
-              <IconButton component="span" sx={{
+              <IconButton onClick={() => handleOpenUpdateFiles('himno')} component="span" sx={{
                     backgroundColor: '#ff4b4223',
                     borderRadius: '50%',
                     transition: '0.2s',
@@ -336,7 +376,7 @@ const {
                   }}
                 />
               </IconButton>
-              <IconButton component="span" sx={{
+              <IconButton onClick={() => handleOpenUpdateFiles('estadio')} component="span" sx={{
                     backgroundColor: '#ff4b4223',
                     borderRadius: '50%',
                     transition: '0.2s',
@@ -623,6 +663,94 @@ const {
             <Button className='submit log estadio'variant="contained" type="submit" disabled={!(info.estadio && info.himno)}
               sx={{ marginTop:'15px', backgroundColor: '#FF4A42','&:hover': {backgroundColor: '#FF4A42'},color: 'white', width:'auto'}}>
               Enviar archivos
+            </Button>
+          </form>
+        </Box>   
+      </Fade>
+    </Modal>
+    <Modal
+      aria-labelledby="transition-modal-title"
+      aria-describedby="transition-modal-description"
+      open={openUpdateFiles}
+      onClose={handleClose}
+      closeAfterTransition
+      slots={{ backdrop: Backdrop }}
+      slotProps={{ backdrop: { timeout: 500 } }}
+    >
+      <Fade in={openUpdateFiles} onEnter={() => openSnack()} onExit={() => closeSnack()}>
+        <Box sx={styleNoPics}>
+          <form style={{display:'flex', flexDirection:'column'}} onSubmit={handleSubmitNewFile(onSubmitNewFile)}>
+            <div style={{display:'flex', justifyContent:'center'}}>
+              <FormControl variant="outlined" sx={{display:'flex', justifyContent:'center'}}>
+                <IconButton disabled={!newFile?.file} component="span" sx={{width: 40, height: 40, borderRadius: '50%', display:'flex', justifyContent:'center'}}>
+                  <CancelIcon
+                    onClick={() => {
+                      setNewFile((prev) => ({
+                        ...prev,
+                        file: false,
+                        nameFile:null                                           
+                      }));
+                    }}
+                    sx={{
+                      fontSize: 30,
+                      color: newFile?.file ? '#ff0d00ff' : '#e6a4a16b',
+                      transition: '0.2s',
+                      '&:hover': {
+                        transform: 'scale(1.1)',
+                      },
+                    }}
+                  />
+              </IconButton> 
+                <label htmlFor="new-file">
+                  <div style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
+                    <IconButton component="span">
+                      {newFile?.wichFile === "estadio" ? (
+                        <StadiumIcon
+                          sx={{
+                            fontSize: 100,
+                            color: newFile?.file ? '#FF4A42' : '#e6a4a16b',
+                            transition: '0.2s',
+                            '&:hover': {
+                              transform: 'scale(1.1)',
+                              color: newFile?.file ? '#ff8b85b9' : '#e6a4a16b',
+                            },
+                          }}
+                        />
+                      ) : (
+                        <MusicNoteIcon
+                          sx={{
+                            fontSize: 100,
+                            color: newFile?.file ? '#FF4A42' : '#e6a4a16b',
+                            transition: '0.2s',
+                            '&:hover': {
+                              transform: 'scale(1.1)',
+                              color: newFile?.file ? '#ff8b85b9' : '#e6a4a16b',
+                            },
+                          }}
+                        />
+                      )}
+                    </IconButton>
+                    <span style={{ maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize:'10px' }}>{newFile?.nameFile || 'Selecciona archivo'}</span>
+                  </div>
+                </label>
+                <input
+                  type="file"
+                  accept={acceptMap[newFile?.wichFile]}
+                  id="new-file"
+                  style={{ display: 'none' }}
+                    {...registerNewFile("file", {
+                      required: false,
+                      onChange: (e) => {
+                        updateNewFile(e);
+                        return e;
+                      }
+                    })}
+                />
+              </FormControl>
+            </div>
+            <Button className='submit log estadio'variant="contained" type="submit" disabled={!(newFile?.file)}
+              sx={{ marginTop:'15px', backgroundColor: '#FF4A42','&:hover': {backgroundColor: '#FF4A42'},color: 'white', width:'auto'}}>
+              Actualizar {newFile.wichFile}
             </Button>
           </form>
         </Box>   

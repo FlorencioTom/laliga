@@ -89,8 +89,48 @@ export const uploadImageToCloudinary = async (file:any, folder:string, user?:boo
   }
 };
 
-export const uploadNewAnthemOrStadiumToCloudinary = async (token:string, files:any, folder:string) => {
-  return 'metodo en desarrollo';
+export const uploadNewAnthemOrStadiumToCloudinary = async (token:string, data:any, wichFile:string, folder:string) => {
+  const imageUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+  const audioUrl = `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`;
+  let respuestaEstadioUrl;
+  let respuestaHimnoUrl;
+  let respuestaUsuario;
+
+  if(wichFile === 'estadio'){
+    const formEstadio = new FormData();
+    formEstadio.append('file', data.file[0]);
+    formEstadio.append('upload_preset', 'default');
+    formEstadio.append('folder', `${folder}/estadio`);
+
+    const estadioResponse = await axios.post(imageUrl, formEstadio, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    respuestaEstadioUrl = estadioResponse.data.secure_url;
+    const response = await updateAnthemOrStadiumToUser(token, respuestaEstadioUrl, wichFile);
+    respuestaUsuario = response.data;
+  }
+
+  if(wichFile === 'himno'){
+    const formHimno = new FormData();
+    formHimno.append('file', data.file[0]); 
+    formHimno.append('upload_preset', 'default');
+    formHimno.append('folder', `${folder}/audio`);
+
+    const himnoResponse = await axios.post(audioUrl, formHimno, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    respuestaHimnoUrl = himnoResponse.data.secure_url;
+    const response = await updateAnthemOrStadiumToUser(token, respuestaHimnoUrl, wichFile);
+    respuestaUsuario = response.data;
+  }
+  
+  return {
+      user: respuestaUsuario,
+      status:200
+  };
+
 }
 
 export const uploadTeamAnthemStadiumToCloudinary = async (token:string, files:any, folder:string) => {
@@ -139,6 +179,23 @@ export const addAnthemAndStadiumToUser = async(token:string, anthem: string, sta
   const response = await api.post(
     'login/addAnthemAndStadiumToUser',
     {anthem, stadium},  // Pasa un objeto vacío como payload si no necesitas enviar datos adicionales.
+    {
+      withCredentials: true,  // Para enviar cookies.
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, // Puedes enviar la cookie manualmente si no se está enviando automáticamente.
+      }
+    }
+  );
+  
+  return response.data;
+};
+
+export const updateAnthemOrStadiumToUser = async(token:string, urlFile:string, wichFileUrl:string) => {
+
+  const response = await api.post(
+    'login/updateAnthemOrStadiumToUser',
+    {urlFile, wichFileUrl},  // Pasa un objeto vacío como payload si no necesitas enviar datos adicionales.
     {
       withCredentials: true,  // Para enviar cookies.
       headers: {

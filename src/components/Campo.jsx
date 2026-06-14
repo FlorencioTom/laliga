@@ -130,7 +130,7 @@ const acceptMap = {
 
 
 export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam, himno, onUpdateStadiumAnthem, origen}) {
-  const {token} = useAuth();
+  const {token, setEquipo} = useAuth();
   const [data, setData] = useState(jugadores);
   const [info, setInfo] = useState({himno:false, nombreAudio:null, estadio:false, nombreImagen:null}); //aqui almacenamos si el equipo tiene himno y estadio
   const [newFile, setNewFile] = useState({file:false, nameFile:null, wichFile:null}); //aqui almacenamos si el equipo tiene un nuevo himno o estadio
@@ -291,7 +291,6 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
         handleClose();
         handleNotificacion('Enhorabuena! ya tienes nuevo himno y estadio', 'success');
         onUpdateStadiumAnthem(response.himno, response.estadio);
-        //aquí debería actualizar el equipo del front
       }
       console.log(response); 
     }else{
@@ -301,9 +300,15 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
 
   const onSubmitNewFile = async(data) => {
 
-    const response = await uploadNewAnthemOrStadiumToCloudinary(token, data, newFile.wichFile); 
-    console.log(data, response);
-
+    const response = await uploadNewAnthemOrStadiumToCloudinary(token, data, newFile.wichFile, nombre); 
+    console.log(data, response, nombre);
+    if(response.status === 200){
+      handleClose();
+      handleNotificacion(`Enhorabuena! ya tienes nuevo ${newFile.wichFile}`, 'success');
+      //tengo que actualizar en el front el estado del usuario, para no tener que recargar la pagina
+      setEquipo(response.user);
+      console.log(response.user);
+    }
   }
 
   const actualizaInfo = (info, e) => {

@@ -130,7 +130,7 @@ const acceptMap = {
 
 
 export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam, himno, onUpdateStadiumAnthem, origen}) {
-  const {token, setEquipo} = useAuth();
+  const {token, setEquipo, equipo} = useAuth();
   const [data, setData] = useState(jugadores);
   const [info, setInfo] = useState({himno:false, nombreAudio:null, estadio:false, nombreImagen:null}); //aqui almacenamos si el equipo tiene himno y estadio
   const [newFile, setNewFile] = useState({file:false, nameFile:null, wichFile:null}); //aqui almacenamos si el equipo tiene un nuevo himno o estadio
@@ -155,7 +155,7 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
 
   useEffect(() => {
     //console.log('La alineacion actual es: '+alineacion);
-    console.log(nombre);
+    console.log(himno, estadio?.fotos?.dentro);
     const precargarImagenes = async () => {
       setLoading(true);
       //cambioAlineacion(getValues('Alineacion'));
@@ -357,11 +357,12 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
           >
             {notificacion.message}
           </Alert>
-        </Snackbar>
+      </Snackbar>
       <div className="centro">
         <div style={{display:'flex', alignItems:'center'}}>
-          {token !== null && origen === true && (
+          {token !== null && origen === true && himno?.length > 0 && estadio?.fotos?.dentro?.length > 0 &&  (
             <div style={{display:'flex', gap:'10px', marginRight:'20px'}}>
+              
               <IconButton onClick={() => handleOpenUpdateFiles('himno')} component="span" sx={{
                     backgroundColor: '#ff4b4223',
                     borderRadius: '50%',
@@ -595,7 +596,7 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
                         }}
                       />
                     </IconButton>
-                    <span style={{ maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize:'10px' }}>{info?.nombreImagen || 'Selecciona imagen'}</span>
+                    <span style={{ maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize:'10px' }}>{info?.nombreImagen || 'Selecciona estadio'}</span>
                   </div>
                 </label>
                 <input

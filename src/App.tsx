@@ -19,8 +19,6 @@ export const App = () => {
   const NotFound = () => <h2>Error 404: Página no encontrada</h2>;
   const {setToken, setEquipo, equipo, token} = useAuth();
 
-  
-
   useEffect( () => {
     
     const tk = Cookies.get('access_token') || null;

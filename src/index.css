@@ -108,9 +108,11 @@ code {
 
 .scroll-equipos, .scroll-equipo{
   height: calc(100% - 75px);
+  transition: all 0.3s ease;
 }
 .scroll-equipos{
   border-top-right-radius: 20px;
+  transition: all 0.3s ease;
 }
 
 .jugadores{
@@ -403,4 +405,45 @@ a{
 }
 .formularioActualizaJugador{
   display: flex;
+}
+
+@media (max-width: 1400px) {
+  /* Estilos para pantallas de 1400px o menos */
+  .list {
+    width: 110px;
+    span{
+      display: none;
+    }
+  }
+  .scroll-equipos, .scroll-equipo{
+
+    height: calc(100% - 75px);
+    width: 110px;
+  }
+}
+@media (min-width: 1401px) {
+  .list {
+    width: 250px;
+  }
+  .scroll-equipos, .scroll-equipo{
+
+    height: calc(100% - 75px);
+    width: 250px;
+  }
+  .list span {
+    display: inline;
+  }
+}
+@media (max-width: 1350px) {
+  .container{
+    gap:50px;
+  }
+}
+@media (max-width: 1150px) {
+  .container{
+    flex-direction: column;
+  }
+  .container-plantilla{
+    overflow: visible;
+  }
 }

@@ -44,6 +44,8 @@ import Skeleton from '@mui/material/Skeleton';
 import Switch from '@mui/material/Switch';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import Stack from '@mui/material/Stack';
+import LinearProgress from '@mui/material/LinearProgress';
 import FormLabel from '@mui/material/FormLabel';
 import { useAuth } from './Contexto';
 
@@ -63,6 +65,7 @@ export const Jugadores = ({origenMiEquipo}) => {
   const [estadio, setEstadio] = useState(null);
   const inputRefCalendar = useRef();
   const simplebar = useRef();
+  const simplebarSuplentes = useRef();
   const [nacionalidades, setNacionalidades] = useState('');
   const [posicion, setPosicion] = useState('');
   const [nacionalidad, setNacionalidad] = useState('');
@@ -78,6 +81,7 @@ export const Jugadores = ({origenMiEquipo}) => {
   const [resolverConfirmacion, setResolverConfirmacion] = useState(null);
   const [isTitular, setIsTitular] = useState(false);
   const [himnoEquipo, setHimnoEquipo] = useState(null);
+  const [scrollReady, setScrollReady] = useState(false);
 
   const {register:registerActualiza, 
     setValue:setValueActualiza,
@@ -141,6 +145,17 @@ export const Jugadores = ({origenMiEquipo}) => {
     color:'white',
     transition: 'width 0.3s ease'
   };
+
+  const item = {
+  hidden: { opacity: 0, y: 10 },
+  show: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.05,
+    },
+  }),
+};
 
   const getNacionalidades = async() => {
     try {
@@ -422,6 +437,7 @@ export const Jugadores = ({origenMiEquipo}) => {
     }else{
       getJugadoresUser();
     }
+    simplebar.current.recalculate();
   }, [ids, jugadoresChanged, equipo]);
 
   useEffect(() => {
@@ -442,10 +458,24 @@ export const Jugadores = ({origenMiEquipo}) => {
       await Promise.all(promises);
       await delay(2000);
       setImagenesCargadas(true);
+
     };
 
     cargarTodas();
+    simplebar.current.recalculate();
+    console.log(simplebar.current);
+
   }, [ids]);
+
+  useEffect(() => {
+  if (!imagenesCargadas) return;
+
+  // deja que el DOM pinte
+  requestAnimationFrame(() => {
+    window.dispatchEvent(new Event('resize'));
+  });
+
+}, [imagenesCargadas]);
 
   const getJugadores = async (value) => {
     setLoading(true); // Iniciar el loader cuando comienza la carga
@@ -814,6 +844,12 @@ export const Jugadores = ({origenMiEquipo}) => {
     setEquipo(equipoActualizado);
   }
 
+  const forceSimpleBarUpdate = () => {
+    const el = simplebar.current?.getScrollElement();
+    if (!el) return;
+    window.dispatchEvent(new Event('resize'));
+  }
+
   return (
     <>
     <Modal
@@ -854,61 +890,54 @@ export const Jugadores = ({origenMiEquipo}) => {
       </Alert>
     </Snackbar>
     <div className='container'>
-      <div className="jugadores">
-        <SimpleBar className="scroll-suplentes" ref={simplebar}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(5, minmax(100px, 1fr))',
-              gap: '16px',
-              justifyContent: 'center',
-              alignItems: 'center',
-              minHeight: '200px',
-              
-            }}
-            initial="hidden"
-            animate={loading ? 'hidden' : 'visible'}
-          >
-            {!imagenesCargadas ? (
-                  <>
-                    {[...Array(jugadores.filter((x) => !x.titular).length + 2)].map((_, i) => (
-                      <div key={i} className="card skeleton">
-                        <Skeleton variant="rectangular" width={100} height={100} />
-                        <Skeleton width="60%" style={{ marginTop: 8 }} />
+      <SimpleBar className='scroll-container'>
+        <div className="jugadores">
+          {!imagenesCargadas ? (
+            <Stack sx={{ width: '100%', color: 'grey.500' }} spacing={2}>
+              <LinearProgress   sx={{
+                backgroundColor: '#ffd6d4',
+                '& .MuiLinearProgress-bar': {
+                  backgroundColor: '#FF4A42',
+                },
+              }} aria-label="Loading…" />
+            </Stack>
+          ) : (
+            <SimpleBar className="scroll-suplentes" ref={simplebar} >
+              <div class='grid-suplentes'
+                initial="hidden"
+                animate={loading ? 'hidden' : 'visible'}
+              >
+                <>
+                  {entrenador && (
+                    <motion.div className="card" custom={0} variants={item} initial="hidden" animate="show" whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}>
+                      <img
+                        src={entrenador.foto}
+                        alt={entrenador.nombre}
+                        onClick={() => handleOpenCoach(entrenador)}
+                      />
+                      <span>{entrenador.nombre}</span>
+                    </motion.div>
+                  )}
+                  {jugadores.filter((x) => !x.titular).map((x, index) => (
+                    <motion.div className="card" key={index} custom={index} variants={item} initial="hidden" animate="show" whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}>
+                      <img src={x.foto} alt={x.nombre} onClick={() => handleOpen(x)} />
+                      <span>{x.nombre}</span>
+                    </motion.div>
+                  ))}
+                  {!ids && (
+                    <div className="addJugador">
+                      <div className="circle-plus" onClick={() => setOpenNuevo(true)}>
+                        <i className="fa-solid fa-plus"></i>
                       </div>
-                    ))}
-                  </>
-                ) : (
-                  <>
-                    {entrenador && (
-                      <div className="card">
-                        <img
-                          src={entrenador.foto}
-                          alt={entrenador.nombre}
-                          onClick={() => handleOpenCoach(entrenador)}
-                        />
-                        <span>{entrenador.nombre}</span>
-                      </div>
-                    )}
-                    {jugadores.filter((x) => !x.titular).map((x, index) => (
-                      <div className="card" key={index}>
-                        <img src={x.foto} alt={x.nombre} onClick={() => handleOpen(x)} />
-                        <span>{x.nombre}</span>
-                      </div>
-                    ))}
-                    {!ids && (
-                      <div className="addJugador">
-                        <div className="circle-plus" onClick={() => setOpenNuevo(true)}>
-                          <i className="fa-solid fa-plus"></i>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}   
-          </div>
-        </SimpleBar>                
-      </div>
-      <Campo nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids} himno={himnoEquipo} onUpdateStadiumAnthem={actualizarHimnoYEstadio} origen={origenMiEquipo}></Campo>
+                    </div>
+                  )}
+                </>
+              </div>
+            </SimpleBar>  
+          )}
+        </div>
+        <Campo nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids} himno={himnoEquipo} onUpdateStadiumAnthem={actualizarHimnoYEstadio} origen={origenMiEquipo}></Campo>
+      </SimpleBar> 
     </div>
       <Modal
       aria-labelledby="transition-modal-title"

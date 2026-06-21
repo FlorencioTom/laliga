@@ -117,6 +117,8 @@ code {
 
 .jugadores{
   height: calc(100vh - 61.5px);
+  padding-bottom: 50px;
+  width: 50%;
 }
 
 .jugadores .simplebar-content-wrapper{
@@ -127,7 +129,7 @@ code {
 
 .scroll-suplentes .simplebar-content{
   height: 100%;
-  width: 600px !important;
+  width: 100% !important;
   display: flex !important;
   align-items: center;
   flex-wrap: wrap !important;
@@ -156,20 +158,25 @@ code {
 .simplebar-track.simplebar-vertical {
   width: 4px !important;
 }
+.scroll-suplentes .simplebar-track.simplebar-vertical {
+  left: 0;
+  right: auto;
+}
+
 .card{
   width: 100px;
   cursor:pointer;
   display: flex;
   align-items: center;
   flex-direction: column;
-  transition: transform 0.3s ease;
+
 }
 .card:hover{
-  transform: scale(0.9);
+
 }
 
 .card img{
-  width:100px;
+  width:100%;
   mask-image: linear-gradient(
     black 80%,
     transparent 
@@ -286,7 +293,6 @@ a{
 
 .centro{
   display: flex;
-  justify-content: center;
   align-items: center;
   flex-direction: column;
 }
@@ -407,6 +413,21 @@ a{
   display: flex;
 }
 
+.grid-suplentes {
+  width: 100%;
+  display: flex;
+  display: flex;
+  flex-wrap: wrap; /* Permite el salto de línea */
+  gap: 16px;
+  justify-content: center;
+  /*display: grid;
+  grid-template-columns: repeat(5, minmax(100px, 1fr));
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;*/
+}
+
 @media (max-width: 1400px) {
   /* Estilos para pantallas de 1400px o menos */
   .list {
@@ -416,7 +437,6 @@ a{
     }
   }
   .scroll-equipos, .scroll-equipo{
-
     height: calc(100% - 75px);
     width: 110px;
   }
@@ -434,16 +454,51 @@ a{
     display: inline;
   }
 }
-@media (max-width: 1350px) {
-  .container{
-    gap:50px;
+.scroll-container{
+  width: 100%;
+
+  .simplebar-content{
+    display: flex;
+    justify-content: space-between;
+    /*height:100%;*/
+  }
+  .simplebar-content-wrapper{
+    height: auto;
   }
 }
-@media (max-width: 1150px) {
-  .container{
-    flex-direction: column;
-  }
-  .container-plantilla{
-    overflow: visible;
+@media (max-width: 600px) {
+  .card {
+    width: 75px;
   }
 }
+@media (min-width: 1000px) {
+  .centro{
+    justify-content: center;
+  }
+}
+@media (max-width: 1000px) {
+  .scroll-container{
+    height: calc(100vh - 75px);
+    .simplebar-content{
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+  }
+
+  .scroll-suplentes {
+    margin-top:20px;
+    max-height: 500px;
+  }
+  .jugadores{
+    width: 100%;
+    height: auto;
+  }
+}
+@media (min-width: 1001px) and (max-width: 1250px) {
+  .card {
+    width: 75px;
+  }
+}
+
+
+

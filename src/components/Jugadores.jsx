@@ -159,7 +159,7 @@ export const Jugadores = ({origenMiEquipo}) => {
       opacity: 0,
       y: 10,
       transition: {
-        duration: 0.2,
+        duration: 0.3,
       },
     }
     /*exit: (i) => ({
@@ -924,23 +924,24 @@ export const Jugadores = ({origenMiEquipo}) => {
                 <>
                   <AnimatePresence mode="wait">
                     {entrenador && (
-                      <motion.div className="card" exit="exit" custom={0} variants={item} initial="hidden" animate="show" whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}>
-                        <motion.img
-                          exit="exit"  key={entrenador.nombre} custom={0} variants={item} initial="hidden" animate="show" whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}
+                      <motion.div className="card" key={entrenador.nombre} exit="exit" custom={0} variants={item} initial="hidden" animate="show" whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}>
+                        <img
                           src={entrenador.foto}
                           alt={entrenador.nombre}
                           onClick={() => handleOpenCoach(entrenador)}
-                          decoding="async"
                         />
                         <span>{entrenador.nombre}</span>
                       </motion.div>
                     )}
-                    {jugadores.filter((x) => !x.titular).map((x, index) => (
-                      <motion.div className="card" exit="exit"  key={x.nombre+ids} custom={index} variants={item} initial="hidden" animate="show" whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}>
-                        <img src={x.foto} alt={x.nombre} onClick={() => handleOpen(x)} decoding="async"/>
+                  </AnimatePresence>
+                  <AnimatePresence mode="wait">
+                    {jugadores.filter((x) => !x.titular).sort((a, b) => a.index - b.index).map((x, index) => (
+                      <motion.div className="card" exit="exit"  key={x.nombre} custom={index} variants={item} initial="hidden" animate="show" whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}>
+                        <img src={x.foto} alt={x.nombre} onClick={() => handleOpen(x)} />
                         <span>{x.nombre}</span>
                       </motion.div>
                     ))}
+                  </AnimatePresence>
                     {!ids && (
                       <div className="addJugador">
                         <div className="circle-plus" onClick={() => setOpenNuevo(true)}>
@@ -948,7 +949,6 @@ export const Jugadores = ({origenMiEquipo}) => {
                         </div>
                       </div>
                     )}
-                  </AnimatePresence>
                 </>
               </div>
             </SimpleBar>  

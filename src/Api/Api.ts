@@ -57,6 +57,7 @@ export const getAllTeams = async() => {
 
 export const getAllPlayersByTeam = async(equipo:string) => {
   const response = await api.get(`/equipos/${equipo}`);
+  console.log(response.data.data);
   return response.data.data;
 };
 

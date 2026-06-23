@@ -14,7 +14,7 @@ import Button from '@mui/material/Button';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence} from 'framer-motion';
 import Campo from './Campo';
 import {Controller, useForm} from 'react-hook-form';
 import FormControl from '@mui/material/FormControl';
@@ -147,15 +147,30 @@ export const Jugadores = ({origenMiEquipo}) => {
   };
 
   const item = {
-  hidden: { opacity: 0, y: 10 },
-  show: (i) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.05,
-    },
-  }),
-};
+    hidden: { opacity: 0, y: 10 },
+    show: (i) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.05,
+      },
+    }),
+    exit: {
+      opacity: 0,
+      y: 10,
+      transition: {
+        duration: 0.2,
+      },
+    }
+    /*exit: (i) => ({
+      opacity: 0,
+      y: 10,
+      transition: {
+        delay: i * 0.05,
+        duration: 0.2,
+      },
+    })*/
+  };
 
   const getNacionalidades = async() => {
     try {
@@ -456,7 +471,8 @@ export const Jugadores = ({origenMiEquipo}) => {
         }));
 
       await Promise.all(promises);
-      await delay(2000);
+      await new Promise(requestAnimationFrame);
+      await new Promise(requestAnimationFrame);
       setImagenesCargadas(true);
 
     };
@@ -892,7 +908,7 @@ export const Jugadores = ({origenMiEquipo}) => {
     <div className='container'>
       <SimpleBar className='scroll-container'>
         <div className="jugadores">
-          {!imagenesCargadas ? (
+          {/* {!imagenesCargadas ? (
             <Stack sx={{ width: '100%', color: 'grey.500' }} spacing={2}>
               <LinearProgress   sx={{
                 backgroundColor: '#ffd6d4',
@@ -901,40 +917,42 @@ export const Jugadores = ({origenMiEquipo}) => {
                 },
               }} aria-label="Loading…" />
             </Stack>
-          ) : (
+            animate={loading ? 'hidden' : 'visible'} 
+          ) : ( */}
             <SimpleBar className="scroll-suplentes" ref={simplebar} >
-              <div class='grid-suplentes'
-                initial="hidden"
-                animate={loading ? 'hidden' : 'visible'}
-              >
+              <div class='grid-suplentes'>
                 <>
-                  {entrenador && (
-                    <motion.div className="card" custom={0} variants={item} initial="hidden" animate="show" whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}>
-                      <img
-                        src={entrenador.foto}
-                        alt={entrenador.nombre}
-                        onClick={() => handleOpenCoach(entrenador)}
-                      />
-                      <span>{entrenador.nombre}</span>
-                    </motion.div>
-                  )}
-                  {jugadores.filter((x) => !x.titular).map((x, index) => (
-                    <motion.div className="card" key={index} custom={index} variants={item} initial="hidden" animate="show" whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}>
-                      <img src={x.foto} alt={x.nombre} onClick={() => handleOpen(x)} />
-                      <span>{x.nombre}</span>
-                    </motion.div>
-                  ))}
-                  {!ids && (
-                    <div className="addJugador">
-                      <div className="circle-plus" onClick={() => setOpenNuevo(true)}>
-                        <i className="fa-solid fa-plus"></i>
+                  <AnimatePresence mode="wait">
+                    {entrenador && (
+                      <motion.div className="card" exit="exit" custom={0} variants={item} initial="hidden" animate="show" whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}>
+                        <motion.img
+                          exit="exit"  key={entrenador.nombre} custom={0} variants={item} initial="hidden" animate="show" whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}
+                          src={entrenador.foto}
+                          alt={entrenador.nombre}
+                          onClick={() => handleOpenCoach(entrenador)}
+                          decoding="async"
+                        />
+                        <span>{entrenador.nombre}</span>
+                      </motion.div>
+                    )}
+                    {jugadores.filter((x) => !x.titular).map((x, index) => (
+                      <motion.div className="card" exit="exit"  key={x.nombre+ids} custom={index} variants={item} initial="hidden" animate="show" whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}>
+                        <img src={x.foto} alt={x.nombre} onClick={() => handleOpen(x)} decoding="async"/>
+                        <span>{x.nombre}</span>
+                      </motion.div>
+                    ))}
+                    {!ids && (
+                      <div className="addJugador">
+                        <div className="circle-plus" onClick={() => setOpenNuevo(true)}>
+                          <i className="fa-solid fa-plus"></i>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </AnimatePresence>
                 </>
               </div>
             </SimpleBar>  
-          )}
+          {/* })} */}
         </div>
         <Campo nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids} himno={himnoEquipo} onUpdateStadiumAnthem={actualizarHimnoYEstadio} origen={origenMiEquipo}></Campo>
       </SimpleBar> 

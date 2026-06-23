@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import FocusLock from "react-focus-lock";
 import { alineaciones } from './alineaciones';
 import campo from '../images/campo.jpg';
@@ -21,7 +21,7 @@ import {Controller, useForm} from 'react-hook-form';
 import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from 'swiper/modules';
 import InputLabel from '@mui/material/InputLabel';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import ImageIcon from '@mui/icons-material/Image';
 import AudioFileIcon from '@mui/icons-material/AudioFile';
 import IconButton from '@mui/material/IconButton';
@@ -128,6 +128,24 @@ const acceptMap = {
   himno: ".mp3,audio/mpeg",
 };
 
+const item = {
+  hidden: { opacity: 0, y: 10 },
+  show: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.05,
+    },
+  }),
+  exit: {
+    opacity: 0,
+    y: 10,
+    transition: {
+      duration: 0.2,
+    },
+  }
+};
+
 
 export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam, himno, onUpdateStadiumAnthem, origen}) {
   const {token, setEquipo, equipo} = useAuth();
@@ -152,13 +170,12 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
     }
   });
   const {register:registerNewFile, handleSubmit:handleSubmitNewFile, control:controlNewFile} = useForm();
+  const animacionRealizada = useRef(false);
 
   useEffect(() => {
-    //console.log('La alineacion actual es: '+alineacion);
-    console.log(himno, estadio?.fotos?.dentro);
+
     const precargarImagenes = async () => {
       setLoading(true);
-      //cambioAlineacion(getValues('Alineacion'));
       const imagenesTitulares = jugadores
         .filter(j => j.titular && j.foto)
         .map(jugador => {
@@ -175,12 +192,17 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
       } catch (error) {
         console.error('Error cargando imágenes:', error);
       }
-
       setLoading(false);
     };
-
     precargarImagenes();
-  }, [cambioJugador, jugadores, alineacion]);
+
+  }, [jugadores, alineacion]);
+
+  // CADA VEZ QUE CAMBIA EL EQUIPO HAY QUE PONER LA ANIMACION A FALSE DE MUEVO
+
+  useEffect(() => {
+    animacionRealizada.current = false;
+  }, [idTeam]);
 
   const handleClose = () => {
     setOpen(false);
@@ -233,22 +255,10 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
     } else {
       // Si ambos jugadores son titulares
       if (cambioJugador && cambioJugador.titular && jugador.titular) {
-        cambioPosicionTitulares(jugador, cambioJugador)
-        // console.log('Ambos jugadores seleccionados son titulares');
-        // var nuevosJugadores = jugadores.map(x => {
-        //   if (x.nombre === cambioJugador.nombre) {
-        //     return { ...x, posicion: jugador.posicion };
-        //   }
-        //   if (x.nombre === jugador.nombre) {
-        //     return { ...x, posicion: cambioJugador.posicion };
-        //   }
-        //   return x; 
-        // });
-        // setData(nuevosJugadores);
+        cambioPosicionTitulares(jugador, cambioJugador);
         setCambioJugador(null);
         enviarJugador(null);
       } else {
-        // Si no son ambos titulares, puedes seleccionar al nuevo jugador
         setCambioJugador(jugador);
         enviarJugador(jugador);
       }
@@ -457,27 +467,30 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
         <div className="container-campo">
           <img src={campo}></img>  
           <FocusLock autoFocus={false} disabled={true}>
-            {loading ? (
-              <div className='loader-campo'>
-                <Loader size="lg" speed="fast" />
-              </div>
-            ) : (
-              jugadores && jugadores.map((jugador, index) => 
+            <AnimatePresence mode="wait">
+              {jugadores && jugadores.map((jugador, index) => 
                 jugador.titular && (
-                  <img 
-                  key={index} 
-                  tabIndex={posicionaHTML(jugador)} 
-                  className={`jugador-poscion ${cambioJugador === jugador ? "jugador-seleccionado" : ""}`}
+                  <motion.img 
+                    initial={animacionRealizada.current ? false : "hidden"}
+                    onAnimationComplete={() => {
+                      animacionRealizada.current = true;
+                    }}
+                    variants={item} animate="show" whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}
+                    exit="exit"
+                    transition={{ duration: 0.25 }}
+                    key={jugador.nombre} 
+                    tabIndex={posicionaHTML(jugador)} 
+                    className={`jugador-poscion ${cambioJugador === jugador ? "jugador-seleccionado" : ""}`}
                     src={jugador.foto} 
                     style={posicionaCampo(jugador)} 
                     onClick={() => {
                       cambio(jugador);
                     }}
                     alt={jugador.nombre}
-                    />
+                  />
                 )
-              )
-            )}
+              )}
+            </AnimatePresence>
           </FocusLock>
         </div>
       </div>

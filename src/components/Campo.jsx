@@ -148,7 +148,7 @@ const item = {
 
 
 export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam, himno, onUpdateStadiumAnthem, origen}) {
-  const {token, setEquipo, equipo} = useAuth();
+  const {token, setEquipo, equipo, animacion} = useAuth();
   const [data, setData] = useState(jugadores);
   const [info, setInfo] = useState({himno:false, nombreAudio:null, estadio:false, nombreImagen:null}); //aqui almacenamos si el equipo tiene himno y estadio
   const [newFile, setNewFile] = useState({file:false, nameFile:null, wichFile:null}); //aqui almacenamos si el equipo tiene un nuevo himno o estadio
@@ -170,7 +170,6 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
     }
   });
   const {register:registerNewFile, handleSubmit:handleSubmitNewFile, control:controlNewFile} = useForm();
-  const animacionRealizada = useRef(false);
 
   useEffect(() => {
 
@@ -201,7 +200,7 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
   // CADA VEZ QUE CAMBIA EL EQUIPO HAY QUE PONER LA ANIMACION A FALSE DE MUEVO
 
   useEffect(() => {
-    animacionRealizada.current = false;
+    
   }, [idTeam]);
 
   const handleClose = () => {
@@ -471,12 +470,12 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
               {jugadores && jugadores.map((jugador, index) => 
                 jugador.titular && (
                   <motion.img 
-                    initial={animacionRealizada.current ? false : "hidden"}
-                    onAnimationComplete={() => {
-                      animacionRealizada.current = true;
-                    }}
-                    variants={item} animate="show" whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}
-                    exit="exit"
+                    layout
+                    variants={animacion ? item : undefined}
+                    initial={animacion ? "hidden" : false}
+                    animate={animacion ? "show" : false}
+                    exit={animacion ? "exit" : undefined}
+                    whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}
                     transition={{ duration: 0.25 }}
                     key={jugador.nombre} 
                     tabIndex={posicionaHTML(jugador)} 

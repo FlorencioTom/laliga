@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { BrowserRouter as Router, Route, NavLink } from 'react-router-dom';
+import { useAuth } from './Contexto';
 
 const Item = ({ equipo, index, setPreviousIndex, previousIndex, elAnterior, highlighted}) => {
+  const {setAnimacion} = useAuth();
+
   const handleMouseOver = () => {
     setPreviousIndex(index - 2);
   };
@@ -11,7 +14,8 @@ const Item = ({ equipo, index, setPreviousIndex, previousIndex, elAnterior, high
   };
 
   const handleTeam = (elm) => {
-    elAnterior(elm)
+    elAnterior(elm);
+    setAnimacion(true);
   };
   
 

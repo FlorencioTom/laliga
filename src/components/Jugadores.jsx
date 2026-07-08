@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { getAllPlayersByTeam, addPlayer, addCoach, addPlayerToTeam, addPlayerToUser, changeStartingStatus, editPlayerFromUser, deletePlayerFromUser, getTeamUser } from '../Api/Api';
 import Loader from 'rsuite/Loader';
 import SimpleBar from 'simplebar-react';
@@ -50,7 +50,7 @@ import FormLabel from '@mui/material/FormLabel';
 import { useAuth } from './Contexto';
 
 export const Jugadores = ({origenMiEquipo}) => {
-  const {setToken, setEquipo, equipo, token} = useAuth();
+  const {setToken, setEquipo, equipo, token, animacion, setAnimacion} = useAuth();
   const [imagenesCargadas, setImagenesCargadas] = useState({});
   const [jugadores, setJugadores] = useState([]);
   const [entrenador, setEntrenador] = useState(null);
@@ -82,6 +82,11 @@ export const Jugadores = ({origenMiEquipo}) => {
   const [isTitular, setIsTitular] = useState(false);
   const [himnoEquipo, setHimnoEquipo] = useState(null);
   const [scrollReady, setScrollReady] = useState(false);
+  const animacionDeEntradaRealizada = useRef(false);
+  const [animacionesTerminadas, setAnimacionesTerminadas] = useState(0);
+  const suplentes = useMemo(() => {
+    return jugadores.filter((x) => !x.titular).sort((a, b) => a.index - b.index);
+  }, [jugadores]);
 
   const {register:registerActualiza, 
     setValue:setValueActualiza,
@@ -145,8 +150,12 @@ export const Jugadores = ({origenMiEquipo}) => {
     color:'white',
     transition: 'width 0.3s ease'
   };
-
   const item = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: 10 }
+  };
+  /*const item = {
     hidden: { opacity: 0, y: 10 },
     show: (i) => ({
       opacity: 1,
@@ -162,15 +171,15 @@ export const Jugadores = ({origenMiEquipo}) => {
         duration: 0.3,
       },
     }
-    /*exit: (i) => ({
+    exit: (i) => ({
       opacity: 0,
       y: 10,
       transition: {
         delay: i * 0.05,
         duration: 0.2,
       },
-    })*/
-  };
+    })
+  };*/
 
   const getNacionalidades = async() => {
     try {
@@ -330,16 +339,36 @@ export const Jugadores = ({origenMiEquipo}) => {
       setJugadorSeleccionado(jugador); // Almacenar el jugador seleccionado
       setOpen(true);
     }else{
-      //Tengo que camviar la titularidad y la posicion
-      jugadores.forEach((x) => {
-        if(x.nombre === jugador.nombre){
-          x.posicion = cambioJugador.posicion;
-          x.titular = true;
+      //Tengo que camviar la titularidad, la posicion y el index para mantener el orden en el que se muestran los suplentes
+      console.log('titular por suplente');
+
+      let indexNuevoTitular;
+      let indexNuevoSuplente;
+
+      jugadores.forEach(x => {
+        if (x.nombre === jugador.nombre) {
+          indexNuevoTitular = x.index;
         }
-        if(x.nombre === cambioJugador.nombre){
-          x.titular = false;
+
+        if (x.nombre === cambioJugador.nombre) {
+          indexNuevoSuplente = x.index;
         }
       });
+
+      jugadores.forEach((x) => {
+        if (x.nombre === jugador.nombre) {
+          x.posicion = cambioJugador.posicion;
+          x.titular = true;
+          x.index = indexNuevoSuplente;
+        }
+
+        if (x.nombre === cambioJugador.nombre) {
+          x.titular = false;
+          x.index = indexNuevoTitular;
+        }
+      }); 
+
+      
       setCambioJugador(null);
     }
   };
@@ -453,11 +482,13 @@ export const Jugadores = ({origenMiEquipo}) => {
       getJugadoresUser();
     }
     simplebar.current.recalculate();
+
+
+    
   }, [ids, jugadoresChanged, equipo]);
 
   useEffect(() => {
     if (!jugadores || jugadores.length === 0) return;
-
     setImagenesCargadas(false);
     const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
     const cargarTodas = async () => {
@@ -575,28 +606,6 @@ export const Jugadores = ({origenMiEquipo}) => {
     }
   }
 
-  const ficharCoach = async(coach) => {
-    /*const token = Cookies.get('access_token');
-    if(token){
-      const respuesta = await addCoach(coach);
-      if(respuesta.status === 201){
-        handleCloseCoach();
-        Swal.fire({
-          icon: `${respuesta.data}`,
-          text: `${respuesta.message}`
-        });
-      }
-    
-    }else{
-      handleCloseCoach();
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: `Inicia sesion para fichar a ${coach.nombre}`
-      });
-    }*/
-  }
-
   const recibirJugador = (jugador) => {
     setCambioJugador(jugador);
   };
@@ -615,6 +624,7 @@ export const Jugadores = ({origenMiEquipo}) => {
         }
         return x; 
       });
+      console.log('has echo un cambio de posiciones');
       setJugadores(nuevosJugadores);
   }
 
@@ -922,9 +932,13 @@ export const Jugadores = ({origenMiEquipo}) => {
             <SimpleBar className="scroll-suplentes" ref={simplebar} >
               <div class='grid-suplentes'>
                 <>
-                  <AnimatePresence mode="wait">
+                  {/*<AnimatePresence mode="wait" onExitComplete={() => {setAnimacion(false)}}>
                     {entrenador && (
-                      <motion.div className="card" key={entrenador.nombre} exit="exit" custom={0} variants={item} initial="hidden" animate="show" whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}>
+                      <motion.div className="card" key={entrenador.nombre} whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}
+                        variants={animacion ? item : undefined}  
+                        initial={animacion ? "hidden" : false}
+                        exit={animacion ? "exit" : undefined} 
+                        animate={animacion ? "show" : false}>
                         <img
                           src={entrenador.foto}
                           alt={entrenador.nombre}
@@ -933,10 +947,19 @@ export const Jugadores = ({origenMiEquipo}) => {
                         <span>{entrenador.nombre}</span>
                       </motion.div>
                     )}
-                  </AnimatePresence>
-                  <AnimatePresence mode="wait">
-                    {jugadores.filter((x) => !x.titular).sort((a, b) => a.index - b.index).map((x, index) => (
-                      <motion.div className="card" exit="exit"  key={x.nombre} custom={index} variants={item} initial="hidden" animate="show" whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}>
+                  </AnimatePresence> */}
+                  <AnimatePresence mode="wait" onExitComplete={() => {setAnimacion(false);console.log(1)}}>
+                    {jugadores.filter((x) => !x.titular).sort((a, b) => a.index - b.index).map((x) => (
+                      <motion.div className="card"  key={x.nombre} whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}
+                        variants={animacion ? item : undefined}    
+                        initial={animacion ? "hidden" : false}
+                        exit={animacion ? "exit" : undefined} 
+                        animate={animacion ? "show" : false}
+                        onAnimationComplete={() => {
+                          console.log(x.nombre);
+                          {/* AQUI CONTAR EL NUMERO DE ANIMACIONES PARA PONER SETANIMATION(FALSE) */}
+                          {/* NECESITO SABER CUANTOS JUGADORES SUPLENTES TENGO PARA SABER CUANDO PONER SETANIMATION(FALSE)  */}
+                        }}>
                         <img src={x.foto} alt={x.nombre} onClick={() => handleOpen(x)} />
                         <span>{x.nombre}</span>
                       </motion.div>
@@ -954,7 +977,7 @@ export const Jugadores = ({origenMiEquipo}) => {
             </SimpleBar>  
           {/* })} */}
         </div>
-        <Campo nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids} himno={himnoEquipo} onUpdateStadiumAnthem={actualizarHimnoYEstadio} origen={origenMiEquipo}></Campo>
+        <Campo key={ids} nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids} himno={himnoEquipo} onUpdateStadiumAnthem={actualizarHimnoYEstadio} origen={origenMiEquipo}></Campo>
       </SimpleBar> 
     </div>
       <Modal

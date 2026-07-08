@@ -12,6 +12,7 @@ export const Contexto = ({children}) => {
 
     const [token, setToken] = useState(null);
     const [equipo, setEquipo] = useState(null);
+    const [animacion, setAnimacion] = useState(true);
 
     useEffect(() => {
         equipoUsuario();
@@ -27,7 +28,7 @@ export const Contexto = ({children}) => {
     }
 
     return (
-        <AuthContext.Provider value={{ token, setToken, equipo, setEquipo}}>
+        <AuthContext.Provider value={{ token, setToken, equipo, setEquipo, animacion, setAnimacion}}>
             {children}
         </AuthContext.Provider>
     )

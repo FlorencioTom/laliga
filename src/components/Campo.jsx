@@ -130,22 +130,9 @@ const acceptMap = {
 
 const item = {
   hidden: { opacity: 0, y: 10 },
-  show: (i) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.05,
-    },
-  }),
-  exit: {
-    opacity: 0,
-    y: 10,
-    transition: {
-      duration: 0.2,
-    },
-  }
+  show: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: 10 }
 };
-
 
 export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam, himno, onUpdateStadiumAnthem, origen}) {
   const {token, setEquipo, equipo, animacion} = useAuth();
@@ -172,7 +159,6 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
   const {register:registerNewFile, handleSubmit:handleSubmitNewFile, control:controlNewFile} = useForm();
 
   useEffect(() => {
-
     const precargarImagenes = async () => {
       setLoading(true);
       const imagenesTitulares = jugadores
@@ -198,10 +184,6 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
   }, [jugadores, alineacion]);
 
   // CADA VEZ QUE CAMBIA EL EQUIPO HAY QUE PONER LA ANIMACION A FALSE DE MUEVO
-
-  useEffect(() => {
-    
-  }, [idTeam]);
 
   const handleClose = () => {
     setOpen(false);
@@ -467,7 +449,7 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
           <img src={campo}></img>  
           <FocusLock autoFocus={false} disabled={true}>
             <AnimatePresence mode="wait">
-              {jugadores && jugadores.map((jugador, index) => 
+              {jugadores && jugadores.map((jugador, index) =>
                 jugador.titular && (
                   <motion.img 
                     layout

@@ -84,9 +84,7 @@ export const Jugadores = ({origenMiEquipo}) => {
   const [scrollReady, setScrollReady] = useState(false);
   const animacionDeEntradaRealizada = useRef(false);
   const [animacionesTerminadas, setAnimacionesTerminadas] = useState(0);
-  const suplentes = useMemo(() => {
-    return jugadores.filter((x) => !x.titular).sort((a, b) => a.index - b.index);
-  }, [jugadores]);
+  const [suplentes, setSuplentes] = useState(0);
 
   const {register:registerActualiza, 
     setValue:setValueActualiza,
@@ -155,31 +153,6 @@ export const Jugadores = ({origenMiEquipo}) => {
     show: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: 10 }
   };
-  /*const item = {
-    hidden: { opacity: 0, y: 10 },
-    show: (i) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.05,
-      },
-    }),
-    exit: {
-      opacity: 0,
-      y: 10,
-      transition: {
-        duration: 0.3,
-      },
-    }
-    exit: (i) => ({
-      opacity: 0,
-      y: 10,
-      transition: {
-        delay: i * 0.05,
-        duration: 0.2,
-      },
-    })
-  };*/
 
   const getNacionalidades = async() => {
     try {
@@ -510,7 +483,6 @@ export const Jugadores = ({origenMiEquipo}) => {
 
     cargarTodas();
     simplebar.current.recalculate();
-    console.log(simplebar.current);
 
   }, [ids]);
 
@@ -948,7 +920,7 @@ export const Jugadores = ({origenMiEquipo}) => {
                       </motion.div>
                     )}
                   </AnimatePresence> */}
-                  <AnimatePresence mode="wait" onExitComplete={() => {setAnimacion(false);console.log(1)}}>
+                  <AnimatePresence mode="wait">
                     {jugadores.filter((x) => !x.titular).sort((a, b) => a.index - b.index).map((x) => (
                       <motion.div className="card"  key={x.nombre} whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}
                         variants={animacion ? item : undefined}    
@@ -956,9 +928,17 @@ export const Jugadores = ({origenMiEquipo}) => {
                         exit={animacion ? "exit" : undefined} 
                         animate={animacion ? "show" : false}
                         onAnimationComplete={() => {
-                          console.log(x.nombre);
-                          {/* AQUI CONTAR EL NUMERO DE ANIMACIONES PARA PONER SETANIMATION(FALSE) */}
-                          {/* NECESITO SABER CUANTOS JUGADORES SUPLENTES TENGO PARA SABER CUANDO PONER SETANIMATION(FALSE)  */}
+                          setAnimacionesTerminadas((n) => {
+                            let total = n + 1;
+                            const suplentes = jugadores.filter((x) => !x.titular).length;
+                            console.log('Total: '+total+' - '+'Suplentes: '+suplentes);
+                            if (total >= suplentes) {
+                              //console.log('animaciones completadas: '+total);
+                              setAnimacion(false);
+                              return 0;
+                            }
+                            return total;
+                          });
                         }}>
                         <img src={x.foto} alt={x.nombre} onClick={() => handleOpen(x)} />
                         <span>{x.nombre}</span>
@@ -977,7 +957,7 @@ export const Jugadores = ({origenMiEquipo}) => {
             </SimpleBar>  
           {/* })} */}
         </div>
-        <Campo key={ids} nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids} himno={himnoEquipo} onUpdateStadiumAnthem={actualizarHimnoYEstadio} origen={origenMiEquipo}></Campo>
+        <Campo key={0} nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids} himno={himnoEquipo} onUpdateStadiumAnthem={actualizarHimnoYEstadio} origen={origenMiEquipo}></Campo>
       </SimpleBar> 
     </div>
       <Modal

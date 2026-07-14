@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, forwardRef, useImperativeHandle } from "react";
 import FocusLock from "react-focus-lock";
 import { alineaciones } from './alineaciones';
 import campo from '../images/campo.jpg';
@@ -134,13 +134,25 @@ const item = {
   exit: { opacity: 0, y: 10 }
 };
 
-export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionTitulares, vaciarJugado, estadio, idTeam, himno, onUpdateStadiumAnthem, origen}) {
+const Campo = forwardRef(({
+  nombre,
+  jugadores,
+  enviarJugador,
+  cambioPosicionTitulares,
+  vaciarJugado,
+  estadio,
+  idTeam,
+  himno,
+  onUpdateStadiumAnthem,
+  origen
+}, ref) => {
   const {token, setEquipo, equipo, animacion} = useAuth();
   const [data, setData] = useState(jugadores);
   const [info, setInfo] = useState({himno:false, nombreAudio:null, estadio:false, nombreImagen:null}); //aqui almacenamos si el equipo tiene himno y estadio
   const [newFile, setNewFile] = useState({file:false, nameFile:null, wichFile:null}); //aqui almacenamos si el equipo tiene un nuevo himno o estadio
   const [loading, setLoading] = useState(true);
   const [cambioJugador, setCambioJugador] = useState(null);
+  const [jugadorSeleccionado, setJugadorSeleccionado] = useState(null);
   const [open, setOpen] = useState(false);
   const [openPic, setOpenPic] = useState(false); //Este estado es para cuando no hay imagenes de estadio
   const [snackbar, setSnackbar] = useState({open: false, Transition: Slide});
@@ -150,6 +162,7 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
   const [inputEstadio, setInputEstadio] = useState(false);
   const [inputHimno, setInputHimno] = useState(false);
   const [openUpdateFiles, setOpenUpdateFiles] = useState(false);
+  const [renderKey, setRenderKey] = useState(0);
   const {register, handleSubmit, control, setValue, getValues, trigger
   } = useForm({
     defaultValues: {
@@ -157,6 +170,10 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
     }
   });
   const {register:registerNewFile, handleSubmit:handleSubmitNewFile, control:controlNewFile} = useForm();
+
+  useImperativeHandle(ref, () => ({
+    jugadorCambioDeVueltaANull,
+  }));
 
   useEffect(() => {
     const precargarImagenes = async () => {
@@ -180,7 +197,7 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
       setLoading(false);
     };
     precargarImagenes();
-
+    setRenderKey(k => k + 1);
   }, [jugadores, alineacion]);
 
   // CADA VEZ QUE CAMBIA EL EQUIPO HAY QUE PONER LA ANIMACION A FALSE DE MUEVO
@@ -242,9 +259,16 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
       } else {
         setCambioJugador(jugador);
         enviarJugador(jugador);
+
+        //setCambioJugador(null);
+        console.log('jugador enviado');
       }
     }
   };
+
+  const jugadorCambioDeVueltaANull = () => {
+    setCambioJugador(null);
+  }
 
   const handleNotificacion = (mensaje, severity) => {
     setNotificacion({ open: true, message: mensaje, severity: severity});
@@ -449,28 +473,35 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
           <img src={campo}></img>  
           <FocusLock autoFocus={false} disabled={true}>
             <AnimatePresence mode="wait">
-              {jugadores && jugadores.map((jugador, index) =>
-                jugador.titular && (
-                  <motion.img 
-                    layout
-                    variants={animacion ? item : undefined}
-                    initial={animacion ? "hidden" : false}
-                    animate={animacion ? "show" : false}
-                    exit={animacion ? "exit" : undefined}
-                    whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}
-                    transition={{ duration: 0.25 }}
-                    key={jugador.nombre} 
-                    tabIndex={posicionaHTML(jugador)} 
-                    className={`jugador-poscion ${cambioJugador === jugador ? "jugador-seleccionado" : ""}`}
-                    src={jugador.foto} 
-                    style={posicionaCampo(jugador)} 
-                    onClick={() => {
-                      cambio(jugador);
-                    }}
-                    alt={jugador.nombre}
-                  />
-                )
-              )}
+              <motion.div
+                             // cambia este valor cuando cambias de equipo
+                variants={item}
+                initial="hidden"
+                animate="show"
+              >
+                {jugadores
+                  .filter((jugador) => jugador.titular)
+                  .map((jugador) => (
+                    <motion.img
+                      key={jugador.nombre}
+                      layout
+                      variants={item}
+                      whileHover={{
+                        scale: 0.9,
+                        transition: { duration: 0.3 },
+                      }}
+                      transition={{ duration: 0.25 }}
+                      tabIndex={posicionaHTML(jugador)}
+                      className={`jugador-poscion ${
+                        cambioJugador === jugador ? "jugador-seleccionado" : ""
+                      }`}
+                      src={jugador.foto}
+                      style={posicionaCampo(jugador)}
+                      onClick={() => cambio(jugador)}
+                      alt={jugador.nombre}
+                    />
+                  ))}
+              </motion.div>
             </AnimatePresence>
           </FocusLock>
         </div>
@@ -758,4 +789,6 @@ export default function Campo({nombre, jugadores, enviarJugador, cambioPosicionT
     </Modal>
     </>
   );
-}
+});
+
+export default Campo;

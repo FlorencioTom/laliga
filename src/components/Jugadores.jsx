@@ -85,6 +85,7 @@ export const Jugadores = ({origenMiEquipo}) => {
   const animacionDeEntradaRealizada = useRef(false);
   const [animacionesTerminadas, setAnimacionesTerminadas] = useState(0);
   const [suplentes, setSuplentes] = useState(0);
+  const campoRef = useRef(null);
 
   const {register:registerActualiza, 
     setValue:setValueActualiza,
@@ -150,8 +151,7 @@ export const Jugadores = ({origenMiEquipo}) => {
   };
   const item = {
     hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: 10 }
+    show: { opacity: 1, y: 0 }
   };
 
   const getNacionalidades = async() => {
@@ -328,7 +328,9 @@ export const Jugadores = ({origenMiEquipo}) => {
         }
       });
 
-      jugadores.forEach((x) => {
+      const nuevosJugadores = jugadores.map(x => ({ ...x }));
+
+      nuevosJugadores.forEach(x => {
         if (x.nombre === jugador.nombre) {
           x.posicion = cambioJugador.posicion;
           x.titular = true;
@@ -339,10 +341,11 @@ export const Jugadores = ({origenMiEquipo}) => {
           x.titular = false;
           x.index = indexNuevoTitular;
         }
-      }); 
+      });
 
-      
+      setJugadores(nuevosJugadores);
       setCambioJugador(null);
+      resetJugador();
     }
   };
 
@@ -454,10 +457,9 @@ export const Jugadores = ({origenMiEquipo}) => {
     }else{
       getJugadoresUser();
     }
+    //setSuplentes(jugadores.filter((x) => !x.titular).length)
     simplebar.current.recalculate();
-
-
-    
+    //console.log("valor de animacion al cambiar el equipo: ", animacion);
   }, [ids, jugadoresChanged, equipo]);
 
   useEffect(() => {
@@ -580,6 +582,10 @@ export const Jugadores = ({origenMiEquipo}) => {
 
   const recibirJugador = (jugador) => {
     setCambioJugador(jugador);
+  }; 
+  
+  const resetJugador = () => {
+    campoRef.current?.jugadorCambioDeVueltaANull();
   };
 
   const vaciarJugador = () => {
@@ -921,30 +927,37 @@ export const Jugadores = ({origenMiEquipo}) => {
                     )}
                   </AnimatePresence> */}
                   <AnimatePresence mode="wait">
-                    {jugadores.filter((x) => !x.titular).sort((a, b) => a.index - b.index).map((x) => (
-                      <motion.div className="card"  key={x.nombre} whileHover={{ scale: 0.9, transition: { duration: 0.3 }}}
-                        variants={animacion ? item : undefined}    
-                        initial={animacion ? "hidden" : false}
-                        exit={animacion ? "exit" : undefined} 
-                        animate={animacion ? "show" : false}
-                        onAnimationComplete={() => {
-                          setAnimacionesTerminadas((n) => {
-                            let total = n + 1;
-                            const suplentes = jugadores.filter((x) => !x.titular).length;
-                            console.log('Total: '+total+' - '+'Suplentes: '+suplentes);
-                            if (total >= suplentes) {
-                              //console.log('animaciones completadas: '+total);
-                              setAnimacion(false);
-                              return 0;
-                            }
-                            return total;
-                          });
-                        }}>
-                        <img src={x.foto} alt={x.nombre} onClick={() => handleOpen(x)} />
-                        <span>{x.nombre}</span>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
+                    <motion.div
+                      key={ids}
+                      className="suplentes-container"
+                      variants={item}
+                      initial="hidden"
+                      animate="show"
+                      style={{display:'contents'}}
+                    >
+                      {jugadores
+                        .filter(x => !x.titular)
+                        .sort((a, b) => a.index - b.index)
+                        .map(x => (
+                          <motion.div
+                            key={x.nombre}          
+                            className="card"
+                            variants={item}
+                            whileHover={{
+                              scale: 0.9,
+                              transition: { duration: 0.3 },
+                            }}
+                          >
+                            <img
+                              src={x.foto}
+                              alt={x.nombre}
+                              onClick={() => handleOpen(x)}
+                            />
+                            <span>{x.nombre}</span>
+                          </motion.div>
+                        ))}
+                    </motion.div>
+                  </AnimatePresence>                     
                     {!ids && (
                       <div className="addJugador">
                         <div className="circle-plus" onClick={() => setOpenNuevo(true)}>
@@ -957,7 +970,7 @@ export const Jugadores = ({origenMiEquipo}) => {
             </SimpleBar>  
           {/* })} */}
         </div>
-        <Campo key={0} nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids} himno={himnoEquipo} onUpdateStadiumAnthem={actualizarHimnoYEstadio} origen={origenMiEquipo}></Campo>
+        <Campo ref={campoRef} key={0} nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids} himno={himnoEquipo} onUpdateStadiumAnthem={actualizarHimnoYEstadio} origen={origenMiEquipo}></Campo>
       </SimpleBar> 
     </div>
       <Modal

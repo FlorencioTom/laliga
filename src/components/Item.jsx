@@ -16,6 +16,7 @@ const Item = ({ equipo, index, setPreviousIndex, previousIndex, elAnterior, high
   const handleTeam = (elm) => {
     elAnterior(elm);
     setAnimacion(true);
+    console.log('la animacion vuelve a ser true');
   };
   
 

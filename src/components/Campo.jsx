@@ -33,6 +33,7 @@ import {uploadNewAnthemOrStadiumToCloudinary} from '../Api/Api';
 import { useAuth } from './Contexto';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
 import StadiumIcon from '@mui/icons-material/Stadium';
+import Typography from '@mui/material/Typography';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -136,6 +137,7 @@ const item = {
 
 const Campo = forwardRef(({
   nombre,
+  ciudad,
   jugadores,
   enviarJugador,
   cambioPosicionTitulares,
@@ -422,7 +424,7 @@ const Campo = forwardRef(({
             sx={{ backgroundColor: '#FF4A42','&:hover': {backgroundColor: '#FF4A42'},color: 'white', width:'auto'}}
             onClick={() => handleOpen()}
             >
-            {estadio && (estadio.nombre || nombre)}
+            {estadio && 'Estadio'}
           </Button>
           <FormControl sx={{ m: 1, width: '140px', height:'40px' }} variant="outlined">
             <InputLabel 
@@ -566,6 +568,27 @@ const Campo = forwardRef(({
                     />
                   </SwiperSlide>
                 </Swiper>
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: 50,
+                      left: 20,
+                      zIndex: 1000,
+                      bgcolor: 'rgba(0,0,0,0.6)',
+                      color: 'white',
+                      px: 2,
+                      py: 1,
+                      borderRadius: 2,
+                      pointerEvents: 'none', // para que no interfiera con el Swiper
+                    }}
+                  >
+                    <Typography variant="h5" fontWeight="bold">
+                      {estadio.nombre}
+                    </Typography>
+                    <Typography variant="h5" fontWeight="bold">
+                      {ciudad}
+                    </Typography>
+                  </Box>
               </>
             ) : (
               <p>Cargando fotos del estadio...</p>

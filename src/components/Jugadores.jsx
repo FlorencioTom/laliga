@@ -970,7 +970,7 @@ export const Jugadores = ({origenMiEquipo}) => {
             </SimpleBar>  
           {/* })} */}
         </div>
-        <Campo ref={campoRef} key={0} nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids} himno={himnoEquipo} onUpdateStadiumAnthem={actualizarHimnoYEstadio} origen={origenMiEquipo}></Campo>
+        <Campo ref={campoRef} key={0} ciudad={equipo?.ciudad} nombre={equipo?.nombre} estadio={estadio} jugadores={jugadores} enviarJugador={recibirJugador} cambioPosicionTitulares={cambioPosicionTitulares} vaciarJugador={vaciarJugador} idTeam={ids} himno={himnoEquipo} onUpdateStadiumAnthem={actualizarHimnoYEstadio} origen={origenMiEquipo}></Campo>
       </SimpleBar> 
     </div>
       <Modal

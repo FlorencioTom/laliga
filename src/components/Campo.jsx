@@ -137,7 +137,6 @@ const item = {
 
 const Campo = forwardRef(({
   nombre,
-  ciudad,
   jugadores,
   enviarJugador,
   cambioPosicionTitulares,
@@ -552,41 +551,40 @@ const Campo = forwardRef(({
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center', 
-                      height: '60vh'
+                      height: '100vh'
                     }}>
                     <img 
                       src={estadio.fotos['dentro']} 
                       alt="Interior del estadio" 
-                      style={{ width: '100%', height: 'auto'}} 
+                      style={{ width: '100%', height: '100%', objectFit:'contain'}} 
                     />
                   </SwiperSlide>
                   <SwiperSlide>
                     <img 
                       src={estadio.fotos['fuera']} 
                       alt="Exterior del estadio" 
-                      style={{ width: '100%', height: 'auto'}} 
+                      style={{ width: '100%', height: '100%', objectFit:'contain'}} 
                     />
                   </SwiperSlide>
                 </Swiper>
                   <Box
                     sx={{
                       position: 'absolute',
-                      top: 50,
-                      left: 20,
+                      top: '10%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
                       zIndex: 1000,
                       bgcolor: 'rgba(0,0,0,0.6)',
                       color: 'white',
                       px: 2,
                       py: 1,
                       borderRadius: 2,
-                      pointerEvents: 'none', // para que no interfiera con el Swiper
+                      pointerEvents: 'none',
+                      textAlign: 'center',
                     }}
                   >
                     <Typography variant="h5" fontWeight="bold">
-                      {estadio.nombre}
-                    </Typography>
-                    <Typography variant="h5" fontWeight="bold">
-                      {ciudad}
+                      {`${estadio.nombre}, ${estadio.ciudad}`}
                     </Typography>
                   </Box>
               </>
